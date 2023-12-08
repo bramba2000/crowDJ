@@ -7,14 +7,25 @@ environment:
   sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
+  firebase_auth: ^4.15.2
   firebase_core: ^2.24.2
   flutter:
     sdk: flutter
+  flutter_riverpod: ^2.4.9
+  freezed_annotation: ^2.4.1
+  riverpod_annotation: ^2.3.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.7
+  custom_lint: ^0.5.7
+  riverpod_lint: ^2.3.7
+  riverpod_generator: ^2.3.9
+  freezed: ^2.4.5
+  firebase_auth_mocks: ^0.13.0
+  mock_exceptions: ^0.8.2
 
 flutter:
   uses-material-design: true
