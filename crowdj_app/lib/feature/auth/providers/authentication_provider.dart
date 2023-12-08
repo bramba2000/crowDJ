@@ -5,6 +5,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'authentication_provider.g.dart';
 
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
   @override
@@ -38,7 +43,8 @@ class AuthNotifier extends _$AuthNotifier {
     state = AuthenticationStateLoading();
     try {
       await firebaseAuth.signOut();
-      state = AuthenticationStateUnauthenticated(message: 'Signed out');
+      state = AuthenticationStateUnauthenticated(
+          message: 'User signed out with regular method');
     } on Exception catch (e) {
       state = AuthenticationStateUnauthenticated(message: e.toString());
     }
