@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyA6ijMG2b-bzt8qs55dG1aTzHXdkCXl8-g</string>
+	<key>GCM_SENDER_ID</key>
+	<string>449866735473</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>it.polimi.dima.crowdj.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>crowdj</string>
+	<key>STORAGE_BUCKET</key>
+	<string>crowdj.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:449866735473:ios:30aba9a1482f80d439e0d0</string>
+</dict>
+</plist>

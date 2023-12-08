@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "449866735473",
+    "project_id": "crowdj",
+    "storage_bucket": "crowdj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449866735473:android:7f5f12a8e194045139e0d0",
+        "android_client_info": {
+          "package_name": "it.polimi.dima.crowdj"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCo5a_42esUEDK3vl-qahlUBpMMkb1q2Zo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
