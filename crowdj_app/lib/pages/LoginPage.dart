@@ -1,26 +1,30 @@
+import 'package:crowdj/feature/auth/data/auth_data_source.dart';
+import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-
-class LoginPage extends StatefulWidget {
-
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-
+class _LoginPageState extends ConsumerState<LoginPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   String _userType = '';
 
-  void _login() { //by now is bruteforce
+  void _login() {
+    //by now is bruteforce
 
     // Check user credentials and set user type
     String enteredUsername = _usernameController.text;
     String enteredPassword = _passwordController.text;
+
+    // Logic with the user credentials
+    final notifier = ref.watch(authNotifierProvider(AuthDataSource()).notifier);
 
     // For simplicity, hardcoding credentials. In a real app, you would check against a database or an authentication service.
     if (enteredUsername == 'admin' && enteredPassword == 'admin123') {
@@ -35,16 +39,13 @@ class _LoginPageState extends State<LoginPage> {
     if (_userType.isNotEmpty) {
       print("login good practice");
       //context.goNamed('/HomePage’),
-
     } else {
       // Show an error message or handle invalid credentials
       print('Invalid credentials, try again');
     }
 
     context.go('/homePage');
-
   }
-
 
   @override
   Widget build(BuildContext context) {
