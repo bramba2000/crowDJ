@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthDataSource {
   final FirebaseAuth _firebaseInstance;
 
-  AuthDataSource(firebaseAuth)
+  AuthDataSource([FirebaseAuth? firebaseAuth])
       : _firebaseInstance = firebaseAuth ?? FirebaseAuth.instance;
 
   Future<UserCredential> signUp(String email, String password) async {
@@ -29,4 +29,15 @@ class AuthDataSource {
         await _firebaseInstance.signInWithProvider(googleProvider);
     return userCredential;
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is AuthDataSource &&
+        other._firebaseInstance == _firebaseInstance;
+  }
+
+  @override
+  int get hashCode => _firebaseInstance.hashCode;
 }
