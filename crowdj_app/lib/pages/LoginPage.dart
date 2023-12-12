@@ -1,5 +1,7 @@
+
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
+import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,14 +11,15 @@ class LoginPage extends ConsumerStatefulWidget {
 
   @override
   _LoginPageState createState() => _LoginPageState();
+  
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-  String _userType = '';
 
-  void _login() {
+  Future<void> _login() async {
     //by now is bruteforce
 
     // Check user credentials and set user type
@@ -24,27 +27,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     String enteredPassword = _passwordController.text;
 
     // Logic with the user credentials
-    final notifier = ref.watch(authNotifierProvider(AuthDataSource()).notifier);
+    final notifier = ref.read(authNotifierProvider(AuthDataSource()).notifier);
 
-    // For simplicity, hardcoding credentials. In a real app, you would check against a database or an authentication service.
-    if (enteredUsername == 'admin' && enteredPassword == 'admin123') {
-      _userType = 'Admin';
-    } else if (enteredUsername == 'user' && enteredPassword == 'user123') {
-      _userType = 'Regular User';
-    } else {
-      _userType = '';
-    }
+    await notifier.signIn(enteredUsername, enteredPassword);
 
     // Navigate to the appropriate page based on the user type
-    if (_userType.isNotEmpty) {
+    if (notifier.state case AuthenticationStateAuthenticated()) {
       print("login good practice");
-      //context.goNamed('/HomePage’),
+      context.go('/homePage');
     } else {
       // Show an error message or handle invalid credentials
       print('Invalid credentials, try again');
     }
 
-    context.go('/homePage');
   }
 
   @override
@@ -75,7 +70,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: () => context.go('/signinPage'),
+              onPressed: () => context.replace('/signinPage'),
               child: Text('register'),
             ),
           ],

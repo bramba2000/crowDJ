@@ -1,28 +1,51 @@
+import 'package:crowdj/feature/auth/data/auth_data_source.dart';
+import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
+import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SigninPage extends StatefulWidget {
+class SigninPage extends ConsumerStatefulWidget {
 
   const SigninPage({super.key});
 
   @override
   _SigninPageState createState() => _SigninPageState();
+  
 }
 
-class _SigninPageState extends State<SigninPage> {
+class _SigninPageState extends ConsumerState<SigninPage> {
 
-    TextEditingController _usernameController = TextEditingController();
+    TextEditingController _emailController = TextEditingController();
     TextEditingController _passwordController = TextEditingController();
     bool _userType = false;
     TextEditingController _nameController = TextEditingController();
     TextEditingController _surnamenameController = TextEditingController();
-    bool _res=false;
+    String _res="";
 
-    bool _sigin(){
+    Future<String> _sigin(String mail, String pswd) async {
 
-      //asking to the db to add a new user
-      return true;
+      final data = AuthDataSource();
+      final authProvider = ref.watch(authNotifierProvider(data));
+      final notifier = ref.read(authNotifierProvider(data).notifier);
+      String res="";
 
+      await notifier.signUp(mail, pswd);
+
+      switch(authProvider){
+        
+        case AuthenticationStateAuthenticated():
+          res="";
+          break;
+
+        case AuthenticationStateUnauthenticated():
+          res= authProvider.message;
+          break;
+
+        default:
+          res=" generic error";
+      }
+      return res;
     }
 
     void toggleButtonState(){
@@ -44,8 +67,10 @@ class _SigninPageState extends State<SigninPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              errorMessage(),
+              SizedBox(height: 5,),
               TextField(
-                controller: _usernameController,
+                controller: _emailController,
                 decoration: const InputDecoration(labelText: 'email'),
               ),
               TextField(
@@ -77,15 +102,17 @@ class _SigninPageState extends State<SigninPage> {
               ),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed:(){
-                  _res=_sigin();
-                  context.go('/homePage');
-                  if(_res){
-                    //context.goNamed('/homePage');
+                onPressed:() async {
+                  _res = await _sigin(_emailController.text, _passwordController.text);
+
+                  if(_res.isEmpty){
+                    context.go('/homePage');
                   }
                   else{
-                    context.go('/signinPage');
+                    setState(() { });
                   }
+
+                  
                 },
                 child: const Text('join crowDJ'),
             ),       
@@ -98,5 +125,14 @@ class _SigninPageState extends State<SigninPage> {
 
     }
 
+    Widget errorMessage(){
+      if(_res.isEmpty) return SizedBox();
+      else
+        return Text(
+          _res,
+          style: TextStyle(color: Colors.red,),
+        );
+    
+    }
 
 }
