@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/models/user_props.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
@@ -13,7 +16,7 @@ import 'package:mockito/annotations.dart';
 import 'auth_test.mocks.dart';
 
 void main() {
-  group('Test the functionality of the data source', () {
+  group('Test auth data source functionality', () {
     test('Test user creation', () async {
       final auth = MockFirebaseAuth();
       final authDataSource = AuthDataSource(auth);
@@ -55,6 +58,41 @@ void main() {
       expect(user.user!.displayName, 'test1');
       await authDataSource.signOut();
       expect(auth.currentUser, isNull);
+    });
+  });
+
+  group('Test user data source functionality', () {
+    test('Test retrieve of user proprs', () async {
+      const UserProps userProps = UserProps(
+          name: 'name',
+          surname: 'surname',
+          email: 'email',
+          userType: UserType.PARTICIPANT);
+      final firestore = FakeFirebaseFirestore();
+      await firestore
+          .collection('users')
+          .doc(userProps.email)
+          .set(userProps.toJson());
+      final UserDataSource userDataSource = UserDataSource(firestore);
+      final props = userDataSource.getUserProps(userProps.email);
+      expect(props, isNotNull);
+    });
+
+    test('Test creation of user proprs', () async {
+      const UserProps userProps = UserProps(
+          name: 'name',
+          surname: 'surname',
+          email: 'email',
+          userType: UserType.PARTICIPANT);
+      final firestore = FakeFirebaseFirestore();
+      final UserDataSource userDataSource = UserDataSource(firestore);
+      await userDataSource.createUserProps('test123456', userProps);
+      expect(
+          (await firestore.collection('users').doc('test123456').get()).exists,
+          true);
+      expect(
+          (await firestore.collection('users').doc('test1234567').get()).exists,
+          false);
     });
   });
 

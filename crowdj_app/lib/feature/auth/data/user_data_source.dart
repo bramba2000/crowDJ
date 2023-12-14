@@ -13,7 +13,7 @@ class UserDataSource {
   Future<UserProps> getUserProps(String userId) async {
     final DocumentSnapshot userPropsSnapshot =
         await _firestore.collection(_userPropsCollection).doc(userId).get();
-    return UserProps.fromJson(userPropsSnapshot as Map<String, dynamic>);
+    return UserProps.fromJson(userPropsSnapshot.data() as Map<String, dynamic>);
   }
 
   Future<void> createUserProps(String userId, UserProps userProps) async {
