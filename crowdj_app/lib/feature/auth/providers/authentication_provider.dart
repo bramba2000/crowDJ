@@ -42,6 +42,7 @@ class AuthNotifier extends _$AuthNotifier {
           await firebaseAuth.signUp(email, password);
       final UserProps userProps = UserProps(
           name: name, surname: surname, email: email, userType: userType);
+      await userDataSource.createUserProps(userCredential.user!.uid, userProps);
       state = AuthenticationStateAuthenticated(
         user: userCredential.user!,
         userProps: userProps,

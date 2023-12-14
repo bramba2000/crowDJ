@@ -115,18 +115,32 @@ void main() {
   }
 
   group('Test auth notifier', () {
-    test('Test notify when user login', () async {
-      provideDummy(const UserProps(
+    test('Test notifier logic when user login', () async {
+      final mockUser = MockUser(
+        isAnonymous: false,
+        displayName: 'test1',
+        email: 'test@test.it',
+        uid: 'test123456',
+      );
+      const mockUserProps = UserProps(
           name: 'name',
           surname: 'surname',
-          email: 'email',
-          userType: UserType.PARTICIPANT));
-      final auth = MockFirebaseAuth();
-      final authDataSource = AuthDataSource(auth);
+          email: 'test@test.it',
+          userType: UserType.PARTICIPANT);
+
+      provideDummy(mockUserProps);
+
+      final auth = MockFirebaseAuth(mockUser: mockUser);
+      final mockAuthDataSource = AuthDataSource(auth);
+
+      final mockUserDataSource = MockUserDataSource();
+      when(mockUserDataSource.getUserProps(any))
+          .thenAnswer((_) async => mockUserProps);
+
       final container = createContainer();
 
       final provider =
-          authNotifierProvider(authDataSource, MockUserDataSource());
+          authNotifierProvider(mockAuthDataSource, mockUserDataSource);
 
       expect(container.read(provider), isA<AuthenticationStateInitial>());
       final future =
@@ -134,9 +148,60 @@ void main() {
       expect(container.read(provider), isA<AuthenticationStateLoading>());
       await future;
       expect(container.read(provider), isA<AuthenticationStateAuthenticated>());
+      verify(mockUserDataSource.getUserProps(mockUser.uid)).called(1);
     });
 
-    test('Test notify when user logoug', () async {
+    test('Test notifyier logic when user sign up', () async {
+      final mockUser = MockUser(
+        isAnonymous: false,
+        displayName: 'test1',
+        email: 'test@test.it',
+        uid: 'test123456',
+      );
+      const mockUserProps = UserProps(
+          name: 'name',
+          surname: 'surname',
+          email: 'test@test.it',
+          userType: UserType.PARTICIPANT);
+
+      const mockUserProps2 = UserProps(
+          name: 'name',
+          surname: 'surname',
+          email: 'test@test.it',
+          userType: UserType.PARTICIPANT);
+      expect(mockUserProps2, equals(mockUserProps));
+
+      provideDummy(mockUserProps);
+
+      final auth = MockFirebaseAuth(mockUser: mockUser);
+      final mockAuthDataSource = AuthDataSource(auth);
+
+      final mockUserDataSource = MockUserDataSource();
+      when(mockUserDataSource.getUserProps(any))
+          .thenAnswer((_) async => mockUserProps);
+
+      final container = createContainer();
+
+      final provider =
+          authNotifierProvider(mockAuthDataSource, mockUserDataSource);
+
+      expect(container.read(provider), isA<AuthenticationStateInitial>());
+      final future = container.read(provider.notifier).signUp(
+          mockUserProps.name,
+          mockUserProps.surname,
+          mockUserProps.email,
+          'password',
+          mockUserProps.userType);
+      expect(container.read(provider), isA<AuthenticationStateLoading>());
+      await future;
+      expect(container.read(provider), isA<AuthenticationStateAuthenticated>());
+      final newUser = auth.currentUser;
+      verify(mockUserDataSource.createUserProps(
+              newUser?.uid, argThat(equals(mockUserProps))))
+          .called(1);
+    });
+
+    test('Test notifier logic when user log out', () async {
       final auth = MockFirebaseAuth(signedIn: true);
       final authDataSource = AuthDataSource(auth);
       final container = createContainer();
