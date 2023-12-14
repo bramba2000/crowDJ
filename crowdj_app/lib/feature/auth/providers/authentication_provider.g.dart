@@ -6,7 +6,7 @@ part of 'authentication_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authNotifierHash() => r'9244e807a8f04ad5d57274ea7ec4651f3585aadf';
+String _$authNotifierHash() => r'473b62732eb403a66e73bc48c2e2a3dd4d63353c';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -38,16 +38,40 @@ abstract class _$AuthNotifier
   );
 }
 
-/// See also [AuthNotifier].
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
+///
+/// Copied from [AuthNotifier].
 @ProviderFor(AuthNotifier)
 const authNotifierProvider = AuthNotifierFamily();
 
-/// See also [AuthNotifier].
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
+///
+/// Copied from [AuthNotifier].
 class AuthNotifierFamily extends Family<AuthenticationState> {
-  /// See also [AuthNotifier].
+  /// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+  /// It provides methods for signing in and signing up a user using email and password.
+  /// The state of authentication is updated based on the success or failure of these operations.
+  ///
+  /// see also [AuthenticationState]
+  ///
+  /// Copied from [AuthNotifier].
   const AuthNotifierFamily();
 
-  /// See also [AuthNotifier].
+  /// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+  /// It provides methods for signing in and signing up a user using email and password.
+  /// The state of authentication is updated based on the success or failure of these operations.
+  ///
+  /// see also [AuthenticationState]
+  ///
+  /// Copied from [AuthNotifier].
   AuthNotifierProvider call(
     AuthDataSource firebaseAuth,
   ) {
@@ -80,10 +104,22 @@ class AuthNotifierFamily extends Family<AuthenticationState> {
   String? get name => r'authNotifierProvider';
 }
 
-/// See also [AuthNotifier].
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
+///
+/// Copied from [AuthNotifier].
 class AuthNotifierProvider
     extends AutoDisposeNotifierProviderImpl<AuthNotifier, AuthenticationState> {
-  /// See also [AuthNotifier].
+  /// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+  /// It provides methods for signing in and signing up a user using email and password.
+  /// The state of authentication is updated based on the success or failure of these operations.
+  ///
+  /// see also [AuthenticationState]
+  ///
+  /// Copied from [AuthNotifier].
   AuthNotifierProvider(
     AuthDataSource firebaseAuth,
   ) : this._internal(
