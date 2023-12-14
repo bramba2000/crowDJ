@@ -13,14 +13,26 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Event> get_events() {
     List<Event> events = [
-      Event(eventID: 1, title: "festa della salamella", maxPeople: 200, songs: [
-        Song(songID: 11, artist: "Bello figo", title: "pasta con tonno"),
-        Song(songID: 12, artist: "Rovere", title: "affogare")
-      ]),
-      Event(eventID: 2, title: "boom festival", maxPeople: 15000, songs: [
-        Song(songID: 21, artist: "k", title: "psy and fly"),
-        Song(songID: 22, artist: "matrix", title: "drop it")
-      ])
+      Event(
+          eventID: 1,
+          title: "festa della salamella",
+          maxPeople: 200,
+          genere: "folk",
+          songs: [
+            Song(songID: 11, artist: "Bello figo", title: "pasta con tonno"),
+            Song(songID: 12, artist: "Rovere", title: "affogare")
+          ]),
+      Event(
+          eventID: 2,
+          title: "boom festival",
+          maxPeople: 15000,
+          genere: "techno",
+          songs: [
+            Song(songID: 21, artist: "k", title: "psy and fly"),
+            Song(songID: 22, artist: "matrix", title: "drop it"),
+            Song(songID: 23, title: "Heute Nacht", artist: "Maddix"),
+            Song(songID: 24, title: "Organism Like Us", artist: "Sensorythm"),
+          ])
     ];
 
     return events;
@@ -53,20 +65,58 @@ class _HomePageState extends State<HomePage> {
         title: const Text("DJ HomePage"),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(40),
+        padding: const EdgeInsets.all(30),
         child: Container(
           color: Color.fromARGB(200, 19, 102, 170),
-          child: ListView.builder(
-            itemCount: events.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                margin: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
                 padding: const EdgeInsets.all(20),
-                color: Color.fromARGB(199, 64, 150, 221),
-                height: 200,
-                child: _djEventRow(events[index]),
-              );
-            },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () =>
+                            context.go("/homePage/CreateNewEventPage"),
+                        child: const Text("create new event"))
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.all(20),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      "TITLE",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "SONGS",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "PALCE",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: events.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Container(
+                      margin: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
+                      color: Color.fromARGB(199, 64, 150, 221),
+                      height: 200,
+                      child: _djEventRow(events[index]),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -110,7 +160,20 @@ class _HomePageState extends State<HomePage> {
                     scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.all(20.0),
                     child: Column(children: [
-                      for (Song s in e.songs) Text("${s.artist} - ${s.title} ")
+                      for (Song s in e.songs)
+                        Container(
+                          color: Color.fromARGB(197, 129, 184, 230),
+                          margin: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            children: [
+                              Text("${s.artist} - ${s.title} "),
+                              const SizedBox(
+                                height: 5,
+                              )
+                            ],
+                          ),
+                        )
                     ]),
                   ),
                 ),
@@ -267,7 +330,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget userMap(screenWidth, screenHeight) {
-    
     return Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(

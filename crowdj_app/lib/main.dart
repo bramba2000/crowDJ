@@ -7,7 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:crowdj/pages/LoginPage.dart';
 import 'package:crowdj/pages/SigninPage.dart';
 import 'package:crowdj/pages/app/HomePage.dart';
+import 'package:crowdj/pages/app/djPages/CreateNewEventPage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,7 +41,7 @@ class MainApp extends StatelessWidget {
           GoRoute(
             path: 'signinPage',
             builder: (context, state) => const SigninPage(),
-                
+
           ),
           GoRoute(
             path: 'homePage',
@@ -51,6 +53,11 @@ class MainApp extends StatelessWidget {
                   Event args = state.extra as Event; // 👈 casting is important
                   return EventPage(args: args);
                 }
+              ),
+              GoRoute(
+                path: "CreateNewEventPage",
+                builder: (context, state) => CreateNeweventPage(),
+                
               ),
             ]   
           ),
