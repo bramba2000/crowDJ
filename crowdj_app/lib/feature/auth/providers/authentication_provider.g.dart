@@ -6,7 +6,7 @@ part of 'authentication_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authNotifierHash() => r'473b62732eb403a66e73bc48c2e2a3dd4d63353c';
+String _$authNotifierHash() => r'e08927704d492686ee8e8f222aeb7c236d87e798';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,9 +32,11 @@ class _SystemHash {
 abstract class _$AuthNotifier
     extends BuildlessAutoDisposeNotifier<AuthenticationState> {
   late final AuthDataSource firebaseAuth;
+  late final UserDataSource userDataSource;
 
   AuthenticationState build(
     AuthDataSource firebaseAuth,
+    UserDataSource userDataSource,
   );
 }
 
@@ -74,9 +76,11 @@ class AuthNotifierFamily extends Family<AuthenticationState> {
   /// Copied from [AuthNotifier].
   AuthNotifierProvider call(
     AuthDataSource firebaseAuth,
+    UserDataSource userDataSource,
   ) {
     return AuthNotifierProvider(
       firebaseAuth,
+      userDataSource,
     );
   }
 
@@ -86,6 +90,7 @@ class AuthNotifierFamily extends Family<AuthenticationState> {
   ) {
     return call(
       provider.firebaseAuth,
+      provider.userDataSource,
     );
   }
 
@@ -122,8 +127,11 @@ class AuthNotifierProvider
   /// Copied from [AuthNotifier].
   AuthNotifierProvider(
     AuthDataSource firebaseAuth,
+    UserDataSource userDataSource,
   ) : this._internal(
-          () => AuthNotifier()..firebaseAuth = firebaseAuth,
+          () => AuthNotifier()
+            ..firebaseAuth = firebaseAuth
+            ..userDataSource = userDataSource,
           from: authNotifierProvider,
           name: r'authNotifierProvider',
           debugGetCreateSourceHash:
@@ -134,6 +142,7 @@ class AuthNotifierProvider
           allTransitiveDependencies:
               AuthNotifierFamily._allTransitiveDependencies,
           firebaseAuth: firebaseAuth,
+          userDataSource: userDataSource,
         );
 
   AuthNotifierProvider._internal(
@@ -144,9 +153,11 @@ class AuthNotifierProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.firebaseAuth,
+    required this.userDataSource,
   }) : super.internal();
 
   final AuthDataSource firebaseAuth;
+  final UserDataSource userDataSource;
 
   @override
   AuthenticationState runNotifierBuild(
@@ -154,6 +165,7 @@ class AuthNotifierProvider
   ) {
     return notifier.build(
       firebaseAuth,
+      userDataSource,
     );
   }
 
@@ -162,13 +174,16 @@ class AuthNotifierProvider
     return ProviderOverride(
       origin: this,
       override: AuthNotifierProvider._internal(
-        () => create()..firebaseAuth = firebaseAuth,
+        () => create()
+          ..firebaseAuth = firebaseAuth
+          ..userDataSource = userDataSource,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         firebaseAuth: firebaseAuth,
+        userDataSource: userDataSource,
       ),
     );
   }
@@ -181,13 +196,16 @@ class AuthNotifierProvider
 
   @override
   bool operator ==(Object other) {
-    return other is AuthNotifierProvider && other.firebaseAuth == firebaseAuth;
+    return other is AuthNotifierProvider &&
+        other.firebaseAuth == firebaseAuth &&
+        other.userDataSource == userDataSource;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, firebaseAuth.hashCode);
+    hash = _SystemHash.combine(hash, userDataSource.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -196,6 +214,9 @@ class AuthNotifierProvider
 mixin AuthNotifierRef on AutoDisposeNotifierProviderRef<AuthenticationState> {
   /// The parameter `firebaseAuth` of this provider.
   AuthDataSource get firebaseAuth;
+
+  /// The parameter `userDataSource` of this provider.
+  UserDataSource get userDataSource;
 }
 
 class _AuthNotifierProviderElement extends AutoDisposeNotifierProviderElement<
@@ -205,6 +226,9 @@ class _AuthNotifierProviderElement extends AutoDisposeNotifierProviderElement<
   @override
   AuthDataSource get firebaseAuth =>
       (origin as AuthNotifierProvider).firebaseAuth;
+  @override
+  UserDataSource get userDataSource =>
+      (origin as AuthNotifierProvider).userDataSource;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

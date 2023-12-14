@@ -7,6 +7,7 @@ environment:
   sdk: '>=3.2.3 <4.0.0'
 
 dependencies:
+  cloud_firestore: ^4.13.6
   firebase_auth: ^4.15.2
   firebase_core: ^2.24.2
   flutter:
@@ -15,6 +16,7 @@ dependencies:
   freezed_annotation: ^2.4.1
   go_router: ^12.1.3
   image_picker: ^1.0.5
+  json_annotation: ^4.8.1
   riverpod_annotation: ^2.3.3
 
 dev_dependencies:
@@ -28,6 +30,8 @@ dev_dependencies:
   freezed: ^2.4.5
   firebase_auth_mocks: ^0.13.0
   mock_exceptions: ^0.8.2
+  mockito: ^5.4.4
+  json_serializable: ^6.7.1
 
 flutter:
   assets:

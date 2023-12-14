@@ -1,9 +1,12 @@
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
+import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../feature/auth/models/user_props.dart';
 
 class SigninPage extends ConsumerStatefulWidget {
   const SigninPage({super.key});
@@ -13,7 +16,6 @@ class SigninPage extends ConsumerStatefulWidget {
 }
 
 class _SigninPageState extends ConsumerState<SigninPage> {
-  
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _userType = false;
@@ -23,11 +25,14 @@ class _SigninPageState extends ConsumerState<SigninPage> {
 
   Future<String> _sigin(String mail, String pswd) async {
     final data = AuthDataSource();
-    final authProvider = ref.watch(authNotifierProvider(data));
-    final notifier = ref.read(authNotifierProvider(data).notifier);
+    final authProvider =
+        ref.watch(authNotifierProvider(data, UserDataSource()));
+    final notifier =
+        ref.read(authNotifierProvider(data, UserDataSource()).notifier);
     String res = "";
 
-    await notifier.signUp(mail, pswd);
+    await notifier.signUp(_nameController.text, _surnamenameController.text,
+        mail, pswd, _userType ? UserType.DJ : UserType.PARTICIPANT);
 
     switch (authProvider) {
       case AuthenticationStateAuthenticated():
@@ -147,7 +152,7 @@ class _SigninPageState extends ConsumerState<SigninPage> {
           context.go('/homePage');
         } else {
           context.go('/homePage');
-          //setState(() {});  <<<------- un-comment it 
+          //setState(() {});  <<<------- un-comment it
         }
       },
       child: const Text('join crowDJ'),
