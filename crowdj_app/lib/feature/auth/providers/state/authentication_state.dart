@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-@freezed
 sealed class AuthenticationState {}
 
 class AuthenticationStateInitial extends AuthenticationState {}
