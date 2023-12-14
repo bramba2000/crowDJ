@@ -1,5 +1,6 @@
 import 'package:crowdj/firebase_options.dart';
 import 'package:crowdj/pages/app/EventPage.dart';
+import 'package:crowdj/utils/Event.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -33,11 +34,12 @@ class MainApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) =>
-            const HomePage(),
+            const LoginPage(),
         routes: [
           GoRoute(
             path: 'signinPage',
             builder: (context, state) => const SigninPage(),
+                
           ),
           GoRoute(
             path: 'homePage',
@@ -45,9 +47,12 @@ class MainApp extends StatelessWidget {
             routes: [
               GoRoute(
                 path: "EventPage",
-                builder: (context, state)=> EventPage()
-              )
-            ]
+                builder: (context, state){
+                  Event args = state.extra as Event; // 👈 casting is important
+                  return EventPage(args: args);
+                }
+              ),
+            ]   
           ),
         ]
       ),

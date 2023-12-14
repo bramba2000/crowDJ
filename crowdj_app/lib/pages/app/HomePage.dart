@@ -32,6 +32,103 @@ class _HomePageState extends State<HomePage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
+          return _desktopDjPage();
+        } else {
+          return _mobileUserPage(screenWidth, screenHeight);
+        }
+      },
+    );
+
+    //_mobileUserPage(screenWidth, screenHeight)
+  }
+
+  Scaffold _desktopDjPage() {
+    List<Event> events = get_events();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("DJ HomePage"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Container(
+          color: Color.fromARGB(200, 19, 102, 170),
+          child: ListView.builder(
+            itemCount: events.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                margin: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
+                color: Color.fromARGB(199, 64, 150, 221),
+                height: 200,
+                child: _djEventRow(events[index]),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _djEventRow(Event e) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 1,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(e.title),
+                Text("${e.maxPeople}"),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          //height: 150,
+          child: Column(
+            children: [
+              const Expanded(
+                flex: 1,
+                child: Text(
+                  "Songs",
+                  style: TextStyle(),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  color: Color.fromARGB(198, 97, 165, 221),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(children: [
+                      for (Song s in e.songs) Text("${s.artist} - ${s.title} ")
+                    ]),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Expanded(
+          flex: 1,
+          child: SizedBox(
+            child: Center(child: Text("put the map here")),
+          ),
+        )
+      ],
+    );
+  }
+
+  Scaffold _mobileUserPage(double screenWidth, double screenHeight) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("HomePage"),
@@ -55,7 +152,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(
               height: 30,
             ),
-            map(screenWidth, screenHeight),
+            userMap(screenWidth, screenHeight),
             const SizedBox(
               height: 30,
             ),
@@ -97,27 +194,25 @@ class _HomePageState extends State<HomePage> {
     List<Event> events = get_events();
 
     return Container(
-      child: Column(
+        child: Column(
       children: [
         for (var event in events)
           Row(
             children: [
               ElevatedButton(
                 onPressed: () {
-                  context.go("/homePage/EventPage",);            
+                  context.go("/homePage/EventPage", extra: event);
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                         12.0), // Set border radius to 0 for a square button
                   ),
-                  backgroundColor:const Color.fromARGB(255, 60, 158, 238),
+                  backgroundColor: const Color.fromARGB(255, 60, 158, 238),
                 ),
                 child: Text(
                   event.title,
-                  style: const TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.black),
+                  style: const TextStyle(fontSize: 20.0, color: Colors.black),
                 ),
               ),
             ],
@@ -171,7 +266,8 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 
-  Widget map(screenWidth, screenHeight) {
+  Widget userMap(screenWidth, screenHeight) {
+    
     return Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(

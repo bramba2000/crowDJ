@@ -29,4 +29,6 @@ dev_dependencies:
   mock_exceptions: ^0.8.2
 
 flutter:
+  assets:
+    - lib/assets/crow.jpg
   uses-material-design: true
