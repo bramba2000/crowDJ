@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(30),
         child: Container(
-          color: Color.fromARGB(200, 19, 102, 170),
+          color: const Color.fromARGB(200, 19, 102, 170),
           child: Column(
             children: [
               Container(
@@ -107,9 +107,9 @@ class _HomePageState extends State<HomePage> {
                   itemCount: events.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
-                      margin: EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(20),
                       padding: const EdgeInsets.all(20),
-                      color: Color.fromARGB(199, 64, 150, 221),
+                      color: const Color.fromARGB(199, 64, 150, 221),
                       height: 200,
                       child: _djEventRow(events[index]),
                     );
@@ -155,15 +155,15 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 flex: 3,
                 child: Container(
-                  color: Color.fromARGB(198, 97, 165, 221),
+                  color: const Color.fromARGB(198, 97, 165, 221),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.all(20.0),
                     child: Column(children: [
                       for (Song s in e.songs)
                         Container(
-                          color: Color.fromARGB(197, 129, 184, 230),
-                          margin: EdgeInsets.all(10),
+                          color: const Color.fromARGB(197, 129, 184, 230),
+                          margin: const EdgeInsets.all(10),
                           padding: const EdgeInsets.all(10),
                           child: Column(
                             children: [
@@ -235,29 +235,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget yourEvents() {
-    return Container(
-      child: Column(children: [
-        const Text(
-          "YOUR EVENTS",
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.blueGrey,
-            fontWeight: FontWeight.bold,
-          ),
+    return Column(children: [
+      const Text(
+        "YOUR EVENTS",
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.blueGrey,
+          fontWeight: FontWeight.bold,
         ),
-        const SizedBox(
-          height: 30,
-        ),
-        eventList(),
-      ]),
-    );
+      ),
+      const SizedBox(
+        height: 30,
+      ),
+      eventList(),
+    ]);
   }
 
   Widget eventList() {
     List<Event> events = get_events();
 
-    return Container(
-        child: Column(
+    return Column(
       children: [
         for (var event in events)
           Row(
@@ -284,7 +281,7 @@ class _HomePageState extends State<HomePage> {
           height: 30,
         ),
       ],
-    ));
+    );
   }
 
   Widget elevatedBox(Event e, Color color) {
@@ -334,7 +331,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.0),
-          color: Color.fromARGB(255, 60, 158, 238),
+          color: const Color.fromARGB(255, 60, 158, 238),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -354,63 +351,32 @@ class _HomePageState extends State<HomePage> {
   Widget invitationsList() {
     List<Event> events = get_events();
 
-    return Container(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(
-            events.length,
-            (index) => Container(
-              padding: const EdgeInsets.all(8.0),
-              margin: const EdgeInsets.all(8.0),
-              color: Colors.blue,
-              child: Row(
-                children: [
-                  elevatedBox(events[index], Color.fromARGB(255, 99, 136, 235)),
-                  const SizedBox(width: 10.0),
-                  ElevatedButton(
-                      onPressed: () => print("accettato"),
-                      child: const Text("accept")),
-                  const SizedBox(width: 10.0),
-                  ElevatedButton(
-                      onPressed: () => print("declinato"),
-                      child: const Text("decline")),
-                ],
-              ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(
+          events.length,
+          (index) => Container(
+            padding: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(8.0),
+            color: Colors.blue,
+            child: Row(
+              children: [
+                elevatedBox(
+                    events[index], const Color.fromARGB(255, 99, 136, 235)),
+                const SizedBox(width: 10.0),
+                ElevatedButton(
+                    onPressed: () => print("accettato"),
+                    child: const Text("accept")),
+                const SizedBox(width: 10.0),
+                ElevatedButton(
+                    onPressed: () => print("declinato"),
+                    child: const Text("decline")),
+              ],
             ),
           ),
         ),
       ),
     );
-
-    /*
-      child: Column(
-      children: [
-        ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            return Row(
-              children: [
-                elevatedBox(events[index], Color.fromARGB(255, 99, 136, 235)),
-                const SizedBox(
-                  width: 40,
-                ),
-                ElevatedButton(
-                    onPressed: () => print("accettato"), child: Text("accept")),
-                const SizedBox(
-                  width: 40,
-                ),
-                ElevatedButton(
-                    onPressed: () => print("declinato"),
-                    child: Text("decline")),
-              ],
-            );
-          },
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-      ],*/
   }
 }

@@ -1,12 +1,11 @@
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
-import 'package:crowdj/pages/app/HomePage.dart';
+import 'package:crowdj/pages/app/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
-import '../../pages/LoginPage.dart';
+import '../../feature/auth/pages/LoginPage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'router.g.dart';
