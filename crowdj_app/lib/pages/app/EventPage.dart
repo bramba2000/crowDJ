@@ -1,6 +1,7 @@
 import 'package:crowdj/utils/Event.dart';
 import 'package:crowdj/utils/Song.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class EventPage extends StatefulWidget {
 
@@ -78,9 +79,27 @@ class _EventPageState extends State<EventPage> {
               flex: 1,
               child: Column(
                 children: [
-                  Text(widget.args.title),
-                  Text("max people: ${widget.args.maxPeople}"),
-                  _songListContainer(e),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      widget.args.title,
+                      style: const TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w800,
+                        backgroundColor: Colors.amber,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex:1,
+                    child: Text(
+                      "max people: ${widget.args.maxPeople}",
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: _songListContainer(e),
+                  ),
                 ],
               ),
             ),
@@ -135,13 +154,34 @@ class _EventPageState extends State<EventPage> {
 
   Widget _showImage(){
 
-    return SizedBox();
+    String img='https://media.istockphoto.com/id/176676918/it/foto/giovane-distogliere-corvo-guardare-verso-il-basso-con-una-mosca-morta.jpg?s=612x612&w=0&k=20&c=j9mPFysI2heVqhhlL_kEffxur9ZcxfUogA9Rpz7K3eE=';
+
+    return FutureBuilder<http.Response>(
+            future: http.get(Uri.parse(img)),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+
+                // Display the image using Image.network
+                return Image.network(img);
+              } else {
+                // Display a loading indicator while the image is being fetched
+                return CircularProgressIndicator();
+              }
+            },
+          );
 
   }
 
   Widget _showPlayer(){
 
-    return SizedBox();
+    return SizedBox(
+      child: Text(
+        "player",
+        ),
+      );
 
   }
 }
