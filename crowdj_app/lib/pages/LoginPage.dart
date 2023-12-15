@@ -1,5 +1,5 @@
-
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
+import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +11,9 @@ class LoginPage extends ConsumerStatefulWidget {
 
   @override
   _LoginPageState createState() => _LoginPageState();
-
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
@@ -27,7 +25,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     String enteredPassword = _passwordController.text;
 
     // Logic with the user credentials
-    final notifier = ref.read(authNotifierProvider(AuthDataSource()).notifier);
+    final notifier = ref.read(
+        authNotifierProvider(AuthDataSource(), UserDataSource()).notifier);
 
     await notifier.signIn(enteredUsername, enteredPassword);
 
@@ -71,53 +70,52 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _desktopPage(){
+  Widget _desktopPage() {
     return Scaffold(
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             flex: 2,
-            child:
-            Padding(
+            child: Padding(
               padding: const EdgeInsets.all(25),
-              child:
-                loginForm(),  
+              child: loginForm(),
             ),
           ),
           Expanded(
-            flex:3 ,
-            child: Image.asset('lib/assets/crow.jpg'),)
+            flex: 3,
+            child: Image.asset('lib/assets/crow.jpg'),
+          )
         ],
       ),
     );
   }
 
-  Widget loginForm(){
+  Widget loginForm() {
     return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'email'),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'password'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: _login,
-              child: Text('Login'),
-            ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () => context.replace('/signinPage'),
-              child: Text('register'),
-            ),
-          ],
-        );
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TextField(
+          controller: _usernameController,
+          decoration: InputDecoration(labelText: 'email'),
+        ),
+        const SizedBox(height: 16.0),
+        TextField(
+          controller: _passwordController,
+          obscureText: true,
+          decoration: InputDecoration(labelText: 'password'),
+        ),
+        SizedBox(height: 16.0),
+        ElevatedButton(
+          onPressed: _login,
+          child: Text('Login'),
+        ),
+        SizedBox(height: 20.0),
+        ElevatedButton(
+          onPressed: () => context.replace('/signinPage'),
+          child: Text('register'),
+        ),
+      ],
+    );
   }
 }

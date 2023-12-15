@@ -1,7 +1,6 @@
+import 'package:crowdj/feature/auth/models/user_props.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 
-@freezed
 sealed class AuthenticationState {}
 
 class AuthenticationStateInitial extends AuthenticationState {}
@@ -13,7 +12,9 @@ class AuthenticationStateLoading extends AuthenticationState {}
 /// A user is logged in
 class AuthenticationStateAuthenticated extends AuthenticationState {
   final User user;
-  AuthenticationStateAuthenticated({required this.user});
+  final UserProps userProps;
+  AuthenticationStateAuthenticated(
+      {required this.user, required this.userProps});
 }
 
 /// No user is logged in

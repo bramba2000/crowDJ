@@ -1,4 +1,6 @@
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
+import 'package:crowdj/feature/auth/data/user_data_source.dart';
+import 'package:crowdj/feature/auth/models/user_props.dart';
 import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -13,7 +15,8 @@ part 'authentication_provider.g.dart';
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
   @override
-  AuthenticationState build(AuthDataSource firebaseAuth) {
+  AuthenticationState build(
+      AuthDataSource firebaseAuth, UserDataSource userDataSource) {
     return AuthenticationStateInitial();
   }
 
@@ -22,18 +25,28 @@ class AuthNotifier extends _$AuthNotifier {
     try {
       final UserCredential userCredential =
           await firebaseAuth.signIn(email: email, password: password);
-      state = AuthenticationStateAuthenticated(user: userCredential.user!);
+      final UserProps userProps =
+          await userDataSource.getUserProps(userCredential.user!.uid);
+      state = AuthenticationStateAuthenticated(
+          user: userCredential.user!, userProps: userProps);
     } on Exception catch (e) {
       state = AuthenticationStateUnauthenticated(message: e.toString());
     }
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUp(String name, String surname, String email,
+      String password, UserType userType) async {
     state = AuthenticationStateLoading();
     try {
       final UserCredential userCredential =
           await firebaseAuth.signUp(email, password);
-      state = AuthenticationStateAuthenticated(user: userCredential.user!);
+      final UserProps userProps = UserProps(
+          name: name, surname: surname, email: email, userType: userType);
+      await userDataSource.createUserProps(userCredential.user!.uid, userProps);
+      state = AuthenticationStateAuthenticated(
+        user: userCredential.user!,
+        userProps: userProps,
+      );
     } on Exception catch (e) {
       state = AuthenticationStateUnauthenticated(message: e.toString());
     }

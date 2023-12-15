@@ -6,7 +6,7 @@ part of 'authentication_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authNotifierHash() => r'9244e807a8f04ad5d57274ea7ec4651f3585aadf';
+String _$authNotifierHash() => r'b4a2f1c6485c5a9775d0e87a4c1cc978da03dc09';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,27 +32,55 @@ class _SystemHash {
 abstract class _$AuthNotifier
     extends BuildlessAutoDisposeNotifier<AuthenticationState> {
   late final AuthDataSource firebaseAuth;
+  late final UserDataSource userDataSource;
 
   AuthenticationState build(
     AuthDataSource firebaseAuth,
+    UserDataSource userDataSource,
   );
 }
 
-/// See also [AuthNotifier].
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
+///
+/// Copied from [AuthNotifier].
 @ProviderFor(AuthNotifier)
 const authNotifierProvider = AuthNotifierFamily();
 
-/// See also [AuthNotifier].
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
+///
+/// Copied from [AuthNotifier].
 class AuthNotifierFamily extends Family<AuthenticationState> {
-  /// See also [AuthNotifier].
+  /// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+  /// It provides methods for signing in and signing up a user using email and password.
+  /// The state of authentication is updated based on the success or failure of these operations.
+  ///
+  /// see also [AuthenticationState]
+  ///
+  /// Copied from [AuthNotifier].
   const AuthNotifierFamily();
 
-  /// See also [AuthNotifier].
+  /// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+  /// It provides methods for signing in and signing up a user using email and password.
+  /// The state of authentication is updated based on the success or failure of these operations.
+  ///
+  /// see also [AuthenticationState]
+  ///
+  /// Copied from [AuthNotifier].
   AuthNotifierProvider call(
     AuthDataSource firebaseAuth,
+    UserDataSource userDataSource,
   ) {
     return AuthNotifierProvider(
       firebaseAuth,
+      userDataSource,
     );
   }
 
@@ -62,6 +90,7 @@ class AuthNotifierFamily extends Family<AuthenticationState> {
   ) {
     return call(
       provider.firebaseAuth,
+      provider.userDataSource,
     );
   }
 
@@ -80,14 +109,29 @@ class AuthNotifierFamily extends Family<AuthenticationState> {
   String? get name => r'authNotifierProvider';
 }
 
-/// See also [AuthNotifier].
+/// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+/// It provides methods for signing in and signing up a user using email and password.
+/// The state of authentication is updated based on the success or failure of these operations.
+///
+/// see also [AuthenticationState]
+///
+/// Copied from [AuthNotifier].
 class AuthNotifierProvider
     extends AutoDisposeNotifierProviderImpl<AuthNotifier, AuthenticationState> {
-  /// See also [AuthNotifier].
+  /// [AuthNotifier] is a riverpod [NotifierProvider] that manage the authentication state of the application.
+  /// It provides methods for signing in and signing up a user using email and password.
+  /// The state of authentication is updated based on the success or failure of these operations.
+  ///
+  /// see also [AuthenticationState]
+  ///
+  /// Copied from [AuthNotifier].
   AuthNotifierProvider(
     AuthDataSource firebaseAuth,
+    UserDataSource userDataSource,
   ) : this._internal(
-          () => AuthNotifier()..firebaseAuth = firebaseAuth,
+          () => AuthNotifier()
+            ..firebaseAuth = firebaseAuth
+            ..userDataSource = userDataSource,
           from: authNotifierProvider,
           name: r'authNotifierProvider',
           debugGetCreateSourceHash:
@@ -98,6 +142,7 @@ class AuthNotifierProvider
           allTransitiveDependencies:
               AuthNotifierFamily._allTransitiveDependencies,
           firebaseAuth: firebaseAuth,
+          userDataSource: userDataSource,
         );
 
   AuthNotifierProvider._internal(
@@ -108,9 +153,11 @@ class AuthNotifierProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.firebaseAuth,
+    required this.userDataSource,
   }) : super.internal();
 
   final AuthDataSource firebaseAuth;
+  final UserDataSource userDataSource;
 
   @override
   AuthenticationState runNotifierBuild(
@@ -118,6 +165,7 @@ class AuthNotifierProvider
   ) {
     return notifier.build(
       firebaseAuth,
+      userDataSource,
     );
   }
 
@@ -126,13 +174,16 @@ class AuthNotifierProvider
     return ProviderOverride(
       origin: this,
       override: AuthNotifierProvider._internal(
-        () => create()..firebaseAuth = firebaseAuth,
+        () => create()
+          ..firebaseAuth = firebaseAuth
+          ..userDataSource = userDataSource,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         firebaseAuth: firebaseAuth,
+        userDataSource: userDataSource,
       ),
     );
   }
@@ -145,13 +196,16 @@ class AuthNotifierProvider
 
   @override
   bool operator ==(Object other) {
-    return other is AuthNotifierProvider && other.firebaseAuth == firebaseAuth;
+    return other is AuthNotifierProvider &&
+        other.firebaseAuth == firebaseAuth &&
+        other.userDataSource == userDataSource;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, firebaseAuth.hashCode);
+    hash = _SystemHash.combine(hash, userDataSource.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -160,6 +214,9 @@ class AuthNotifierProvider
 mixin AuthNotifierRef on AutoDisposeNotifierProviderRef<AuthenticationState> {
   /// The parameter `firebaseAuth` of this provider.
   AuthDataSource get firebaseAuth;
+
+  /// The parameter `userDataSource` of this provider.
+  UserDataSource get userDataSource;
 }
 
 class _AuthNotifierProviderElement extends AutoDisposeNotifierProviderElement<
@@ -169,6 +226,9 @@ class _AuthNotifierProviderElement extends AutoDisposeNotifierProviderElement<
   @override
   AuthDataSource get firebaseAuth =>
       (origin as AuthNotifierProvider).firebaseAuth;
+  @override
+  UserDataSource get userDataSource =>
+      (origin as AuthNotifierProvider).userDataSource;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
