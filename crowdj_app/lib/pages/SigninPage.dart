@@ -155,8 +155,9 @@ class _SigninPageState extends ConsumerState<SigninPage> {
   }
 
   Widget errorMessage() {
-    if (_res.isEmpty)
-      return SizedBox();
+    if (_res.isEmpty){
+      return SizedBox(); 
+    }
     else {
       return Text(
         _res,
