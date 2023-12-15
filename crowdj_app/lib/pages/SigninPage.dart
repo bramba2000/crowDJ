@@ -16,42 +16,52 @@ class SigninPage extends ConsumerStatefulWidget {
 }
 
 class _SigninPageState extends ConsumerState<SigninPage> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  bool _userType = false;
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _surnamenameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _wannabeDJ = false; // false = participant, true = DJ
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _surnamenameController = TextEditingController();
   String _res = "";
 
-  Future<String> _sigin(String mail, String pswd) async {
-    final data = AuthDataSource();
-    final authProvider =
-        ref.watch(authNotifierProvider(data, UserDataSource()));
-    final notifier =
-        ref.read(authNotifierProvider(data, UserDataSource()).notifier);
-    String res = "";
+  Future<void> _sigUp() async {
+    await ref
+        .read(authNotifierProvider(AuthDataSource(), UserDataSource()).notifier)
+        .signUp(
+            _nameController.text,
+            _surnamenameController.text,
+            _emailController.text,
+            _passwordController.text,
+            _wannabeDJ ? UserType.DJ : UserType.PARTICIPANT);
 
-    await notifier.signUp(_nameController.text, _surnamenameController.text,
-        mail, pswd, _userType ? UserType.DJ : UserType.PARTICIPANT);
-
-    switch (authProvider) {
+    var watch =
+        ref.watch(authNotifierProvider(AuthDataSource(), UserDataSource()));
+    switch (watch) {
+      case AuthenticationStateLoading():
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Loading...'),
+            ),
+          );
+        }
+        break;
       case AuthenticationStateAuthenticated():
-        res = "";
+        // watch.userProps.userType contains the user type (e.g. 'PARTICIPANT', 'DJ')
+        if (context.mounted) context.go('/homePage');
         break;
-
       case AuthenticationStateUnauthenticated():
-        res = authProvider.message;
+        setState(() {
+          _res = watch.message;
+        });
         break;
-
       default:
-        res = " generic error";
+        break;
     }
-    return res;
   }
 
   void toggleButtonState() {
     setState(() {
-      _userType = !_userType;
+      _wannabeDJ = !_wannabeDJ;
     });
   }
 
@@ -132,7 +142,7 @@ class _SigninPageState extends ConsumerState<SigninPage> {
             ),
             const SizedBox(width: 20),
             Text(
-              _userType ? 'DJ' : 'USER',
+              _wannabeDJ ? 'DJ' : 'USER',
               style: const TextStyle(fontSize: 14),
             ),
           ],
@@ -145,24 +155,15 @@ class _SigninPageState extends ConsumerState<SigninPage> {
 
   Widget _registerButton() {
     return ElevatedButton(
-      onPressed: () async {
-        _res = await _sigin(_emailController.text, _passwordController.text);
-
-        if (_res.isEmpty) {
-          context.go('/homePage');
-        } else {
-          context.go('/homePage');
-          //setState(() {});  <<<------- un-comment it
-        }
-      },
+      onPressed: _sigUp,
       child: const Text('join crowDJ'),
     );
   }
 
   Widget errorMessage() {
-    if (_res.isEmpty)
-      return SizedBox();
-    else {
+    if (_res.isEmpty) {
+      return const SizedBox();
+    } else {
       return Text(
         _res,
         style: const TextStyle(

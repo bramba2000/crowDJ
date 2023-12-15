@@ -1,10 +1,11 @@
-import 'package:crowdj/feature/auth/data/auth_data_source.dart';
-import 'package:crowdj/feature/auth/data/user_data_source.dart';
-import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
-import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../feature/auth/data/auth_data_source.dart';
+import '../feature/auth/data/user_data_source.dart';
+import '../feature/auth/providers/authentication_provider.dart';
+import '../feature/auth/providers/state/authentication_state.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -14,41 +15,28 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
 
   Future<void> _login() async {
-    //by now is bruteforce
-
-    // Check user credentials and set user type
-    String enteredUsername = _usernameController.text;
-    String enteredPassword = _passwordController.text;
-
-    // Logic with the user credentials
-    final notifier = ref.read(
-        authNotifierProvider(AuthDataSource(), UserDataSource()).notifier);
-
-    await notifier.signIn(enteredUsername, enteredPassword);
-
-    // Navigate to the appropriate page based on the user type
-    if (notifier.state case AuthenticationStateAuthenticated()) {
-      //print("login good practice");
-      context.go(
-        '/homePage',
-      );
-    } else {
-      context.go(
-        '/homePage',
-      );
-      // Show an error message or handle invalid credentials
-      print('Invalid credentials, try again');
-    }
+    await ref
+        .read(provider.notifier)
+        .signIn(_usernameController.text, _passwordController.text);
   }
 
   @override
   Widget build(BuildContext context) {
+    var watch = ref.watch(provider);
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        if (watch is AuthenticationStateUnauthenticated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(watch.message),
+            ),
+          );
+        }
         if (constraints.maxWidth > 600) {
           return _desktopPage();
         } else {
@@ -97,23 +85,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       children: [
         TextField(
           controller: _usernameController,
-          decoration: InputDecoration(labelText: 'email'),
+          decoration: const InputDecoration(labelText: 'email'),
         ),
         const SizedBox(height: 16.0),
         TextField(
           controller: _passwordController,
           obscureText: true,
-          decoration: InputDecoration(labelText: 'password'),
+          decoration: const InputDecoration(labelText: 'password'),
         ),
-        SizedBox(height: 16.0),
+        const SizedBox(height: 16.0),
         ElevatedButton(
           onPressed: _login,
-          child: Text('Login'),
+          child: const Text('Login'),
         ),
-        SizedBox(height: 20.0),
+        const SizedBox(height: 20.0),
         ElevatedButton(
           onPressed: () => context.replace('/signinPage'),
-          child: Text('register'),
+          child: const Text('register'),
         ),
       ],
     );

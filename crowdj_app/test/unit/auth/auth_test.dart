@@ -1,16 +1,15 @@
-import 'dart:math';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/models/user_props.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 
 @GenerateNiceMocks([MockSpec<UserDataSource>()])
 import 'auth_test.mocks.dart';

@@ -41,3 +41,5 @@ class AuthDataSource {
   @override
   int get hashCode => _firebaseInstance.hashCode;
 }
+
+final defaultAuthDataSource = AuthDataSource();

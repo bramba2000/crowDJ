@@ -32,3 +32,5 @@ class UserDataSource {
   @override
   int get hashCode => _firestore.hashCode;
 }
+
+final defaultUserDataSource = UserDataSource();
