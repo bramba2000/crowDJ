@@ -1,25 +1,23 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class CreateNeweventPage extends StatefulWidget{
-
-
+class CreateNeweventPage extends StatefulWidget {
   @override
   _CreateNeweventPageState createState() => _CreateNeweventPageState();
 }
 
 class _CreateNeweventPageState extends State<CreateNeweventPage> {
-
   final _formKey = GlobalKey<FormState>();
   TextEditingController _titleController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
   DateTime? _selectedDate;
   File? _selectedImage;
+  String? selectedGenre;
+  bool _eventType = false;
 
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
@@ -30,13 +28,23 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
       },
     );
   }
-  
+
   Widget _desktopDjPage() {
+    List<String> musicGenres = [
+      'Rock',
+      'Pop',
+      'Hip Hop',
+      'Electronic',
+      'Jazz',
+      'Classical',
+      'Country',
+      'R&B',
+      'Blues',
+    ];
 
     return Scaffold(
-
       appBar: AppBar(title: const Text(" Create a New Event Page")),
-      body:Padding(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -81,9 +89,59 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
                 ],
               ),
               const SizedBox(height: 16.0),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a description';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16.0),
+              DropdownButtonFormField<String>(
+                value: selectedGenre,
+                items: musicGenres.map((genre) {
+                  return DropdownMenuItem<String>(
+                    value: genre,
+                    child: Text(genre),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedGenre = value;
+                  });
+                },
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Choose a genre',
+                  labelText: 'Music Genre',
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _eventType = !_eventType;
+                      });
+                    },
+                    child: const Text('change'),
+                  ),
+                  const SizedBox(width: 20),
+                  Text(
+                    _eventType ? 'Private' : 'Public',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _selectImage,
-                child: Text('Select Image'),
+                child: const Text('Select Image'),
               ),
               const SizedBox(height: 16.0),
               _selectedImage != null
@@ -139,9 +197,8 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
       });
     }
   }
-  
-  Widget _errorMessagePage() {
 
+  Widget _errorMessagePage() {
     return const Scaffold(
       body: Center(
         child: Text(

@@ -76,9 +76,10 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                        onPressed: () =>
-                            context.go("/homePage/CreateNewEventPage"),
-                        child: const Text("create new event"))
+                      onPressed: () =>
+                          context.go("/homePage/CreateNewEventPage"),
+                      child: const Text("create new event"),
+                    )
                   ],
                 ),
               ),
@@ -134,8 +135,36 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(e.title),
-                Text("${e.maxPeople}"),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    e.title, 
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 20,
+                      ) ,),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    "max people: ${e.maxPeople}",
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed:(){
+                          context.go("/homePage/EventPage", extra: e);
+                          },
+                        child:const Text("manage the event"),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -159,7 +188,8 @@ class _HomePageState extends State<HomePage> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.all(20.0),
-                    child: Column(children: [
+                    child: Column(
+                      children: [
                       for (Song s in e.songs)
                         Container(
                           color: const Color.fromARGB(197, 129, 184, 230),
@@ -174,7 +204,8 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         )
-                    ]),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -252,6 +283,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget eventList() {
+    
     List<Event> events = get_events();
 
     return Column(
