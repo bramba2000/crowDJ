@@ -1,5 +1,6 @@
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/data/user_data_source.dart';
+import 'package:crowdj/feature/auth/pages/SigninPage.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/pages/app/home_page.dart';
 import 'package:flutter/material.dart';
@@ -27,16 +28,24 @@ GoRouter router(RouterRef ref) {
         pageBuilder: (context, state) => const MaterialPage(child: HomePage()),
       ),
       GoRoute(
+        path: '/signin',
+        pageBuilder: (context, state) =>
+            const MaterialPage(child: SigninPage()),
+      ),
+      GoRoute(
         path: '/login',
         pageBuilder: (context, state) => const MaterialPage(child: LoginPage()),
       ),
     ],
     redirect: (context, state) {
-      if (isAuthenticated) {
-        return '/';
-      } else {
+      final isProtectedRoute = state.matchedLocation != '/login' &&
+          state.matchedLocation != '/signin';
+      if (isProtectedRoute && !isAuthenticated) {
         return '/login';
+      } else if (!isProtectedRoute && isAuthenticated) {
+        return '/';
       }
+      return null;
     },
   );
 }
