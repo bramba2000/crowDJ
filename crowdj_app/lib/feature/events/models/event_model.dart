@@ -79,10 +79,3 @@ enum EventStatus {
   @JsonValue('upcoming')
   upcoming,
 }
-
-enum EventAccessibility {
-  @JsonValue('public')
-  public,
-  @JsonValue('private')
-  private,
-}
