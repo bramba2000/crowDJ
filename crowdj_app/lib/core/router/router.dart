@@ -1,11 +1,11 @@
-import 'package:crowdj/feature/auth/data/auth_data_source.dart';
-import 'package:crowdj/feature/auth/data/user_data_source.dart';
-import 'package:crowdj/feature/auth/pages/SigninPage.dart';
-import 'package:crowdj/feature/auth/pages/app/EventPage.dart';
-import 'package:crowdj/feature/auth/pages/app/djPages/CreateNewEventPage.dart';
-import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
-import 'package:crowdj/feature/auth/pages/app/home_page.dart';
-import 'package:crowdj/utils/Event.dart';
+import '../../feature/auth/data/auth_data_source.dart';
+import '../../feature/auth/data/user_data_source.dart';
+import '../../feature/auth/pages/signin_page.dart';
+import '../../feature/auth/pages/app/EventPage.dart';
+import '../../feature/auth/pages/app/djPages/CreateNewEventPage.dart';
+import '../../feature/auth/providers/authentication_provider.dart';
+import '../../feature/auth/pages/app/home_page.dart';
+import '../../utils/Event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';

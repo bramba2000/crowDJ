@@ -1,7 +1,7 @@
-import 'package:crowdj/feature/auth/data/auth_data_source.dart';
-import 'package:crowdj/feature/auth/data/user_data_source.dart';
-import 'package:crowdj/feature/auth/models/user_props.dart';
-import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
+import '../data/auth_data_source.dart';
+import '../data/user_data_source.dart';
+import '../models/user_props.dart';
+import 'state/authentication_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -14,7 +14,6 @@ part 'authentication_provider.g.dart';
 /// see also [AuthenticationState]
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
-  
   @override
   AuthenticationState build(
       AuthDataSource firebaseAuth, UserDataSource userDataSource) {

@@ -1,4 +1,4 @@
-import 'package:crowdj/feature/auth/models/user_props.dart';
+import '../../models/user_props.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 sealed class AuthenticationState {}

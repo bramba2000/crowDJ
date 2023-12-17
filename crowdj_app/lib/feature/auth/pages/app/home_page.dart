@@ -1,5 +1,5 @@
-import 'package:crowdj/utils/Event.dart';
-import 'package:crowdj/utils/Song.dart';
+import '../../../../utils/Event.dart';
+import '../../../../utils/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,11 +7,11 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Event> get_events() {
+  List<Event> getEvents() {
     List<Event> events = [
       Event(
           eventID: 1,
@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Scaffold _desktopDjPage() {
-    List<Event> events = get_events();
+    List<Event> events = getEvents();
 
     return Scaffold(
       appBar: AppBar(
@@ -76,11 +76,10 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: (){
+                      onPressed: () {
                         context.go("/newEventPage");
                         print("-> createNewEventPage");
                       },
-                          
                       child: const Text("create new event"),
                     )
                   ],
@@ -141,12 +140,13 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    e.title, 
+                    e.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontStyle: FontStyle.italic,
                       fontSize: 20,
-                      ) ,),
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 1,
@@ -160,10 +160,10 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       ElevatedButton(
-                        onPressed:(){
+                        onPressed: () {
                           context.go("/event", extra: e);
-                          },
-                        child:const Text("manage the event"),
+                        },
+                        child: const Text("manage the event"),
                       ),
                     ],
                   ),
@@ -193,20 +193,20 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       children: [
-                      for (Song s in e.songs)
-                        Container(
-                          color: const Color.fromARGB(197, 129, 184, 230),
-                          margin: const EdgeInsets.all(10),
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            children: [
-                              Text("${s.artist} - ${s.title} "),
-                              const SizedBox(
-                                height: 5,
-                              )
-                            ],
-                          ),
-                        )
+                        for (Song s in e.songs)
+                          Container(
+                            color: const Color.fromARGB(197, 129, 184, 230),
+                            margin: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                Text("${s.artist} - ${s.title} "),
+                                const SizedBox(
+                                  height: 5,
+                                )
+                              ],
+                            ),
+                          )
                       ],
                     ),
                   ),
@@ -286,8 +286,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget eventList() {
-    
-    List<Event> events = get_events();
+    List<Event> events = getEvents();
 
     return Column(
       children: [
@@ -384,7 +383,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget invitationsList() {
-    List<Event> events = get_events();
+    List<Event> events = getEvents();
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

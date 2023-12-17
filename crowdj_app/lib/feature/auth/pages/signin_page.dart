@@ -1,7 +1,7 @@
-import 'package:crowdj/feature/auth/data/auth_data_source.dart';
-import 'package:crowdj/feature/auth/data/user_data_source.dart';
-import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
-import 'package:crowdj/feature/auth/providers/state/authentication_state.dart';
+import '../data/auth_data_source.dart';
+import '../data/user_data_source.dart';
+import '../providers/authentication_provider.dart';
+import '../providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,11 +12,10 @@ class SigninPage extends ConsumerStatefulWidget {
   const SigninPage({super.key});
 
   @override
-  _SigninPageState createState() => _SigninPageState();
+  ConsumerState<SigninPage> createState() => _SigninPageState();
 }
 
 class _SigninPageState extends ConsumerState<SigninPage> {
-  
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _wannabeDJ = false; // false = participant, true = DJ
@@ -32,7 +31,7 @@ class _SigninPageState extends ConsumerState<SigninPage> {
             _surnamenameController.text,
             _emailController.text,
             _passwordController.text,
-            _wannabeDJ ? UserType.DJ : UserType.PARTICIPANT);
+            _wannabeDJ ? UserType.dj : UserType.participant);
 
     var watch =
         ref.watch(authNotifierProvider(AuthDataSource(), UserDataSource()));
