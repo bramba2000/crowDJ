@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     ElevatedButton(
                       onPressed: (){
-                        context.go("/createNewEventPage");
+                        context.go("/newEventPage");
                         print("-> createNewEventPage");
                       },
                           
@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       ElevatedButton(
                         onPressed:(){
-                          context.go("/homePage/EventPage", extra: e);
+                          context.go("/event", extra: e);
                           },
                         child:const Text("manage the event"),
                       ),

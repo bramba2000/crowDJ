@@ -1,10 +1,11 @@
 import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/pages/SigninPage.dart';
+import 'package:crowdj/feature/auth/pages/app/EventPage.dart';
 import 'package:crowdj/feature/auth/pages/app/djPages/CreateNewEventPage.dart';
-import 'package:crowdj/feature/auth/pages/SigninPage.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/feature/auth/pages/app/home_page.dart';
+import 'package:crowdj/utils/Event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
@@ -39,7 +40,7 @@ GoRouter router(RouterRef ref) {
         },
         routes: [
           GoRoute(
-            path: "createNewEventPage",
+            path: "newEvent",
             pageBuilder: (context, state) { 
               print("building CreateNeweventPage");
               return MaterialPage(
@@ -47,12 +48,17 @@ GoRouter router(RouterRef ref) {
               );
             }
           ),
+          GoRoute(
+            path: "event",
+            pageBuilder: (context, state) { 
+              Event args = state.extra as Event; // 👈 casting is important
+              print("building CreateNeweventPage");
+              return MaterialPage(
+                child: EventPage(args:args),
+              );
+            }
+          ),
         ],
-      ),
-      GoRoute(
-        path: '/signin',
-        pageBuilder: (context, state) =>
-            const MaterialPage(child: SigninPage()),
       ),
       GoRoute(
         path: '/signin',
@@ -67,12 +73,6 @@ GoRouter router(RouterRef ref) {
             child: LoginPage(),
           );
         },
-      ),
-      GoRoute(
-        path: '/signin',
-        pageBuilder: (context, state) => const MaterialPage(
-          child: SigninPage(),
-        ),
       ),
     ],
     redirect: (context, state) {
