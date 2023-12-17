@@ -2,6 +2,7 @@ import 'package:crowdj/feature/auth/data/auth_data_source.dart';
 import 'package:crowdj/feature/auth/data/user_data_source.dart';
 import 'package:crowdj/feature/auth/pages/SigninPage.dart';
 import 'package:crowdj/feature/auth/pages/app/djPages/CreateNewEventPage.dart';
+import 'package:crowdj/feature/auth/pages/SigninPage.dart';
 import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
 import 'package:crowdj/feature/auth/pages/app/home_page.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,16 @@ GoRouter router(RouterRef ref) {
         ],
       ),
       GoRoute(
+        path: '/signin',
+        pageBuilder: (context, state) =>
+            const MaterialPage(child: SigninPage()),
+      ),
+      GoRoute(
+        path: '/signin',
+        pageBuilder: (context, state) =>
+            const MaterialPage(child: SigninPage()),
+      ),
+      GoRoute(
         path: '/login',
         pageBuilder: (context, state) {
           inLoginPage=!inLoginPage;
@@ -65,11 +76,14 @@ GoRouter router(RouterRef ref) {
       ),
     ],
     redirect: (context, state) {
-      if (isAuthenticated) {
+      final isProtectedRoute = state.matchedLocation != '/login' &&
+          state.matchedLocation != '/signin';
+      if (isProtectedRoute && !isAuthenticated) {
+        return '/login';
+      } else if (!isProtectedRoute && isAuthenticated) {
         return '/';
-      } else {
-        return inLoginPage? '/signin' : '/login' ;
       }
+      return null;
     },
   );
 }

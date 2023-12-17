@@ -107,9 +107,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
         const SizedBox(height: 20.0),
         ElevatedButton(
-          onPressed: () {
-            print("->/login/signin");
-            context.replace('/login/signin');},
+          onPressed: () => context.replace('/signin'),
           child: const Text('register'),
         ),
       ],
