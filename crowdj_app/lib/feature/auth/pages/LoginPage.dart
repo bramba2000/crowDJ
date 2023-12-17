@@ -28,54 +28,61 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     var watch = ref.watch(provider);
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        if (watch is AuthenticationStateUnauthenticated) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(watch.message),
-            ),
-          );
-        }
-        if (constraints.maxWidth > 600) {
-          return _desktopPage();
-        } else {
-          return _mobilePage();
-        }
-      },
-    );
-  }
-
-  Widget _mobilePage() {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login Page'),
       ),
-      body: Padding(
+      body: Container(
         padding: const EdgeInsets.all(16.0),
-        child: loginForm(),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            if (watch is AuthenticationStateUnauthenticated) {
+              _showSnackBar(watch);
+            }
+            if (constraints.maxWidth > 600) {
+              return _desktopPage();
+            } else {
+              return _mobilePage();
+            }
+          },
+        ),
+      ),
+    );
+    /*
+    ;*/
+  }
+
+  void _showSnackBar(var watch) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(watch.message),
       ),
     );
   }
 
+  Widget _mobilePage() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: loginForm(),
+    );
+  }
+
   Widget _desktopPage() {
-    return Scaffold(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(25),
-              child: loginForm(),
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(25),
+            child: loginForm(),
           ),
-          Expanded(
-            flex: 3,
-            child: Image.asset('lib/assets/crow.jpg'),
-          )
-        ],
-      ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Image.asset('lib/assets/crow.jpg'),
+        )
+      ],
     );
   }
 
@@ -100,7 +107,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
         const SizedBox(height: 20.0),
         ElevatedButton(
-          onPressed: () => context.replace('/signinPage'),
+          onPressed: () {
+            print("->/login/signin");
+            context.replace('/login/signin');},
           child: const Text('register'),
         ),
       ],

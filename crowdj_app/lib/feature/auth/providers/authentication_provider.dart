@@ -14,6 +14,7 @@ part 'authentication_provider.g.dart';
 /// see also [AuthenticationState]
 @riverpod
 class AuthNotifier extends _$AuthNotifier {
+  
   @override
   AuthenticationState build(
       AuthDataSource firebaseAuth, UserDataSource userDataSource) {

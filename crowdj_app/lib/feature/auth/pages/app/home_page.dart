@@ -76,8 +76,11 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: () =>
-                          context.go("/homePage/CreateNewEventPage"),
+                      onPressed: (){
+                        context.go("/createNewEventPage");
+                        print("-> createNewEventPage");
+                      },
+                          
                       child: const Text("create new event"),
                     )
                   ],

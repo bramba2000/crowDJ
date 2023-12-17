@@ -6,12 +6,15 @@ import './firebase_options.dart';
 import 'core/router/router.dart';
 
 Future<void> main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: MainApp()));
+
 }
 
 class MainApp extends ConsumerWidget {
+  
   const MainApp({Key? key}) : super(key: key);
 
   @override
