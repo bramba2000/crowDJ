@@ -9,9 +9,16 @@ part 'event_model.freezed.dart';
 part 'event_model.g.dart';
 
 @Freezed(unionKey: 'accessibility', unionValueCase: FreezedUnionCase.none)
+
+/// A union class ([PrivateEvent]|[PublicEvent]) that represents an event.
+///
+/// Use the factory constructors [Event.private] and [Event.public] to create a
+/// new event. See the documentation of those methods for more specific details.
 class Event with _$Event {
   const Event._();
 
+  /// [PrivateEvent] is an event that is visible and joinable only by those who
+  /// know the password and the event ID.
   const factory Event.private({
     required String id,
     required String title,
@@ -26,6 +33,8 @@ class Event with _$Event {
     required String? password,
   }) = PrivateEvent;
 
+  /// [PublicEvent] is an event that is visible to everyone and can be joined by
+  /// anyone.
   const factory Event.public({
     required String id,
     required String title,
@@ -41,6 +50,8 @@ class Event with _$Event {
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 
+  /// If the event is public, returns a [PrivateEvent] with the given password
+  /// and the same fields; otherwise, returns the event itself.
   PrivateEvent toPrivate(String password) => this is PrivateEvent
       ? this as PrivateEvent
       : PrivateEvent(
@@ -56,6 +67,8 @@ class Event with _$Event {
           password: password,
         );
 
+  /// If the event is private, returns a [PublicEvent] discarding the password
+  /// and the same fields; otherwise, returns the event itself.
   PublicEvent toPublic() => this is PublicEvent
       ? this as PublicEvent
       : PublicEvent(
@@ -71,6 +84,7 @@ class Event with _$Event {
         );
 }
 
+/// The status of an event.
 enum EventStatus {
   @JsonValue('past')
   past,

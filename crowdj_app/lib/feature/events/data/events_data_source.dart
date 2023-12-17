@@ -29,9 +29,10 @@ class EventDataSource {
   /// Creates an event in the database
   ///
   /// Create a new event with the provided parameters, and adds it to the database.
-  /// If [isPrivate] is true, the event will be created as a private event,
-  /// otherwise if not provided or it is false, the event will be created as a public event.
-  /// If [isPrivate] is true, a random password of lenght [_passwordLength] will be generated
+  /// * If [isPrivate] is true, a random password will be generated for the event
+  /// and it will be added to the database as a private event
+  /// * If [isPrivate] is false or not provided, the event will be added to the
+  /// database as a public event
   Future<void> createEvent({
     required String title,
     required String description,
@@ -78,6 +79,10 @@ class EventDataSource {
   /// be generated
   /// * if it is false, the event will be changed to public
   /// * if it is not provided, the event will be left unchanged
+  ///
+  /// In case the password of a private event is compromised, the only
+  /// possibility to change it is to change the event to public and then back to
+  /// private, which will generate a new password
   Future<void> updateEvent({
     required String id,
     String? title,
