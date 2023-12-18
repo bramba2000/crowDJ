@@ -52,8 +52,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       ),
     );
-    /*
-    ;*/
+    
   }
 
   void _showSnackBar(var watch) {

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -11,8 +10,7 @@ class CreateNeweventPage extends StatefulWidget {
   _CreateNeweventPageState createState() => _CreateNeweventPageState();
 }
 
-class _CreateNeweventPageState extends State<CreateNeweventPage>{
-
+class _CreateNeweventPageState extends State<CreateNeweventPage> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController _titleController = TextEditingController();
@@ -23,9 +21,9 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
   int selectedNumber = 1;
 
   TextEditingController _addressController = TextEditingController();
-  GeoPoint location = GeoPoint(0, 0);
-  var _addrDetails;
-  MapModel _map=MapModel();
+  late GeoPoint location;
+  late MapModel _map;
+  bool _mapIsVisible = false;
 
   DateTime? _selectedDate;
 
@@ -37,15 +35,16 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
   void initState() {
     super.initState();
     _initializeMap();
+    print("initilalize new event");
   }
 
   Future<void> _initializeMap() async {
     _map = await MapModel.create();
+    //await Future.delayed(Duration(seconds: 3));
   }
 
   @override
   Widget build(BuildContext context) {
-
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
@@ -84,15 +83,34 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
               const SizedBox(height: 16.0),
               _maxPeopleForm(),
               const SizedBox(height: 16.0),
-              _dateForm(),
-              const SizedBox(height: 16.0),
-              _genreForm(musicGenres),
-              const SizedBox(height: 16.0),
-              _locationForm(),
-              const SizedBox(height: 16.0),
-              _publicOrPrivateForm(),
-              const SizedBox(height: 16.0),
-              _showMap(),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        _dateForm(),
+                        const SizedBox(height: 16.0),
+                        _genreForm(musicGenres),
+                        const SizedBox(height: 16.0),
+                        _locationForm(),
+                        const SizedBox(height: 16.0),
+                        _publicOrPrivateForm(),
+                        const SizedBox(height: 16.0),
+                      ],
+                    ),
+                  ),
+                  if (_mapIsVisible)
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          _showMap(),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
               const SizedBox(height: 16.0),
               _confirmationButton(),
               const SizedBox(height: 16.0),
@@ -130,7 +148,6 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
   }
 
   ElevatedButton _confirmationButton() {
-
     return ElevatedButton(
       onPressed: () {
         if (_formKey.currentState!.validate()) {
@@ -141,34 +158,36 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
           print("Description : ${_descriptionController.text}");
           print('Date: $_selectedDate');
           print("Address : ${_addressController.text}");
-          _updateLocation();
         }
       },
       child: Text('Submit'),
     );
   }
 
-  _updateLocation() {
-
-    fromAddrToCoord(_addressController.text).then(
-          (addrDetails)=>setState( (){
-            _addrDetails=addrDetails;
-            location=getGeoPointFromJson(addrDetails);
-            print("Lat:"+location.latitude.toString()+" Lng:"+location.longitude.toString());
-            _map.updatePalce(location);
-            _map.updateCenter(location);
-          })
-        );
-  }
-
-  Widget _showMap(){
-
-    return Container(
-      padding: EdgeInsets.all(40),
-      height: 400,
-      width: 400,
-      child: DynMap(mapModel: _map!,));
-
+  Widget _showMap() {
+    print("show map");
+    try {
+      return Container(
+        padding: EdgeInsets.all(40),
+        height: 400,
+        //width: 400,
+        child: DynMap(
+          mapModel: _map,
+          center: location,
+        ),
+      );
+    } catch (e) {
+      return const Center(
+        child:  Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text('Fetching Data...'),
+              SizedBox(height: 20),
+              CircularProgressIndicator(),
+            ],
+          ),
+      );
+    }
   }
 
   Row _publicOrPrivateForm() {
@@ -284,17 +303,50 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
     }
   }
 
-  TextFormField _locationForm() {
-    return TextFormField(
-      controller: _addressController,
-      decoration: const InputDecoration(labelText: 'Address'),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter an address';
-        }
-        return null;
-      },
-      onChanged: (value) => _updateLocation(),
+  Row _locationForm() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 4,
+          child: TextFormField(
+            controller: _addressController,
+            decoration: const InputDecoration(labelText: 'Address'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter an address';
+              }
+              return null;
+            },
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: ElevatedButton(
+            onPressed: () => setState(
+              () {
+                fromAddrToCoord(_addressController.text).then(
+                  (addrDetails) => setState(
+                    () {
+                      location = getGeoPointFromJson(addrDetails);
+                      print("Lat:" +
+                          location.latitude.toString() +
+                          " Lng:" +
+                          location.longitude.toString());
+                      _map = MapModel(g: location);
+                      _map!.updatePlace(location);
+                      _map!.updateCenter(location);
+                      print("all updated");
+                      // _mapIsVisible = true;
+                    },
+                  ),
+                );
+                _mapIsVisible = true;
+              },
+            ),
+            child: const Text(" confirm location "),
+          ),
+        ),
+      ],
     );
   }
 
@@ -310,5 +362,4 @@ class _CreateNeweventPageState extends State<CreateNeweventPage>{
       ),
     );
   }
-
 }

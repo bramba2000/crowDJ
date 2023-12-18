@@ -25,8 +25,8 @@ getGeoPointFromJson(var response){
   if(response == null || response==null) return GeoPoint(0, 0);
 
   return GeoPoint(
-    response["features"][0]["geometry"]["coordinates"][0], 
-    response["features"][0]["geometry"]["coordinates"][1]);
+    response["features"][0]["geometry"]["coordinates"][1], 
+    response["features"][0]["geometry"]["coordinates"][0]);
 
 }
 

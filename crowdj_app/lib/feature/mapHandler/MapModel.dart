@@ -9,8 +9,8 @@ class MapModel {
   List<Marker> _markers = [];
   late GeoPoint _center;
 
-  MapModel(){
-    _center=GeoPoint(0, 0);
+  MapModel({GeoPoint g = const GeoPoint(48.38374662182102, 62.50187384520631 )}){
+    _center=g;
   }
 
   MapModel._(this._center);
@@ -38,7 +38,7 @@ class MapModel {
         width: 60,
         height: 60,
         child: IconButton(
-          onPressed: () => print("clik"),
+          onPressed: () => print("lat: ${place.latitude} and lng: ${place.longitude}"),
           icon: const Icon(
             Icons.place,
             color: Colors.red,
@@ -49,6 +49,7 @@ class MapModel {
   }
 
   void addYourCurrentPlace(GeoPoint place) {
+    print("addYourCurrentPlace");
     _markers.add(
       Marker(
         point: LatLng(place.latitude, place.longitude), //
@@ -65,23 +66,25 @@ class MapModel {
     );
   }
 
-  void updatePalce(GeoPoint place){
+  void updatePlace(GeoPoint place){
+    print("updatePalce");
     _markers.clear();
     addPlace(place);
   }
 
   void updateCenter(GeoPoint place){
+    print("updateCenter");
     _center=place;
   }
 
-  void updatePalces(List<GeoPoint> places){
+  void updatePlaces(List<GeoPoint> places){
     _markers.clear();
     for(GeoPoint pl in places)
       addPlace(pl);
   }
 
   GeoPoint getCenter(){
-    return _center!;
+    return _center;
   }
 
   List<Marker> getMarkers(){
