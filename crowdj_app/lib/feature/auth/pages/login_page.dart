@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,7 +12,7 @@ class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
@@ -37,7 +38,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             if (watch is AuthenticationStateUnauthenticated) {
-              _showSnackBar(watch);
+              //TODO: improve error handling and display
+              SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+                _showSnackBar(watch);
+              });
             }
             if (constraints.maxWidth > 600) {
               return _desktopPage();

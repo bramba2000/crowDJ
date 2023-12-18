@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crowdj/feature/auth/models/user_props.dart';
+import '../models/user_props.dart';
 
 class UserDataSource {
   final FirebaseFirestore _firestore;

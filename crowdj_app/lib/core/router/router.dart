@@ -1,16 +1,16 @@
-import 'package:crowdj/feature/auth/data/auth_data_source.dart';
-import 'package:crowdj/feature/auth/data/user_data_source.dart';
-import 'package:crowdj/feature/auth/pages/SigninPage.dart';
-import 'package:crowdj/feature/auth/pages/app/EventPage.dart';
-import 'package:crowdj/feature/auth/pages/app/djPages/CreateNewEventPage.dart';
-import 'package:crowdj/feature/auth/providers/authentication_provider.dart';
-import 'package:crowdj/feature/auth/pages/app/home_page.dart';
-import 'package:crowdj/utils/Event.dart';
+import '../../feature/auth/data/auth_data_source.dart';
+import '../../feature/auth/data/user_data_source.dart';
+import '../../feature/auth/pages/signin_page.dart';
+import '../../feature/auth/pages/app/EventPage.dart';
+import '../../feature/auth/pages/app/djPages/CreateNewEventPage.dart';
+import '../../feature/auth/providers/authentication_provider.dart';
+import '../../feature/auth/pages/app/home_page.dart';
+import '../../utils/Event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
-import '../../feature/auth/pages/LoginPage.dart';
+import '../../feature/auth/pages/login_page.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,7 +20,6 @@ final _key = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
 
 @riverpod
 GoRouter router(RouterRef ref) {
-
   bool inLoginPage = false;
   final authState = ref.watch(
       authNotifierProvider(defaultAuthDataSource, defaultUserDataSource));
@@ -32,32 +31,28 @@ GoRouter router(RouterRef ref) {
     routes: [
       GoRoute(
         path: '/',
-        pageBuilder: (context, state){ 
+        pageBuilder: (context, state) {
           print("building HomePage");
-          return const MaterialPage(
-            child: HomePage()
-          );
+          return const MaterialPage(child: HomePage());
         },
         routes: [
           GoRoute(
-            path: "newEvent",
-            pageBuilder: (context, state) { 
-              print("building CreateNeweventPage");
-              return MaterialPage(
-                child: CreateNeweventPage(),
-              );
-            }
-          ),
+              path: "newEvent",
+              pageBuilder: (context, state) {
+                print("building CreateNeweventPage");
+                return MaterialPage(
+                  child: CreateNeweventPage(),
+                );
+              }),
           GoRoute(
-            path: "event",
-            pageBuilder: (context, state) { 
-              Event args = state.extra as Event; // 👈 casting is important
-              print("building CreateNeweventPage");
-              return MaterialPage(
-                child: EventPage(args:args),
-              );
-            }
-          ),
+              path: "event",
+              pageBuilder: (context, state) {
+                Event args = state.extra as Event; // 👈 casting is important
+                print("building CreateNeweventPage");
+                return MaterialPage(
+                  child: EventPage(args: args),
+                );
+              }),
         ],
       ),
       GoRoute(
@@ -68,7 +63,7 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/login',
         pageBuilder: (context, state) {
-          inLoginPage=!inLoginPage;
+          inLoginPage = !inLoginPage;
           return const MaterialPage(
             child: LoginPage(),
           );

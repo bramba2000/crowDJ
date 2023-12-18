@@ -66,7 +66,7 @@ void main() {
           name: 'name',
           surname: 'surname',
           email: 'email',
-          userType: UserType.PARTICIPANT);
+          userType: UserType.participant);
       final firestore = FakeFirebaseFirestore();
       await firestore
           .collection('users')
@@ -82,7 +82,7 @@ void main() {
           name: 'name',
           surname: 'surname',
           email: 'email',
-          userType: UserType.PARTICIPANT);
+          userType: UserType.participant);
       final firestore = FakeFirebaseFirestore();
       final UserDataSource userDataSource = UserDataSource(firestore);
       await userDataSource.createUserProps('test123456', userProps);
@@ -125,7 +125,7 @@ void main() {
           name: 'name',
           surname: 'surname',
           email: 'test@test.it',
-          userType: UserType.PARTICIPANT);
+          userType: UserType.participant);
 
       provideDummy(mockUserProps);
 
@@ -161,13 +161,13 @@ void main() {
           name: 'name',
           surname: 'surname',
           email: 'test@test.it',
-          userType: UserType.PARTICIPANT);
+          userType: UserType.participant);
 
       const mockUserProps2 = UserProps(
           name: 'name',
           surname: 'surname',
           email: 'test@test.it',
-          userType: UserType.PARTICIPANT);
+          userType: UserType.participant);
       expect(mockUserProps2, equals(mockUserProps));
 
       provideDummy(mockUserProps);

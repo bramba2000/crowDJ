@@ -23,6 +23,6 @@ Map<String, dynamic> _$$UserPropsImplToJson(_$UserPropsImpl instance) =>
     };
 
 const _$UserTypeEnumMap = {
-  UserType.PARTICIPANT: 'PARTICIPANT',
-  UserType.DJ: 'DJ',
+  UserType.participant: 'participant',
+  UserType.dj: 'dj',
 };
