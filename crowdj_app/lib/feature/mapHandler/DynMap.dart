@@ -24,7 +24,6 @@ class _MapState extends State<DynMap> {
   @override
   Widget build(BuildContext context) {
 
-
     print(" PRINTING THE MAP");
     print("center lat:"+widget.center.latitude.toString()+" lng: "+widget.center.longitude.toString());
     

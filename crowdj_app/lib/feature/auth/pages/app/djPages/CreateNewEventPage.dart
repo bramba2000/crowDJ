@@ -121,6 +121,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     );
   }
 
+  ///form for the maximun number of people
   TextFormField _maxPeopleForm() {
     return TextFormField(
       controller: _maxPeopleContoller,
@@ -133,10 +134,10 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
           return 'Invalid number format';
         }
         if (int.parse(value) > 20000) {
-          return 'the maximum number of partecipants is 20.000';
+          return 'max 20.000 partecipants';
         }
         if (int.parse(value) < 2) {
-          return 'the event must have at least 2 people';
+          return 'min 2 people';
         }
         // You can add more validation logic if needed
         return null;
@@ -147,49 +148,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     );
   }
 
-  ElevatedButton _confirmationButton() {
-    return ElevatedButton(
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          // Form is valid, process the data
-          // You can save the data to a database or perform any other action here
-          // For demonstration, we'll print the data
-          print('Title: ${_titleController.text}');
-          print("Description : ${_descriptionController.text}");
-          print('Date: $_selectedDate');
-          print("Address : ${_addressController.text}");
-        }
-      },
-      child: Text('Submit'),
-    );
-  }
-
-  Widget _showMap() {
-    print("show map");
-    try {
-      return Container(
-        padding: EdgeInsets.all(40),
-        height: 400,
-        //width: 400,
-        child: DynMap(
-          mapModel: _map,
-          center: location,
-        ),
-      );
-    } catch (e) {
-      return const Center(
-        child:  Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('Fetching Data...'),
-              SizedBox(height: 20),
-              CircularProgressIndicator(),
-            ],
-          ),
-      );
-    }
-  }
-
+  ///button to switch form a private event to a public one
   Row _publicOrPrivateForm() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -211,6 +170,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     );
   }
 
+  ///form to choose the gense
   DropdownButtonFormField<String> _genreForm(List<String> musicGenres) {
     return DropdownButtonFormField<String>(
       value: selectedGenre,
@@ -233,6 +193,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     );
   }
 
+  ///form to insert a description
   TextFormField _descriptionForm() {
     return TextFormField(
       controller: _descriptionController,
@@ -241,11 +202,15 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
         if (value == null || value.isEmpty) {
           return 'Please enter a description';
         }
+        if (value.toString().length > 1000) {
+          return 'max 1000 characters';
+        }
         return null;
       },
     );
   }
 
+  ///form to add the event Date
   Row _dateForm() {
     return Row(
       children: [
@@ -276,6 +241,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     );
   }
 
+  ///form to title the event
   TextFormField _titleForm() {
     return TextFormField(
       controller: _titleController,
@@ -289,6 +255,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     );
   }
 
+  ///banner with the calendar
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -303,6 +270,8 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     }
   }
 
+  //---------------->>about the map<<---------------------
+  ///form to choose a location
   Row _locationForm() {
     return Row(
       children: [
@@ -314,6 +283,9 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter an address';
+              }
+              if (value.toString().length > 100) {
+                return 'max 100 characters';
               }
               return null;
             },
@@ -347,6 +319,52 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
           ),
         ),
       ],
+    );
+  }
+
+  ///plot the map
+  Widget _showMap() {
+    print("show map");
+    try {
+      return Container(
+        padding: EdgeInsets.all(40),
+        height: 400,
+        //width: 400,
+        child: DynMap(
+          mapModel: _map,
+          center: location,
+        ),
+      );
+    } catch (e) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Fetching Data...'),
+            SizedBox(height: 20),
+            CircularProgressIndicator(),
+          ],
+        ),
+      );
+    }
+  }
+
+  // --------------------->><<------------------------
+  
+  ///button to confirm the information into the form. You can find the
+  ElevatedButton _confirmationButton() {
+    return ElevatedButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          // Form is valid, process the data
+          print('Title: ${_titleController.text}');
+          print("Description : ${_descriptionController.text}");
+          print('Date: $_selectedDate');
+          print("Address : ${_addressController.text}");
+
+        }
+      },
+      child: const Text('Submit'),
     );
   }
 
