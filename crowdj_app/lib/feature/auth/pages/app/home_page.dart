@@ -1,7 +1,12 @@
+import 'package:flutter_map/flutter_map.dart';
+
 import '../../../../utils/Event.dart';
 import '../../../../utils/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../mapHandler/DynMap.dart';
+import '../../../mapHandler/MapModel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,6 +16,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final MapController _mapController = MapController();
+  late MapModel _mapModel;
+  late DynMap _map;
+
   List<Event> getEvents() {
     List<Event> events = [
       Event(
@@ -76,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: (){
+                      onPressed: () {
                         context.go("/newEvent");
                         print("-> createNewEventPage");
                       },
@@ -249,7 +258,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(
               height: 30,
             ),
-            userMap(screenWidth, screenHeight),
+            _userMap(screenWidth, screenHeight),
             const SizedBox(
               height: 30,
             ),
@@ -360,26 +369,75 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 
-  Widget userMap(screenWidth, screenHeight) {
+  Widget _userMap(screenWidth, screenHeight) {
     return Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.0),
-          color: const Color.fromARGB(255, 60, 158, 238),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3), // changes position of shadow
-            ),
-          ],
-        ),
-        child: SizedBox(
-          width: screenWidth * 0.8,
-          height: screenHeight * 0.5,
-          child: const Text("put the map here"),
-        ));
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: const Color.fromARGB(255, 60, 158, 238),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 3), // changes position of shadow
+          ),
+        ],
+      ),
+      child: FutureBuilder<Widget>(
+        future: _buildMap(),
+        builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Container(
+                height: 100,
+                width: 100,
+                child: const Text("error occurs while loading the map"),
+              );
+            } else {
+              return Container(child: snapshot.data);
+            }
+          }
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasError) {
+              return Container(
+                height: 100,
+                width: 100,
+                child: Text("error:"+snapshot.error.toString()),
+              );
+            } else {
+              return const Center(
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(
+                    semanticsLabel: "Loading ... ",
+                  ),
+                ),
+              );
+            }
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<DynMap> _buildMap() async {
+    try {
+      _mapModel = await MapModel.create(); //createEventsMap()
+      _map = DynMap(
+          mapModel: _mapModel,
+          center: _mapModel.getCenter(),
+          mapController: _mapController);
+      print("Map has been built");
+      return _map;
+    } catch (e) {
+      print(e.toString());
+      return _map;
+    }
   }
 
   Widget invitationsList() {

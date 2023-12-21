@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../mapHandler/DynMap.dart';
 import '../../../../mapHandler/MapModel.dart';
@@ -21,8 +23,10 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
   int selectedNumber = 1;
 
   TextEditingController _addressController = TextEditingController();
-  late GeoPoint location;
-  late MapModel _map;
+  late GeoPoint _location;
+  late MapModel _mapModel;
+  late DynMap _map;
+  late MapController _mapController;
   bool _mapIsVisible = false;
 
   DateTime? _selectedDate;
@@ -34,12 +38,19 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
   @override
   void initState() {
     super.initState();
-    _initializeMap();
+    _mapController = MapController();
+    _initializeMapAndModel();
     print("initilalize new event");
   }
 
-  Future<void> _initializeMap() async {
-    _map = await MapModel.create();
+  Future<void> _initializeMapAndModel() async {
+    _mapModel = await MapModel.create();
+    _location = _mapModel.getCenter();
+    _map = DynMap(
+      mapModel: _mapModel,
+      center: _location,
+      mapController: _mapController,
+    );
     //await Future.delayed(Duration(seconds: 3));
   }
 
@@ -276,7 +287,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     return Row(
       children: [
         Expanded(
-          flex: 4,
+          flex: 3,
           child: TextFormField(
             controller: _addressController,
             decoration: const InputDecoration(labelText: 'Address'),
@@ -294,20 +305,30 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
         Expanded(
           flex: 1,
           child: ElevatedButton(
+            //_mapIsVisible? const SizedBox() :
             onPressed: () => setState(
               () {
                 fromAddrToCoord(_addressController.text).then(
+                  // -------------------->> VEDI FUTURE bUILDER
                   (addrDetails) => setState(
                     () {
-                      location = getGeoPointFromJson(addrDetails);
+                      _location = getGeoPointFromJson(addrDetails);
                       print("Lat:" +
-                          location.latitude.toString() +
+                          _location.latitude.toString() +
                           " Lng:" +
-                          location.longitude.toString());
-                      _map = MapModel(g: location);
-                      _map!.updatePlace(location);
-                      _map!.updateCenter(location);
+                          _location.longitude.toString());
+                      _mapController.move(
+                          LatLng(_location.latitude, _location.longitude),
+                          13.0);
+                      _mapModel = MapModel(g: _location);
+                      _mapModel!.updatePlace(_location);
+                      _mapModel!.updateCenter(_location);
                       print("all updated");
+                      _map = DynMap(
+                        mapModel: _mapModel,
+                        center: _location,
+                        mapController: _mapController,
+                      );
                       // _mapIsVisible = true;
                     },
                   ),
@@ -330,10 +351,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
         padding: EdgeInsets.all(40),
         height: 400,
         //width: 400,
-        child: DynMap(
-          mapModel: _map,
-          center: location,
-        ),
+        child: _map,
       );
     } catch (e) {
       return const Center(
@@ -350,7 +368,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
   }
 
   // --------------------->><<------------------------
-  
+
   ///button to confirm the information into the form. You can find the
   ElevatedButton _confirmationButton() {
     return ElevatedButton(
@@ -361,7 +379,6 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
           print("Description : ${_descriptionController.text}");
           print('Date: $_selectedDate');
           print("Address : ${_addressController.text}");
-
         }
       },
       child: const Text('Submit'),
