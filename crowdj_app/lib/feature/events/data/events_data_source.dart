@@ -33,7 +33,7 @@ class EventDataSource {
   /// and it will be added to the database as a private event
   /// * If [isPrivate] is false or not provided, the event will be added to the
   /// database as a public event
-  Future<void> createEvent({
+  Future<Event> createEvent({
     required String title,
     required String description,
     required int maxPeople,
@@ -68,6 +68,7 @@ class EventDataSource {
             status: EventStatus.upcoming,
           );
     _firestore.collection(_collectionName).doc(event.id).set(event.toJson());
+    return event;
   }
 
   /// Updates an event in the database
