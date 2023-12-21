@@ -32,14 +32,12 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/',
         pageBuilder: (context, state) {
-          print("building HomePage");
           return const MaterialPage(child: HomePage());
         },
         routes: [
           GoRoute(
               path: "newEvent",
               pageBuilder: (context, state) {
-                print("building CreateNeweventPage");
                 return MaterialPage(
                   child: CreateNeweventPage(),
                 );
@@ -47,8 +45,7 @@ GoRouter router(RouterRef ref) {
           GoRoute(
               path: "event",
               pageBuilder: (context, state) {
-                Event args = state.extra as Event; // 👈 casting is important
-                print("building CreateNeweventPage");
+                Event args = state.extra as Event;
                 return MaterialPage(
                   child: EventPage(args: args),
                 );
@@ -65,7 +62,7 @@ GoRouter router(RouterRef ref) {
         pageBuilder: (context, state) {
           inLoginPage = !inLoginPage;
           return const MaterialPage(
-            child: LoginPage(),  
+            child: LoginPage(),
           );
         },
       ),
