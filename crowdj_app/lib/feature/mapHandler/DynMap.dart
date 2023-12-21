@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -10,7 +9,6 @@ import 'MapModel.dart';
 // ------------------------>> guardati MapController <<-------------------
 
 class DynMap extends StatefulWidget {
-
   final MapModel mapModel;
   final GeoPoint center;
   final MapController mapController;
@@ -26,7 +24,6 @@ class DynMap extends StatefulWidget {
 }
 
 class _MapState extends State<DynMap> {
-
   @override
   Widget build(BuildContext context) {
     /*
