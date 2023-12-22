@@ -184,4 +184,17 @@ class EventDataSource {
       }).toList();
     });
   }
+
+  Future<List<Event>> getEventsOfUser(String userId) async {
+    final CollectionReference<Map<String, dynamic>> eventsCollection =
+        _firestore.collection(_collectionName);
+    final documentSnapshot =
+        await eventsCollection.where('creatorId', isEqualTo: userId).get();
+    if (documentSnapshot.docs.isNotEmpty) {
+      return documentSnapshot.docs
+          .map((e) => Event.fromJson(e.data()))
+          .toList();
+    }
+    return [];
+  }
 }
