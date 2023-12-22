@@ -1,7 +1,8 @@
-import 'package:crowdj/utils/Event.dart';
-import 'package:crowdj/utils/Song.dart';
+import '../../../../utils/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import '../../../events/models/event_model.dart';
 
 class EventPage extends StatefulWidget {
 
@@ -15,9 +16,16 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
+
+  List<Song> songs = [
+      Song(songID: 1, title: "titolo1", artist: "artist1"),
+      Song(songID: 2, title: "titolo2", artist: "artist2"),
+      Song(songID: 3, title: "titolo3", artist: "artist3"),
+  ];
+
+
   @override
   Widget build(BuildContext context) {
-    List<Song> songs = widget.args.songs;
 
     return Scaffold(
       appBar: AppBar(title: const Text("EVENT PAGE")),
@@ -132,7 +140,7 @@ class _EventPageState extends State<EventPage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            for (Song s in e.songs)
+            for (Song s in songs)
               Container(
                 color:const Color.fromARGB(197, 129, 184, 230),
                 margin:const EdgeInsets.all(10),

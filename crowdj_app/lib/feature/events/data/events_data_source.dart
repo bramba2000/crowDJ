@@ -45,7 +45,7 @@ class EventDataSource {
   }) async {
     final Event event = isPrivate
         ? Event.private(
-            id: '',
+            id: _generatePassword(),
             title: title,
             description: description,
             maxPeople: maxPeople,
@@ -57,7 +57,7 @@ class EventDataSource {
             password: _generatePassword(),
           )
         : Event.public(
-            id: '',
+            id: _generatePassword(),
             title: title,
             description: description,
             maxPeople: maxPeople,

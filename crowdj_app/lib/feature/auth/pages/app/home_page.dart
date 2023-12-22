@@ -1,11 +1,12 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../utils/Event.dart';
 import '../../../../utils/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../events/data/events_data_source.dart';
+import '../../../events/models/event_model.dart';
 import '../../../mapHandler/DynMap.dart';
 import '../../../mapHandler/MapModel.dart';
 import '../../data/auth_data_source.dart';
@@ -22,11 +23,11 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-
   ///---->user details<----
   ///
   final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
   late UserProps userProps;
+  late String _userID;
 
   ///---->map<----
   ///
@@ -34,7 +35,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   late MapModel _mapModel;
   late DynMap _map;
 
-  List<Event> getEvents() {
+  ///----> events <----
+  ///
+  late EventDataSource _eventDataSource;
+  late List<Event> _events = [];
+
+  Future<void> _loadEvents() async {
+    _eventDataSource = EventDataSource();
+    /*
     List<Event> events = [
       Event(
           eventID: 1,
@@ -57,19 +65,31 @@ class _HomePageState extends ConsumerState<HomePage> {
             Song(songID: 24, title: "Organism Like Us", artist: "Sensorythm"),
           ])
     ];
+    */
 
-    return events;
+    try {
+      _events = await _eventDataSource.getEventsOfUser(_userID);
+      print("----events getted");
+    } on Exception catch (e) {
+      
+      print("exception!!!!!!!!!!!!"+e.toString());
+    }
+    print("---events loaded");
   }
 
- void _getUserProps(){
-
-    var watch = ref.watch(provider);  
-    if (watch is AuthenticationStateAuthenticated){
+  void _getUserProps() {
+    var watch = ref.watch(provider);
+    if (watch is AuthenticationStateAuthenticated) {
       userProps = watch.userProps;
-    }
-    else{
+      _userID = watch.user.uid;
+      print("---user props loaded");
+      _loadEvents();
+      
+    } else {
       throw ErrorDescription(" impossible to load user props ");
     }
+
+    setState(() {print("events:"+_events.toString());});
 
   }
 
@@ -79,13 +99,19 @@ class _HomePageState extends ConsumerState<HomePage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+    try {
+      _getUserProps();
+      //_loadEvents();
+    } catch (e) {
+      return Scaffold(
+        body: Center(
+          child: Text("OPSSSS...."+e.toString()),
+        ),
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        try {
-          _getUserProps();
-        } catch (e){
-          return Scaffold(body: Center(child: Text(e.toString()),),);
-        }
         if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
           return _desktopDjPage();
         } else {
@@ -98,7 +124,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Scaffold _desktopDjPage() {
-    List<Event> events = getEvents();
     return Scaffold(
       appBar: AppBar(
         title: const Text("DJ HomePage"),
@@ -109,7 +134,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           color: const Color.fromARGB(200, 19, 102, 170),
           child: Column(
             children: [
-              Text("welcome ${userProps.name} ${userProps.surname} - ${userProps.userType}"),
+              Text(
+                  "welcome ${userProps.name} ${userProps.surname} - ${userProps.userType}"),
               Container(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -147,14 +173,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: events.length,
+                  itemCount: _events.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       margin: const EdgeInsets.all(20),
                       padding: const EdgeInsets.all(20),
                       color: const Color.fromARGB(199, 64, 150, 221),
                       height: 200,
-                      child: _djEventRow(events[index]),
+                      child: _djEventRow(_events[index]),
                     );
                   },
                 ),
@@ -228,25 +254,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                 flex: 3,
                 child: Container(
                   color: const Color.fromARGB(198, 97, 165, 221),
-                  child: SingleChildScrollView(
+                  child: const SingleChildScrollView(
                     scrollDirection: Axis.vertical,
-                    padding: const EdgeInsets.all(20.0),
+                    padding: EdgeInsets.all(20.0),
                     child: Column(
                       children: [
-                        for (Song s in e.songs)
-                          Container(
-                            color: const Color.fromARGB(197, 129, 184, 230),
-                            margin: const EdgeInsets.all(10),
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              children: [
-                                Text("${s.artist} - ${s.title} "),
-                                const SizedBox(
-                                  height: 5,
-                                )
-                              ],
-                            ),
-                          )
+                        ///TODO: add here songs' of event e
                       ],
                     ),
                   ),
@@ -326,11 +339,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget eventList() {
-    List<Event> events = getEvents();
-
     return Column(
       children: [
-        for (var event in events)
+        for (var event in _events)
           Row(
             children: [
               ElevatedButton(
@@ -429,10 +440,10 @@ class _HomePageState extends ConsumerState<HomePage> {
             } else {
               print("----------------- no snapshot errors, returning the map");
               return Container(
-                padding: EdgeInsets.all(8),
-                height: 300,
-                width: 100,
-                child: _map ); 
+                  padding: EdgeInsets.all(8),
+                  height: 300,
+                  width: 100,
+                  child: _map);
             }
           }
           if (snapshot.connectionState == ConnectionState.active) {
@@ -440,7 +451,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               return Container(
                 height: 100,
                 width: 100,
-                child: Text("----------------- error:"+snapshot.error.toString()),
+                child: Text(
+                    "----------------- error:" + snapshot.error.toString()),
               );
             } else {
               return const Center(
@@ -466,10 +478,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     try {
       _mapModel = await MapModel.create(); //createEventsMap()
       _map = DynMap(
-          mapModel: _mapModel,
-          center: _mapModel.getCenter(),
-          mapController: _mapController,
-          );
+        mapModel: _mapModel,
+        center: _mapModel.getCenter(),
+        mapController: _mapController,
+      );
       print("Map has been built");
       //return _map;
     } catch (e) {
@@ -479,13 +491,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget invitationsList() {
-    List<Event> events = getEvents();
-
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(
-          events.length,
+          _events.length,
           (index) => Container(
             padding: const EdgeInsets.all(8.0),
             margin: const EdgeInsets.all(8.0),
@@ -493,7 +503,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Row(
               children: [
                 elevatedBox(
-                    events[index], const Color.fromARGB(255, 99, 136, 235)),
+                    _events[index], const Color.fromARGB(255, 99, 136, 235)),
                 const SizedBox(width: 10.0),
                 ElevatedButton(
                     onPressed: () => print("accettato"),

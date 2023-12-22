@@ -5,7 +5,6 @@ import '../../feature/auth/pages/app/EventPage.dart';
 import '../../feature/auth/pages/app/djPages/CreateNewEventPage.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../feature/auth/pages/app/home_page.dart';
-import '../../utils/Event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
@@ -13,6 +12,8 @@ import '../../feature/auth/providers/state/authentication_state.dart';
 import '../../feature/auth/pages/login_page.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../feature/events/models/event_model.dart';
 
 part 'router.g.dart';
 

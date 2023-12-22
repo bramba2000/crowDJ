@@ -1,46 +1,64 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../events/data/events_data_source.dart';
+import '../../../../events/models/event_model.dart';
 import '../../../../mapHandler/DynMap.dart';
 import '../../../../mapHandler/MapModel.dart';
 import '../../../../mapHandler/MapProvider.dart';
+import '../../../data/auth_data_source.dart';
+import '../../../data/user_data_source.dart';
+import '../../../models/user_props.dart';
+import '../../../providers/authentication_provider.dart';
+import '../../../providers/state/authentication_state.dart';
 
-class CreateNeweventPage extends StatefulWidget {
+class CreateNeweventPage extends ConsumerStatefulWidget {
   @override
-  _CreateNeweventPageState createState() => _CreateNeweventPageState();
+  ConsumerState<CreateNeweventPage> createState() => _CreateNeweventPageState();
 }
 
-class _CreateNeweventPageState extends State<CreateNeweventPage> {
+class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
+  ///----> form <----
   final _formKey = GlobalKey<FormState>();
-
   TextEditingController _titleController = TextEditingController();
-
   TextEditingController _descriptionController = TextEditingController();
-
   TextEditingController _maxPeopleContoller = TextEditingController();
   int selectedNumber = 1;
-
   TextEditingController _addressController = TextEditingController();
+  DateTime _selectedDate = DateTime(0);
+  String _selectedGenre = "all genres";
+  bool _isPrivate = false;
+
+  ///----> map <----
   late GeoPoint _location;
   late MapModel _mapModel;
   late DynMap _map;
   late MapController _mapController;
   bool _mapIsVisible = false;
 
-  DateTime? _selectedDate;
+  late var watch;
 
-  String? selectedGenre;
+  ///----> user props <----
+  late UserProps _userProps;
+  late var _provider ;
+  late String _userID;
 
-  bool _eventType = false;
+  ///----> event props <----
+  late EventDataSource _eventDataSource;
 
   @override
   void initState() {
     super.initState();
+
+    ///map initialization
+    ///
     _mapController = MapController();
     _initializeMapAndModel();
-    print("initilalize new event");
+    //print("initilalize new event")
   }
 
   Future<void> _initializeMapAndModel() async {
@@ -54,10 +72,31 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
     //await Future.delayed(Duration(seconds: 3));
   }
 
+  Future<void> _initializeUserProps() async {
+    
+    _provider = authNotifierProvider(AuthDataSource(), UserDataSource());
+    
+    ///user initialization
+    ///
+    watch = ref.watch(_provider);
+    if (watch is AuthenticationStateAuthenticated) {
+      _userProps = watch.userProps;
+      _userID = watch.user.uid;
+    } else {
+      throw ErrorDescription(" impossible to load user props ");
+    }
+
+    ///event_data_source initialization
+    ///
+    _eventDataSource = EventDataSource();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        _initializeUserProps();
         if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
           return _desktopDjPage();
         } else {
@@ -69,6 +108,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
 
   Widget _desktopDjPage() {
     List<String> musicGenres = [
+      'all genres',
       'Rock',
       'Pop',
       'Hip Hop',
@@ -167,14 +207,14 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
         ElevatedButton(
           onPressed: () {
             setState(() {
-              _eventType = !_eventType;
+              _isPrivate = !_isPrivate;
             });
           },
           child: const Text('change'),
         ),
         const SizedBox(width: 20),
         Text(
-          _eventType ? 'Private' : 'Public',
+          _isPrivate ? 'Private' : 'Public',
           style: const TextStyle(fontSize: 14),
         ),
       ],
@@ -184,7 +224,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
   ///form to choose the gense
   DropdownButtonFormField<String> _genreForm(List<String> musicGenres) {
     return DropdownButtonFormField<String>(
-      value: selectedGenre,
+      value: _selectedGenre,
       items: musicGenres.map((genre) {
         return DropdownMenuItem<String>(
           value: genre,
@@ -193,7 +233,7 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
       }).toList(),
       onChanged: (value) {
         setState(() {
-          selectedGenre = value;
+          _selectedGenre = value!;
         });
       },
       decoration: const InputDecoration(
@@ -379,6 +419,19 @@ class _CreateNeweventPageState extends State<CreateNeweventPage> {
           print("Description : ${_descriptionController.text}");
           print('Date: $_selectedDate');
           print("Address : ${_addressController.text}");
+
+          _eventDataSource.createEvent(
+            title: _titleController.text,
+            description: _descriptionController.text,
+            maxPeople: int.tryParse(_maxPeopleContoller.text)!,
+            location: _location,
+            startTime: _selectedDate,
+            creatorId: _userID,
+            genre: _selectedGenre,
+          );
+
+          context.go('/');
+
         }
       },
       child: const Text('Submit'),
