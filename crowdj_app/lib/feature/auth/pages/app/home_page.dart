@@ -1,4 +1,5 @@
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../utils/Event.dart';
 import '../../../../utils/Song.dart';
@@ -7,15 +8,28 @@ import 'package:go_router/go_router.dart';
 
 import '../../../mapHandler/DynMap.dart';
 import '../../../mapHandler/MapModel.dart';
+import '../../data/auth_data_source.dart';
+import '../../data/user_data_source.dart';
+import '../../models/user_props.dart';
+import '../../providers/authentication_provider.dart';
+import '../../providers/state/authentication_state.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
+
+  ///---->user details<----
+  ///
+  final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
+  late UserProps userProps;
+
+  ///---->map<----
+  ///
   final MapController _mapController = MapController();
   late MapModel _mapModel;
   late DynMap _map;
@@ -47,6 +61,18 @@ class _HomePageState extends State<HomePage> {
     return events;
   }
 
+ void _getUserProps(){
+
+    var watch = ref.watch(provider);  
+    if (watch is AuthenticationStateAuthenticated){
+      userProps = watch.userProps;
+    }
+    else{
+      throw ErrorDescription(" impossible to load user props ");
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     // Get the screen size
@@ -55,6 +81,11 @@ class _HomePageState extends State<HomePage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        try {
+          _getUserProps();
+        } catch (e){
+          return Scaffold(body: Center(child: Text(e.toString()),),);
+        }
         if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
           return _desktopDjPage();
         } else {
@@ -68,7 +99,6 @@ class _HomePageState extends State<HomePage> {
 
   Scaffold _desktopDjPage() {
     List<Event> events = getEvents();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("DJ HomePage"),
@@ -79,6 +109,7 @@ class _HomePageState extends State<HomePage> {
           color: const Color.fromARGB(200, 19, 102, 170),
           child: Column(
             children: [
+              Text("welcome ${userProps.name} ${userProps.surname} - ${userProps.userType}"),
               Container(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -372,6 +403,7 @@ class _HomePageState extends State<HomePage> {
   Widget _userMap(screenWidth, screenHeight) {
     return Container(
       padding: const EdgeInsets.all(16.0),
+      height: 300,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),
         color: const Color.fromARGB(255, 60, 158, 238),
@@ -384,9 +416,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      child: FutureBuilder<Widget>(
+      child: FutureBuilder<void>(
         future: _buildMap(),
-        builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               return Container(
@@ -395,7 +427,12 @@ class _HomePageState extends State<HomePage> {
                 child: const Text("error occurs while loading the map"),
               );
             } else {
-              return Container(child: snapshot.data);
+              print("----------------- no snapshot errors, returning the map");
+              return Container(
+                padding: EdgeInsets.all(8),
+                height: 300,
+                width: 100,
+                child: _map ); 
             }
           }
           if (snapshot.connectionState == ConnectionState.active) {
@@ -403,7 +440,7 @@ class _HomePageState extends State<HomePage> {
               return Container(
                 height: 100,
                 width: 100,
-                child: Text("error:"+snapshot.error.toString()),
+                child: Text("----------------- error:"+snapshot.error.toString()),
               );
             } else {
               return const Center(
@@ -425,18 +462,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<DynMap> _buildMap() async {
+  Future<void> _buildMap() async {
     try {
       _mapModel = await MapModel.create(); //createEventsMap()
       _map = DynMap(
           mapModel: _mapModel,
           center: _mapModel.getCenter(),
-          mapController: _mapController);
+          mapController: _mapController,
+          );
       print("Map has been built");
-      return _map;
+      //return _map;
     } catch (e) {
       print(e.toString());
-      return _map;
+      //return _map;
     }
   }
 

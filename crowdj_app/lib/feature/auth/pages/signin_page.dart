@@ -16,6 +16,7 @@ class SigninPage extends ConsumerStatefulWidget {
 }
 
 class _SigninPageState extends ConsumerState<SigninPage> {
+  
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _wannabeDJ = false; // false = participant, true = DJ

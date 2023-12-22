@@ -28,7 +28,7 @@ class MapModel {
     return MapModel._(center);
   }
 
-  ///privare constructor to use when building the map with all 
+  ///privare constructor to use when building the map with all
   ///the events close to a User. See createEventsMap() static constructor
   MapModel._withMarkers(this._center, this._markers);
 
@@ -53,7 +53,7 @@ class MapModel {
       );
     }
 
-    return MapModel._withMarkers(center,eventLocations );
+    return MapModel._withMarkers(center, eventLocations);
   }
 
   //return the current geographical location of the user
@@ -61,11 +61,22 @@ class MapModel {
     LocationData location;
     try {
       location = await Location().getLocation();
-      return GeoPoint(location.latitude!, location.longitude!);
+      if (location.latitude != null &&
+          location.longitude != null &&
+          location.latitude!.isFinite &&
+          location.longitude!.isFinite) {
+        return GeoPoint(location.latitude!, location.longitude!);
+      } else {
+        // Handle the case where latitude or longitude is not a finite number
+        // You might want to use a default location or show an error message.
+        print(
+            'Invalid location values: latitude=${location.latitude}, longitude=${location.longitude}');
+        return const GeoPoint(41.40293360242581, 2.1751213629094206);
+      }
     } catch (e) {
-      print('Error: $e');
+      print('-------------------- Error : $e');
     }
-    return const GeoPoint(0, 0);
+    return const GeoPoint(41.40293360242581, 2.1751213629094206);
   }
 
   //add a red Marker in _markers
