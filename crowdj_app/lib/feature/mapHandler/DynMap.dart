@@ -12,12 +12,13 @@ class DynMap extends StatefulWidget {
   final MapModel mapModel;
   final GeoPoint center;
   final MapController mapController;
-  
+  double zoom;
 
   DynMap({Key? key, 
     required this.mapModel, 
     required this.center,
-    required this.mapController}): super(key: key);
+    required this.mapController,
+    this.zoom=14.0}): super(key: key);
 
   @override
   _MapState createState() => _MapState();
@@ -38,7 +39,7 @@ class _MapState extends State<DynMap> {
       mapController: widget.mapController,
       options: MapOptions(
         initialCenter: LatLng(widget.center.latitude, widget.center.longitude),
-        initialZoom: 17.0,
+        initialZoom: widget.zoom,
         onMapReady: () {
           widget.mapController.mapEventStream.listen((evt) {});
         },

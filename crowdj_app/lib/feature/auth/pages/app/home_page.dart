@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,7 +27,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   ///---->user details<----
   ///
   final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
-  late UserProps userProps;
+  late UserProps _userProps;
   late String _userID;
 
   ///---->map<----
@@ -37,60 +38,41 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   ///----> events <----
   ///
-  late EventDataSource _eventDataSource;
-  late List<Event> _events = [];
+  final EventDataSource _eventDataSource = EventDataSource();
+  List<Event>? _events;
 
   Future<void> _loadEvents() async {
-    _eventDataSource = EventDataSource();
-    /*
-    List<Event> events = [
-      Event(
-          eventID: 1,
-          title: "festa della salamella",
-          maxPeople: 200,
-          genere: "folk",
-          songs: [
-            Song(songID: 11, artist: "Bello figo", title: "pasta con tonno"),
-            Song(songID: 12, artist: "Rovere", title: "affogare")
-          ]),
-      Event(
-          eventID: 2,
-          title: "boom festival",
-          maxPeople: 15000,
-          genere: "techno",
-          songs: [
-            Song(songID: 21, artist: "k", title: "psy and fly"),
-            Song(songID: 22, artist: "matrix", title: "drop it"),
-            Song(songID: 23, title: "Heute Nacht", artist: "Maddix"),
-            Song(songID: 24, title: "Organism Like Us", artist: "Sensorythm"),
-          ])
-    ];
-    */
-
     try {
       _events = await _eventDataSource.getEventsOfUser(_userID);
-      print("----events getted");
+      //print("----events getted : _events"+_eventList.toString());
     } on Exception catch (e) {
-      
-      print("exception!!!!!!!!!!!!"+e.toString());
+      //print("exception!!!!!!!!!!!!" + e.toString());
+      _events = [];
     }
-    print("---events loaded");
+
+    //print("---events loaded");
+    //return _eventList;
   }
 
-  void _getUserProps() {
+  Future<void> _getUserProps() async {
     var watch = ref.watch(provider);
     if (watch is AuthenticationStateAuthenticated) {
-      userProps = watch.userProps;
+      _userProps = watch.userProps;
       _userID = watch.user.uid;
-      print("---user props loaded");
-      _loadEvents();
-      
+      //print("---user props loaded");
     } else {
       throw ErrorDescription(" impossible to load user props ");
     }
+  }
 
-    setState(() {print("events:"+_events.toString());});
-
+  _initilizeWidget() async {
+    //print(" start _initilizeWidget()");
+    await _getUserProps();
+    await _loadEvents();
+    //print(_userProps.toString());
+    //print(_userID);
+    //print(_events.toString());
+    //print(" end _initilizeWidget()");
   }
 
   @override
@@ -99,24 +81,55 @@ class _HomePageState extends ConsumerState<HomePage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    try {
-      _getUserProps();
-      //_loadEvents();
-    } catch (e) {
-      return Scaffold(
-        body: Center(
-          child: Text("OPSSSS...."+e.toString()),
-        ),
-      );
-    }
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
-          return _desktopDjPage();
-        } else {
-          return _mobileUserPage(screenWidth, screenHeight);
-        }
+        return FutureBuilder<void>(
+          future: _initilizeWidget(),
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return const SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Text("error occurs while loading the info"),
+                );
+              } else {
+                print(
+                    "----------------- no snapshot errors, returning the map");
+                if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
+                  return _desktopDjPage();
+                } else {
+                  return _mobileUserPage(screenWidth, screenHeight);
+                }
+              }
+            }
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasError) {
+                return Container(
+                  height: 100,
+                  width: 100,
+                  child: Text(
+                    "----------------- error:" + snapshot.error.toString(),
+                  ),
+                );
+              } else {
+                return const Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(
+                        semanticsLabel: "Loading ... ",
+                      ),
+                      Text("loading ..."),
+                    ],
+                  ),
+                );
+              }
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
       },
     );
 
@@ -124,6 +137,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Scaffold _desktopDjPage() {
+    //print("user: " + _userProps.toString());
+    //print("id: " + _userID);
+    //print("_events: " + _events.toString());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("DJ HomePage"),
@@ -135,7 +152,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Column(
             children: [
               Text(
-                  "welcome ${userProps.name} ${userProps.surname} - ${userProps.userType}"),
+                  "welcome ${_userProps.name} ${_userProps.surname} - ${_userProps.userType}"),
               Container(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -173,14 +190,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _events.length,
+                  itemCount: _events!.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       margin: const EdgeInsets.all(20),
                       padding: const EdgeInsets.all(20),
                       color: const Color.fromARGB(199, 64, 150, 221),
                       height: 200,
-                      child: _djEventRow(_events[index]),
+                      child: _djEventRow(_events![index]),
                     );
                   },
                 ),
@@ -268,10 +285,12 @@ class _HomePageState extends ConsumerState<HomePage> {
             ],
           ),
         ),
-        const Expanded(
+        Expanded(
           flex: 1,
           child: SizedBox(
-            child: Center(child: Text("put the map here")),
+            height: 200,
+            width: 200,
+            child: _djMap(e),
           ),
         )
       ],
@@ -341,7 +360,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget eventList() {
     return Column(
       children: [
-        for (var event in _events)
+        for (var event in _events!)
           Row(
             children: [
               ElevatedButton(
@@ -428,7 +447,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
       child: FutureBuilder<void>(
-        future: _buildMap(),
+        future: _builUserdMap(),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
@@ -474,7 +493,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Future<void> _buildMap() async {
+  Future<void> _builUserdMap() async {
     try {
       _mapModel = await MapModel.create(); //createEventsMap()
       _map = DynMap(
@@ -490,12 +509,79 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
+  Widget _djMap(Event e) {
+    return Container(
+      child: FutureBuilder<DynMap>(
+        future: _builDJMap(GeoPoint(e.location.latitude, e.location.longitude)),
+        builder: (BuildContext context, AsyncSnapshot<DynMap> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              print("error occurs while loading the map "+snapshot.error.toString());
+              return Container(
+                height: 100,
+                width: 100,
+                child: Text("error occurs while loading the map"+snapshot.error.toString()),
+              );
+            } else {
+              print("----------------- no snapshot errors, returning the map");
+              return Container(
+                  padding: EdgeInsets.all(8),
+                  height: 300,
+                  width: 100,
+                  child: snapshot.data);
+            }
+          }
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasError) {
+              return Container(
+                height: 100,
+                width: 100,
+                child: Text("----------------- error:" + snapshot.error.toString()),
+              );
+            } else {
+              return const Center(
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(
+                    semanticsLabel: "Loading ... ",
+                  ),
+                ),
+              );
+            }
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<DynMap> _builDJMap(GeoPoint eventLocation) async {
+    try {
+      MapModel _model = await MapModel(g: eventLocation);
+      _model.updatePlace(eventLocation);
+      return DynMap(
+        mapModel: _model,
+        center: _model.getCenter(),
+        mapController: MapController(),
+        zoom: 10,
+      );
+    } on Exception catch (e) {
+      print(e.toString());
+      //MapModel _model = await MapModel.create();
+      throw Error();
+      //return DynMap(mapModel: _model, center: _model.getCenter() , mapController: MapController());
+    }
+  }
+
   Widget invitationsList() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(
-          _events.length,
+          _events!.length,
           (index) => Container(
             padding: const EdgeInsets.all(8.0),
             margin: const EdgeInsets.all(8.0),
@@ -503,7 +589,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Row(
               children: [
                 elevatedBox(
-                    _events[index], const Color.fromARGB(255, 99, 136, 235)),
+                    _events![index], const Color.fromARGB(255, 99, 136, 235)),
                 const SizedBox(width: 10.0),
                 ElevatedButton(
                     onPressed: () => print("accettato"),
