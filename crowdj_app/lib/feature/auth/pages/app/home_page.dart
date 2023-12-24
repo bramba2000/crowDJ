@@ -39,19 +39,23 @@ class _HomePageState extends ConsumerState<HomePage> {
   ///----> events <----
   ///
   final EventDataSource _eventDataSource = EventDataSource();
-  List<Event>? _events;
+  late List<Event> _events=[];
 
   Future<void> _loadEvents() async {
     try {
-      _events = await _eventDataSource.getEventsOfUser(_userID);
-      //print("----events getted : _events"+_eventList.toString());
+      if (_userProps.userType == UserType.dj) {
+        _events = await _eventDataSource.getEventsOfUser(_userID);
+      } else {
+        await _eventDataSource.getEventsWithinRadius(await MapModel.getCurrentLocation(), 5).listen((list) {
+          // Handle each list as it arrives
+          _events = list;
+          print("---------------------------------------_events updated");
+        });
+      }
     } on Exception catch (e) {
-      //print("exception!!!!!!!!!!!!" + e.toString());
+      print(" error!!!!!!!!!!! "+ e.toString());
       _events = [];
     }
-
-    //print("---events loaded");
-    //return _eventList;
   }
 
   Future<void> _getUserProps() async {
@@ -178,10 +182,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "SONGS",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
                       "PALCE",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -239,6 +239,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 Expanded(
                   flex: 1,
+                  child: Text(
+                    "genre: ${e.genre}",
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    "${e.startTime.day}/${e.startTime.month}/${e.startTime.year}",
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -253,36 +265,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ],
             ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          //height: 150,
-          child: Column(
-            children: [
-              const Expanded(
-                flex: 1,
-                child: Text(
-                  "Songs",
-                  style: TextStyle(),
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  color: const Color.fromARGB(198, 97, 165, 221),
-                  child: const SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    padding: EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        ///TODO: add here songs' of event e
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
         Expanded(
@@ -358,6 +340,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget eventList() {
+    print(_events.toString());
     return Column(
       children: [
         for (var event in _events!)
@@ -496,6 +479,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> _builUserdMap() async {
     try {
       _mapModel = await MapModel.create(); //createEventsMap()
+      _mapModel.addYourCurrentPlace(_mapModel.getCenter());
       _map = DynMap(
         mapModel: _mapModel,
         center: _mapModel.getCenter(),
@@ -516,11 +500,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         builder: (BuildContext context, AsyncSnapshot<DynMap> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              print("error occurs while loading the map "+snapshot.error.toString());
+              print("error occurs while loading the map " +
+                  snapshot.error.toString());
               return Container(
                 height: 100,
                 width: 100,
-                child: Text("error occurs while loading the map"+snapshot.error.toString()),
+                child: Text("error occurs while loading the map" +
+                    snapshot.error.toString()),
               );
             } else {
               print("----------------- no snapshot errors, returning the map");
@@ -536,7 +522,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               return Container(
                 height: 100,
                 width: 100,
-                child: Text("----------------- error:" + snapshot.error.toString()),
+                child: Text(
+                    "----------------- error:" + snapshot.error.toString()),
               );
             } else {
               return const Center(

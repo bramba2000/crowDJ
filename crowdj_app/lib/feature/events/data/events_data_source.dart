@@ -176,7 +176,9 @@ class EventDataSource {
     final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream = _geo
         .collection(collectionRef: eventsCollection)
         .withinAsSingleStreamSubscription(
-            center: centerPoint, radius: radius, field: 'location')
+            center: centerPoint, 
+            radius: radius, 
+            field: 'location')
         .cast();
     return stream.map((List<DocumentSnapshot<Map<String, dynamic>>> eventDocs) {
       return eventDocs.map((DocumentSnapshot<Map<String, dynamic>> eventDoc) {
