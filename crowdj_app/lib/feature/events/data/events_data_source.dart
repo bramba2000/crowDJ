@@ -155,10 +155,11 @@ class EventDataSource {
   /// Retrieves an event from the database
   ///
   /// Retrieves the event with the provided [eventId] from the database
-  Future<Event> getEvent(String eventId) async {
+  Future<Event?> getEvent(String eventId) async {
     final DocumentSnapshot<Map<String, dynamic>> eventSnapshot =
         await _firestore.collection(_collectionName).doc(eventId).get();
-    return Event.fromJson(eventSnapshot.data()!);
+    final data = eventSnapshot.data();
+    return data != null ? Event.fromJson(data) : null;
   }
 
   /// Retrieves a stream of all the events from the database that are within a
@@ -173,20 +174,27 @@ class EventDataSource {
         _firestore.collection(_collectionName);
     final GeoFirePoint centerPoint =
         GeoFirePoint(center.latitude, center.longitude);
-    final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> stream = _geo
+    final Stream<List<DocumentSnapshot>> stream = _geo
         .collection(collectionRef: eventsCollection)
         .withinAsSingleStreamSubscription(
-            center: centerPoint, 
-            radius: radius, 
-            field: 'location')
-        .cast();
-    return stream.map((List<DocumentSnapshot<Map<String, dynamic>>> eventDocs) {
-      return eventDocs.map((DocumentSnapshot<Map<String, dynamic>> eventDoc) {
-        return Event.fromJson(eventDoc.data()!);
-      }).toList();
+            center: centerPoint,
+            radius: radius,
+            field: 'location',
+            strictMode: true);
+    return stream.map((List<DocumentSnapshot> documentList) {
+      final List<Event> eventList = [];
+      for (final DocumentSnapshot document in documentList) {
+        final data = document.data() as Map<String, dynamic>?;
+        if (data != null) {
+          eventList.add(Event.fromJson(data));
+        }
+      }
+      return eventList;
     });
   }
 
+  /// Retrieves all the events from the database that are created by the user
+  /// with the provided [userId]
   Future<List<Event>> getEventsOfUser(String userId) async {
     final CollectionReference<Map<String, dynamic>> eventsCollection =
         _firestore.collection(_collectionName);

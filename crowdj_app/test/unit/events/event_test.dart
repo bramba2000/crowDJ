@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -97,7 +99,9 @@ void main() {
         'status': 'upcoming',
       });
 
-      dataSource.getEvent('id').then((Event event) {
+      dataSource.getEvent('id').then((Event? event) {
+        expect(event, isNotNull);
+        event = event!;
         expect(event, isA<PublicEvent>());
         expect(event.id, 'id');
         expect(event.title, 'title');
@@ -108,6 +112,68 @@ void main() {
         expect(event.creatorId, 'creatorId');
         expect(event.genre, 'genre');
         expect(event.status, EventStatus.upcoming);
+      });
+    });
+
+    test('Non-existent event should return null', () {
+      final EventDataSource dataSource = EventDataSource(fakeFirestore);
+
+      dataSource.getEvent('id').then((Event? event) {
+        expect(event, null);
+      });
+    });
+
+    test('Distance fetching should retrieve only correct events', () {
+      final EventDataSource dataSource = EventDataSource(fakeFirestore);
+
+      fakeFirestore.collection('events').doc('id').set({
+        'id': 'id',
+        'title': 'title',
+        'description': 'description',
+        'maxPeople': 10,
+        'location': GeoFirePoint(0, 0).data,
+        'startTime': DateTime.now().toString(),
+        'creatorId': 'creatorId',
+        'genre': 'genre',
+        'accessibility': 'public',
+        'status': 'upcoming',
+      });
+
+      fakeFirestore.collection('events').doc('id2').set({
+        'id': 'id2',
+        'title': 'title2',
+        'description': 'description2',
+        'maxPeople': 10,
+        'location': GeoFirePoint(2, 0).data,
+        'startTime': DateTime.now().toString(),
+        'creatorId': 'creatorId2',
+        'genre': 'genre2',
+        'accessibility': 'public',
+        'status': 'upcoming',
+      });
+
+      fakeFirestore.collection('events').doc('id3').set({
+        'id': 'id3',
+        'title': 'title3',
+        'description': 'description3',
+        'maxPeople': 10,
+        'location': GeoFirePoint(0, 3).data,
+        'startTime': DateTime.now().toString(),
+        'creatorId': 'creatorId3',
+        'genre': 'genre3',
+        'accessibility': 'public',
+        'status': 'upcoming',
+      });
+
+      final Stream<List<Event>> stream = dataSource.getEventsWithinRadius(
+        const GeoPoint(0, 0),
+        223,
+      );
+
+      stream.listen((event) {
+        expect(event.length, 2);
+        expect(event.first.id, 'id');
+        expect(event.last.id, 'id2');
       });
     });
 
