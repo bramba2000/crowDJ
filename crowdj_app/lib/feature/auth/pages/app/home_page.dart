@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../../utils/Song.dart';
 import 'package:flutter/material.dart';
@@ -35,25 +36,30 @@ class _HomePageState extends ConsumerState<HomePage> {
   final MapController _mapController = MapController();
   late MapModel _mapModel;
   late DynMap _map;
+  double _zoom=17.0;
 
   ///----> events <----
   ///
   final EventDataSource _eventDataSource = EventDataSource();
-  late List<Event> _events=[];
+  late List<Event> _events = [];
+  double _radius = 5;
 
   Future<void> _loadEvents() async {
     try {
       if (_userProps.userType == UserType.dj) {
         _events = await _eventDataSource.getEventsOfUser(_userID);
       } else {
-        await _eventDataSource.getEventsWithinRadius(await MapModel.getCurrentLocation(), 5).listen((list) {
+        await _eventDataSource
+            .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
+            .listen((list) {
           // Handle each list as it arrives
           _events = list;
-          print("---------------------------------------_events updated");
+          print("---------------------------------------_events updated:" +
+              _events.toString());
         });
       }
     } on Exception catch (e) {
-      print(" error!!!!!!!!!!! "+ e.toString());
+      print(" error!!!!!!!!!!! " + e.toString());
       _events = [];
     }
   }
@@ -120,9 +126,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 return const Center(
                   child: Column(
                     children: [
-                      CircularProgressIndicator(
-                        semanticsLabel: "Loading ... ",
-                      ),
+                      CircularProgressIndicator(),
                       Text("loading ..."),
                     ],
                   ),
@@ -155,8 +159,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           color: const Color.fromARGB(200, 19, 102, 170),
           child: Column(
             children: [
-              Text(
-                  "welcome ${_userProps.name} ${_userProps.surname} - ${_userProps.userType}"),
               Container(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -304,6 +306,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               height: 30,
             ),
             _userMap(screenWidth, screenHeight),
+            _zoomSlider(),
+            _slider(),
             const SizedBox(
               height: 30,
             ),
@@ -348,7 +352,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  context.go("/homePage/EventPage", extra: event);
+                  context.go("/event", extra: event);
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
@@ -430,7 +434,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
       child: FutureBuilder<void>(
-        future: _builUserdMap(),
+        future: _builUserMap(),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
@@ -476,14 +480,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Future<void> _builUserdMap() async {
+  Future<void> _builUserMap() async {
     try {
-      _mapModel = await MapModel.create(); //createEventsMap()
+      _mapModel = await MapModel.createEventsMap(_events); //createEventsMap()
       _mapModel.addYourCurrentPlace(_mapModel.getCenter());
       _map = DynMap(
         mapModel: _mapModel,
         center: _mapModel.getCenter(),
         mapController: _mapController,
+        zoom: _zoom,
       );
       print("Map has been built");
       //return _map;
@@ -591,5 +596,36 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
     );
+  }
+
+  Widget _slider() {
+    return Slider(
+      value: _radius,
+      min: 1,
+      max: 400000,
+      label: _radius.toString()+" km ",
+      onChanged: (value) {
+        setState(() {
+          _radius = value;
+        });
+      },
+    );
+  }
+  
+  Widget _zoomSlider() {
+    return Slider(
+      value: _zoom,
+      min: 10,
+      max: 30,
+      label: _zoom.toString(),
+      divisions: 40,
+      onChanged: (value) {
+        setState(() {
+          _zoom=value;
+          _mapController.move(LatLng(_mapModel.getCenter().latitude, _mapModel.getCenter().longitude), _zoom);
+        });
+      },
+    );
+
   }
 }

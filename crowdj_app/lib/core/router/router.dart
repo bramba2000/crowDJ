@@ -48,7 +48,7 @@ GoRouter router(RouterRef ref) {
               pageBuilder: (context, state) {
                 Event args = state.extra as Event;
                 return MaterialPage(
-                  child: EventPage(args: args),
+                  child: EventPage(arg: args),
                 );
               }),
         ],

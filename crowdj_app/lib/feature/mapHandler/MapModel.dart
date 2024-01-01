@@ -37,6 +37,7 @@ class MapModel {
     final List<Marker> eventLocations = [];
 
     for (Event e in events) {
+      print("---new marker");
       eventLocations.add(
         Marker(
           point: LatLng(e.location.latitude, e.location.longitude),
