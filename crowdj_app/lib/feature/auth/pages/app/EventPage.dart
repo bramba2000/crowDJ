@@ -1,7 +1,10 @@
+import 'package:go_router/go_router.dart';
+
 import '../../../../utils/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../events/data/events_data_source.dart';
 import '../../../events/models/event_model.dart';
 
 class EventPage extends StatefulWidget {
@@ -15,6 +18,8 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
+  bool _showEventEditor = false;
+
   late List<Song> _songs;
 
   Future<void> _loadSongs() async {
@@ -23,7 +28,7 @@ class _EventPageState extends State<EventPage> {
       Song(songID: 2, title: "titolo2", artist: "artist2"),
       Song(songID: 3, title: "titolo3", artist: "artist3"),
     ];
-    Future.delayed(const Duration(seconds: 3));
+    Future.delayed(const Duration(seconds: 10));
   }
 
   _initilizeWidget() async {
@@ -100,8 +105,7 @@ class _EventPageState extends State<EventPage> {
               ],
             ),
           ),
-          Expanded(
-              flex: 1, child: Text("max people: ${widget.arg.maxPeople}")),
+          Expanded(flex: 1, child: Text("max people: ${widget.arg.maxPeople}")),
           Expanded(
             child: Column(
               children: [
@@ -153,16 +157,39 @@ class _EventPageState extends State<EventPage> {
                     flex: 6,
                     child: _songListContainer(),
                   ),
-                  if( widget.arg.status ==  EventStatus.upcoming)
+                  const Spacer(
+                    flex: 1,
+                  ),
+                  if (widget.arg.status == EventStatus.upcoming)
                     Flexible(
                       fit: FlexFit.loose,
                       flex: 1,
                       child: ElevatedButton(
-                        child: const Text("edit"),
-                        onPressed: () => print("edit the event"),
+                        child: _showEventEditor
+                            ? const Text("undo")
+                            : const Text("edit"),
+                        onPressed: () {
+                          setState(() {
+                            _showEventEditor = !_showEventEditor;
+                          });
+                        },
                       ),
                     ),
-                  if( widget.arg.status == EventStatus.past)
+                  if (_showEventEditor &&
+                      widget.arg.status == EventStatus.upcoming)
+                    Flexible(
+                      flex: 4,
+                      fit: FlexFit.loose,
+                      child: ListView(
+                        children: [
+                          eventEditorForm(widget.arg),
+                        ],
+                      ),
+                    ),
+                  const Spacer(
+                    flex: 1,
+                  ),
+                  if (widget.arg.status == EventStatus.past)
                     const Flexible(
                       flex: 3,
                       fit: FlexFit.loose,
@@ -179,7 +206,7 @@ class _EventPageState extends State<EventPage> {
                     flex: 4,
                     child: _showImage(),
                   ),
-                  if( widget.arg.status ==  EventStatus.ongoing)
+                  if (widget.arg.status == EventStatus.ongoing)
                     Expanded(
                       flex: 1,
                       child: _showPlayer(),
@@ -253,6 +280,113 @@ class _EventPageState extends State<EventPage> {
     return SizedBox(
       child: Text(
         "player",
+      ),
+    );
+  }
+
+  Widget eventEditorForm(Event event) {
+    TextEditingController _titleController = TextEditingController();
+    _titleController.text = event.title;
+    TextEditingController _descriptionController = TextEditingController();
+    _descriptionController.text = event.description;
+    String _selectedGenre = event.genre;
+
+    EventDataSource _eventDataSource = EventDataSource();
+
+    List<String> musicGenres = [
+      'all genres',
+      'Rock',
+      'Pop',
+      'Hip Hop',
+      'Electronic',
+      'Jazz',
+      'Classical',
+      'Country',
+      'R&B',
+      'Blues',
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          //title
+          TextFormField(
+            controller: _titleController,
+            decoration: InputDecoration(labelText: "title"),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a title';
+              }
+              return null;
+            },
+          ),
+          SizedBox(
+            height: 10,
+          ),
+
+          //description
+          TextFormField(
+            controller: _descriptionController,
+            decoration: InputDecoration(labelText: "description of the event"),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a description';
+              }
+              if (value.toString().length > 1000) {
+                return 'max 1000 characters';
+              }
+              return null;
+            },
+          ),
+          SizedBox(
+            height: 10,
+          ),
+
+          //genre
+          DropdownButtonFormField<String>(
+            value: _selectedGenre,
+            items: musicGenres.map((genre) {
+              return DropdownMenuItem<String>(
+                value: genre,
+                child: Text(genre),
+              );
+            }).toList(),
+            onChanged: (value) {
+              _selectedGenre = value!;
+            },
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Choose a genre',
+              labelText: 'Music Genre',
+            ),
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _eventDataSource.updateEvent(
+                      id: event.id,
+                      title: _titleController.text,
+                      description: _descriptionController.text,
+                      genre: _selectedGenre);
+                  context.go("/");
+                },
+                child: Text("apply changes"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _eventDataSource.deleteEvent(event.id);
+                  context.go("/");
+                },
+                child: Text("delete event"),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

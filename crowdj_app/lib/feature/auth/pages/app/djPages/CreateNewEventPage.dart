@@ -33,6 +33,20 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
   String _selectedGenre = "all genres";
   bool _isPrivate = false;
 
+  ///----> music and songs <----
+  List<String> musicGenres = [
+      'all genres',
+      'Rock',
+      'Pop',
+      'Hip Hop',
+      'Electronic',
+      'Jazz',
+      'Classical',
+      'Country',
+      'R&B',
+      'Blues',
+    ];
+
   ///----> map <----
   late GeoPoint _location;
   late MapModel _mapModel;
@@ -107,18 +121,6 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
   }
 
   Widget _desktopDjPage() {
-    List<String> musicGenres = [
-      'all genres',
-      'Rock',
-      'Pop',
-      'Hip Hop',
-      'Electronic',
-      'Jazz',
-      'Classical',
-      'Country',
-      'R&B',
-      'Blues',
-    ];
 
     return Scaffold(
       appBar: AppBar(title: const Text(" Create a New Event Page")),
@@ -142,7 +144,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
                       children: [
                         _dateForm(),
                         const SizedBox(height: 16.0),
-                        _genreForm(musicGenres),
+                        _genreForm(),
                         const SizedBox(height: 16.0),
                         _locationForm(),
                         const SizedBox(height: 16.0),
@@ -222,7 +224,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
   }
 
   ///form to choose the gense
-  DropdownButtonFormField<String> _genreForm(List<String> musicGenres) {
+  DropdownButtonFormField<String> _genreForm() {
     return DropdownButtonFormField<String>(
       value: _selectedGenre,
       items: musicGenres.map((genre) {

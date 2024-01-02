@@ -6,9 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'MapModel.dart';
 
-// ------------------------>> guardati MapController <<-------------------
-
 class DynMap extends StatefulWidget {
+
   final MapModel mapModel;
   final GeoPoint center;
   final MapController mapController;
@@ -27,13 +26,6 @@ class DynMap extends StatefulWidget {
 class _MapState extends State<DynMap> {
   @override
   Widget build(BuildContext context) {
-    /*
-    print(" PRINTING THE MAP");
-    print("center lat:" +
-        widget.center.latitude.toString() +
-        " lng: " +
-        widget.center.longitude.toString());
-    */
 
     return FlutterMap(
       mapController: widget.mapController,
