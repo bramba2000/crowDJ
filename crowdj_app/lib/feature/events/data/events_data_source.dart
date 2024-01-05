@@ -6,7 +6,7 @@ import 'package:geoflutterfire2/geoflutterfire2.dart';
 import '../models/event_model.dart';
 
 class EventDataSource {
-  static const String _collectionName = 'events';
+  static const String _collectionName = Event.collectionName;
 
   final FirebaseFirestore _firestore;
   final GeoFlutterFire _geo = GeoFlutterFire();
@@ -207,5 +207,4 @@ class EventDataSource {
     }
     return [];
   }
-
 }

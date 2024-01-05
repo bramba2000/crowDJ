@@ -54,7 +54,7 @@ mixin _$Event {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)
+            String password)
         private,
     required TResult Function(
             String id,
@@ -87,7 +87,7 @@ mixin _$Event {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)?
+            String password)?
         private,
     TResult? Function(
             String id,
@@ -120,7 +120,7 @@ mixin _$Event {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)?
+            String password)?
         private,
     TResult Function(
             String id,
@@ -264,7 +264,7 @@ abstract class _$$PrivateEventImplCopyWith<$Res>
       String creatorId,
       String genre,
       EventStatus status,
-      String? password});
+      String password});
 }
 
 /// @nodoc
@@ -287,7 +287,7 @@ class __$$PrivateEventImplCopyWithImpl<$Res>
     Object? creatorId = null,
     Object? genre = null,
     Object? status = null,
-    Object? password = freezed,
+    Object? password = null,
   }) {
     return _then(_$PrivateEventImpl(
       id: null == id
@@ -326,10 +326,10 @@ class __$$PrivateEventImplCopyWithImpl<$Res>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as EventStatus,
-      password: freezed == password
+      password: null == password
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
     ));
   }
 }
@@ -376,7 +376,7 @@ class _$PrivateEventImpl extends PrivateEvent {
   @override
   final EventStatus status;
   @override
-  final String? password;
+  final String password;
 
   @JsonKey(name: 'accessibility')
   final String $type;
@@ -436,7 +436,7 @@ class _$PrivateEventImpl extends PrivateEvent {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)
+            String password)
         private,
     required TResult Function(
             String id,
@@ -473,7 +473,7 @@ class _$PrivateEventImpl extends PrivateEvent {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)?
+            String password)?
         private,
     TResult? Function(
             String id,
@@ -510,7 +510,7 @@ class _$PrivateEventImpl extends PrivateEvent {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)?
+            String password)?
         private,
     TResult Function(
             String id,
@@ -586,7 +586,7 @@ abstract class PrivateEvent extends Event {
       required final String creatorId,
       required final String genre,
       required final EventStatus status,
-      required final String? password}) = _$PrivateEventImpl;
+      required final String password}) = _$PrivateEventImpl;
   const PrivateEvent._() : super._();
 
   factory PrivateEvent.fromJson(Map<String, dynamic> json) =
@@ -611,7 +611,7 @@ abstract class PrivateEvent extends Event {
   String get genre;
   @override
   EventStatus get status;
-  String? get password;
+  String get password;
   @override
   @JsonKey(ignore: true)
   _$$PrivateEventImplCopyWith<_$PrivateEventImpl> get copyWith =>
@@ -798,7 +798,7 @@ class _$PublicEventImpl extends PublicEvent {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)
+            String password)
         private,
     required TResult Function(
             String id,
@@ -835,7 +835,7 @@ class _$PublicEventImpl extends PublicEvent {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)?
+            String password)?
         private,
     TResult? Function(
             String id,
@@ -872,7 +872,7 @@ class _$PublicEventImpl extends PublicEvent {
             String creatorId,
             String genre,
             EventStatus status,
-            String? password)?
+            String password)?
         private,
     TResult Function(
             String id,

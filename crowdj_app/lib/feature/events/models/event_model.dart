@@ -2,6 +2,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:spotify/spotify.dart';
 
 import '../utils/location_helper.dart';
 
@@ -15,6 +16,8 @@ part 'event_model.g.dart';
 /// Use the factory constructors [Event.private] and [Event.public] to create a
 /// new event. See the documentation of those methods for more specific details.
 class Event with _$Event {
+  static const String collectionName = 'events';
+
   const Event._();
 
   /// [PrivateEvent] is an event that is visible and joinable only by those who
@@ -30,7 +33,7 @@ class Event with _$Event {
     required String creatorId,
     required String genre,
     required EventStatus status,
-    required String? password,
+    required String password,
   }) = PrivateEvent;
 
   /// [PublicEvent] is an event that is visible to everyone and can be joined by

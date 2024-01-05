@@ -18,7 +18,7 @@ _$PrivateEventImpl _$$PrivateEventImplFromJson(Map<String, dynamic> json) =>
       creatorId: json['creatorId'] as String,
       genre: json['genre'] as String,
       status: $enumDecode(_$EventStatusEnumMap, json['status']),
-      password: json['password'] as String?,
+      password: json['password'] as String,
       $type: json['accessibility'] as String?,
     );
 
