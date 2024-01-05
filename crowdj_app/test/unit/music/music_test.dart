@@ -139,11 +139,42 @@ void main() {
               .doc('11dFghVXANMlKmJXsNCbNl')
               .get())
           .data();
-      print(firestore.dump());
       expect(result, isNotNull);
       result!;
       expect(result["name"], 'Cut To The Feeling');
       expect(result["artist"], 'Carly Rae Jepsen');
+    });
+
+    test('Mark track as played should update the track metadata', () async {
+      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
+      await dataSource.saveTrackMetadata('eventId', track);
+      await dataSource.markTrackAsPlayed('eventId', '11dFghVXANMlKmJXsNCbNl');
+      final result = (await firestore
+              .collection('events')
+              .doc('eventId')
+              .collection('tracks')
+              .doc('11dFghVXANMlKmJXsNCbNl')
+              .get())
+          .data();
+      expect(result, isNotNull);
+      result!;
+      expect(result["played"], true);
+    });
+
+    test('Vote track should update the track metadata', () async {
+      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
+      await dataSource.saveTrackMetadata('eventId', track);
+      await dataSource.voteTrack('eventId', '11dFghVXANMlKmJXsNCbNl', 'user1');
+      final result = (await firestore
+              .collection('events')
+              .doc('eventId')
+              .collection('tracks')
+              .doc('11dFghVXANMlKmJXsNCbNl')
+              .get())
+          .data();
+      expect(result, isNotNull);
+      result!;
+      expect(result["voters"], ['user1']);
     });
   });
 }

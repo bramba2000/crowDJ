@@ -2,7 +2,6 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'package:spotify/spotify.dart';
 
 import '../utils/location_helper.dart';
 
