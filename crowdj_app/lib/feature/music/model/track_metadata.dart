@@ -6,6 +6,8 @@ part 'track_metadata.g.dart';
 
 @freezed
 class TrackMetadata with _$TrackMetadata {
+  static const String collectionName = 'tracks';
+
   const factory TrackMetadata({
     required String id,
     required String name,
