@@ -71,7 +71,7 @@ void main() {
     });
   });
 
-  group("Music data source functinality testing -", () {
+  group('Music data source integrates spotify web api -', () {
     late MusicDataSource dataSource;
     late FakeFirebaseFirestore firestore;
 
@@ -100,20 +100,6 @@ void main() {
           () async => await dataSource.getTrack(''), throwsA(isA<Exception>()));
     });
 
-    test('Save track metadata should save the track metadata', () async {
-      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
-      await dataSource.saveTrackMetadata(track);
-      final result = (await firestore
-              .collection('tracks')
-              .doc('11dFghVXANMlKmJXsNCbNl')
-              .get())
-          .data();
-      expect(result, isNotNull);
-      result!;
-      expect(result["name"], 'Cut To The Feeling');
-      expect(result["artist"], 'Carly Rae Jepsen');
-    });
-
     test('Look for track "Cut To The Feeling" should return a of track',
         () async {
       final result = await dataSource.searchTrack('Cut To The Feeling');
@@ -130,6 +116,34 @@ void main() {
       expect(result, isA<List<Track>>());
       expect(result!.first.name, 'Cut To The Feeling');
       expect(result.first.artists?.first.name, 'Carly Rae Jepsen');
+    });
+  });
+
+  group('Music data source handle metatracks with Firestore -', () {
+    late MusicDataSource dataSource;
+    late FakeFirebaseFirestore firestore;
+
+    setUp(() {
+      firestore = FakeFirebaseFirestore();
+      dataSource = MusicDataSource.fromCredentials(
+          Env.spotifyClientId, Env.spotifyClientSecret, firestore);
+    });
+
+    test('Save track metadata should save the track metadata', () async {
+      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
+      await dataSource.saveTrackMetadata('eventId', track);
+      final result = (await firestore
+              .collection('events')
+              .doc('eventId')
+              .collection('tracks')
+              .doc('11dFghVXANMlKmJXsNCbNl')
+              .get())
+          .data();
+      print(firestore.dump());
+      expect(result, isNotNull);
+      result!;
+      expect(result["name"], 'Cut To The Feeling');
+      expect(result["artist"], 'Carly Rae Jepsen');
     });
   });
 }
