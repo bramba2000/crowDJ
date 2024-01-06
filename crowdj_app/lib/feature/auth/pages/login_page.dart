@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,16 +20,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<void> _login() async {
-    await ref
-        .read(provider.notifier)
-        .signIn(_usernameController.text, _passwordController.text);
+    if (_formKey.currentState!.validate()) {
+      await ref
+          .read(provider.notifier)
+          .signIn(_usernameController.text, _passwordController.text);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var watch = ref.watch(provider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login Page'),
@@ -37,12 +40,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         padding: const EdgeInsets.all(16.0),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            if (watch is AuthenticationStateUnauthenticated) {
-              //TODO: improve error handling and display
-              SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-                _showSnackBar(watch);
-              });
-            }
             if (constraints.maxWidth > 600) {
               return _desktopPage();
             } else {
@@ -52,13 +49,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       ),
     );
-    
   }
 
-  void _showSnackBar(var watch) {
+  void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(watch.message),
+        content: Text(message),
       ),
     );
   }
@@ -90,30 +86,52 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget loginForm() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        TextField(
-          controller: _usernameController,
-          decoration: const InputDecoration(labelText: 'email'),
-        ),
-        const SizedBox(height: 16.0),
-        TextField(
-          controller: _passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'password'),
-        ),
-        const SizedBox(height: 16.0),
-        ElevatedButton(
-          onPressed: _login,
-          child: const Text('Login'),
-        ),
-        const SizedBox(height: 20.0),
-        ElevatedButton(
-          onPressed: () => context.replace('/signin'),
-          child: const Text('register'),
-        ),
-      ],
+    var watch = ref.watch(provider);
+    if (watch is AuthenticationStateUnauthenticated) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _showSnackBar(watch.exception is FirebaseAuthException
+            ? (watch.exception as FirebaseAuthException).message!
+            : 'Something went wrong');
+      });
+    }
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextFormField(
+            controller: _usernameController,
+            decoration: const InputDecoration(
+              labelText: 'email',
+              errorText: '',
+            ),
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) =>
+                (value!.isEmpty || !value.contains('@') || !value.contains('.'))
+                    ? 'Enter a valid email'
+                    : null,
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(labelText: 'password'),
+            keyboardType: TextInputType.visiblePassword,
+            validator: (value) =>
+                value!.isEmpty ? 'Enter a valid password' : null,
+          ),
+          const SizedBox(height: 16.0),
+          ElevatedButton(
+            onPressed: _login,
+            child: const Text('Login'),
+          ),
+          const SizedBox(height: 20.0),
+          ElevatedButton(
+            onPressed: () => context.replace('/signin'),
+            child: const Text('register'),
+          ),
+        ],
+      ),
     );
   }
 }
