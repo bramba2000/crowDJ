@@ -77,7 +77,7 @@ void main() {
       expect(props, isNotNull);
     });
 
-    test('Test creation of user proprs', () async {
+    test('Test creation of user props', () async {
       const UserProps userProps = UserProps(
           name: 'name',
           surname: 'surname',
@@ -208,10 +208,8 @@ void main() {
       final provider =
           authNotifierProvider(authDataSource, MockUserDataSource());
 
-      expect(container.read(provider), isA<AuthenticationStateInitial>());
       await container.read(provider.notifier).signOut();
-      expect(
-          container.read(provider), isA<AuthenticationStateUnauthenticated>());
+      expect(container.read(provider), isA<AuthenticationStateInitial>());
     });
   });
 }

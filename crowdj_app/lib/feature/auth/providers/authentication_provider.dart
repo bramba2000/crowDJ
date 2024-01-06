@@ -30,7 +30,7 @@ class AuthNotifier extends _$AuthNotifier {
       state = AuthenticationStateAuthenticated(
           user: userCredential.user!, userProps: userProps);
     } on Exception catch (e) {
-      state = AuthenticationStateUnauthenticated(message: e.toString());
+      state = AuthenticationStateUnauthenticated(e);
     }
   }
 
@@ -48,7 +48,7 @@ class AuthNotifier extends _$AuthNotifier {
         userProps: userProps,
       );
     } on Exception catch (e) {
-      state = AuthenticationStateUnauthenticated(message: e.toString());
+      state = AuthenticationStateUnauthenticated(e);
     }
   }
 
@@ -56,10 +56,9 @@ class AuthNotifier extends _$AuthNotifier {
     state = AuthenticationStateLoading();
     try {
       await firebaseAuth.signOut();
-      state = AuthenticationStateUnauthenticated(
-          message: 'User signed out with regular method');
+      state = AuthenticationStateInitial();
     } on Exception catch (e) {
-      state = AuthenticationStateUnauthenticated(message: e.toString());
+      state = AuthenticationStateUnauthenticated(e);
     }
   }
 }

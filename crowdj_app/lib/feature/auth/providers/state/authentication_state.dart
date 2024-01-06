@@ -20,6 +20,8 @@ class AuthenticationStateAuthenticated extends AuthenticationState {
 /// No user is logged in
 /// Consider inspecting the [AutehnticationStateUnauthenticated.message] for more information about the reason of the unauthenticated state
 class AuthenticationStateUnauthenticated extends AuthenticationState {
-  final String message;
-  AuthenticationStateUnauthenticated({required this.message});
+  final Exception exception;
+
+  String get message => exception.toString();
+  AuthenticationStateUnauthenticated(this.exception);
 }
