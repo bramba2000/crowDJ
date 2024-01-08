@@ -1,12 +1,12 @@
-import '../data/auth_data_source.dart';
-import '../data/user_data_source.dart';
-import '../providers/authentication_provider.dart';
-import '../providers/state/authentication_state.dart';
+import '../feature/auth/data/auth_data_source.dart';
+import '../feature/auth/data/user_data_source.dart';
+import '../feature/auth/providers/authentication_provider.dart';
+import '../feature/auth/providers/state/authentication_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../models/user_props.dart';
+import '../feature/auth/models/user_props.dart';
 
 class SigninPage extends ConsumerStatefulWidget {
   const SigninPage({super.key});

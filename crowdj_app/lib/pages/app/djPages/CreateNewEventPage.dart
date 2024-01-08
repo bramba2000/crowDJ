@@ -5,16 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../../events/data/events_data_source.dart';
-import '../../../../events/models/event_model.dart';
-import '../../../../mapHandler/DynMap.dart';
-import '../../../../mapHandler/MapModel.dart';
-import '../../../../mapHandler/MapProvider.dart';
-import '../../../data/auth_data_source.dart';
-import '../../../data/user_data_source.dart';
-import '../../../models/user_props.dart';
-import '../../../providers/authentication_provider.dart';
-import '../../../providers/state/authentication_state.dart';
+import '../../../feature/events/data/events_data_source.dart';
+import '../../../feature/events/models/event_model.dart';
+import '../../../feature/mapHandler/DynMap.dart';
+import '../../../feature/mapHandler/MapModel.dart';
+import '../../../feature/mapHandler/MapProvider.dart';
+import '../../../feature/auth/data/auth_data_source.dart';
+import '../../../feature/auth/data/user_data_source.dart';
+import '../../../feature/auth/models/user_props.dart';
+import '../../../feature/auth/providers/authentication_provider.dart';
+import '../../../feature/auth/providers/state/authentication_state.dart';
 
 class CreateNeweventPage extends ConsumerStatefulWidget {
   @override
@@ -432,7 +432,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
             genre: _selectedGenre,
           );
 
-          context.go('/');
+          context.replace('/');
 
         }
       },

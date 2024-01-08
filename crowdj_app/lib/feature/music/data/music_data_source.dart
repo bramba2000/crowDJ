@@ -21,7 +21,7 @@ class MusicDataSource {
   /// and optionally a [FirebaseFirestore] instance.
   /// See default constuctor for more details
   factory MusicDataSource.fromCredentials(
-      String clientId, String clientSecret, FirebaseFirestore? instance) {
+      String clientId, String clientSecret, {FirebaseFirestore? instance}) {
     final credentials = SpotifyApiCredentials(clientId, clientSecret);
     final spotify = SpotifyApi(credentials);
     return MusicDataSource(spotify, instance: instance);

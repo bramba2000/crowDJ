@@ -1,15 +1,15 @@
 import '../../feature/auth/data/auth_data_source.dart';
 import '../../feature/auth/data/user_data_source.dart';
-import '../../feature/auth/pages/signin_page.dart';
-import '../../feature/auth/pages/app/EventPage.dart';
-import '../../feature/auth/pages/app/djPages/CreateNewEventPage.dart';
+import '../../pages/signin_page.dart';
+import '../../pages/app/EventPage.dart';
+import '../../pages/app/djPages/CreateNewEventPage.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
-import '../../feature/auth/pages/app/home_page.dart';
+import '../../pages/app/home_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
-import '../../feature/auth/pages/login_page.dart';
+import '../../pages/login_page.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

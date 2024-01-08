@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spotify/spotify.dart' as spotify;
 
-import '../../../../utils/Song.dart';
+import '../../core/env/env.dart';
+import '../../feature/music/data/music_data_source.dart';
+import '../../feature/music/model/track_metadata.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../events/data/events_data_source.dart';
-import '../../../events/models/event_model.dart';
+import '../../feature/events/data/events_data_source.dart';
+import '../../feature/events/models/event_model.dart';
 
 class EventPage extends StatefulWidget {
   final Event arg;
@@ -20,15 +25,18 @@ class EventPage extends StatefulWidget {
 class _EventPageState extends State<EventPage> {
   bool _showEventEditor = false;
 
-  late List<Song> _songs;
+  late List<TrackMetadata> _songs;
+  List<spotify.Track>? _songsSearchRes;
 
   Future<void> _loadSongs() async {
-    _songs = [
-      Song(songID: 1, title: "titolo1", artist: "artist1"),
-      Song(songID: 2, title: "titolo2", artist: "artist2"),
-      Song(songID: 3, title: "titolo3", artist: "artist3"),
-    ];
-    Future.delayed(const Duration(seconds: 10));
+    MusicDataSource _musicDataSource = MusicDataSource.fromCredentials(
+      Env.spotifyClientId,
+      Env.spotifyClientSecret,
+    );
+
+    _songs = await _musicDataSource.getTracksMetadata(widget.arg.id);
+    print(" ---- loded songs");
+    for (TrackMetadata s in _songs) print(s.name);
   }
 
   _initilizeWidget() async {
@@ -52,8 +60,6 @@ class _EventPageState extends State<EventPage> {
                     child: Text("error occurs while loading the info"),
                   );
                 } else {
-                  print(
-                      "----------------- no snapshot errors, returning the map");
                   if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
                     return _desktopDjPage();
                   } else {
@@ -67,7 +73,7 @@ class _EventPageState extends State<EventPage> {
                     height: 100,
                     width: 100,
                     child: Text(
-                      "----------------- error:" + snapshot.error.toString(),
+                      "----------------- error: ${snapshot.error.toString()}",
                     ),
                   );
                 } else {
@@ -109,13 +115,12 @@ class _EventPageState extends State<EventPage> {
           Expanded(
             child: Column(
               children: [
-                for (Song s in _songs)
+                for (TrackMetadata s in _songs)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(s.title),
+                      Text(s.name),
                       Text(s.artist),
-                      Text("${s.songID}")
                     ],
                   )
               ],
@@ -127,89 +132,83 @@ class _EventPageState extends State<EventPage> {
   }
 
   Widget _desktopDjPage() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
       child: Container(
         child: Row(
           children: [
-            Expanded(
+            Flexible(
+              //fit: FlexFit.loose,
               flex: 1,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      widget.arg.title,
-                      style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w800,
-                          fontFamily: AutofillHints.nickname),
+                  Text(
+                    widget.arg.title,
+                    style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: AutofillHints.nickname),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "max people: ${widget.arg.maxPeople}",
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _songListContainer(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  if (widget.arg.status == EventStatus.upcoming)
+                    ElevatedButton(
+                      child: _showEventEditor
+                          ? const Text("undo")
+                          : const Text("edit"),
+                      onPressed: () {
+                        setState(() {
+                          _showEventEditor = !_showEventEditor;
+                        });
+                      },
                     ),
+                  if (_showEventEditor &&
+                      widget.arg.status == EventStatus.upcoming)
+                    eventEditorForm(widget.arg),
+                  const SizedBox(
+                    height: 20,
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      "max people: ${widget.arg.maxPeople}",
+                  if (widget.arg.status == EventStatus.past)
+                    Text("details and stats about the event"),
+                ],
+              ),
+            ),
+            Flexible(
+              //fit: FlexFit.loose,
+              flex: 1,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.arg.status == EventStatus.ongoing)
+                    Flexible(
+                      //fit: FlexFit.loose,
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          _showImage(),
+                          _showPlayer(),
+                        ],
+                      ),
                     ),
-                  ),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    flex: 6,
-                    child: _songListContainer(),
-                  ),
-                  const Spacer(
-                    flex: 1,
-                  ),
                   if (widget.arg.status == EventStatus.upcoming)
                     Flexible(
                       fit: FlexFit.loose,
                       flex: 1,
-                      child: ElevatedButton(
-                        child: _showEventEditor
-                            ? const Text("undo")
-                            : const Text("edit"),
-                        onPressed: () {
-                          setState(() {
-                            _showEventEditor = !_showEventEditor;
-                          });
-                        },
-                      ),
-                    ),
-                  if (_showEventEditor &&
-                      widget.arg.status == EventStatus.upcoming)
-                    Flexible(
-                      flex: 4,
-                      fit: FlexFit.loose,
-                      child: ListView(
-                        children: [
-                          eventEditorForm(widget.arg),
-                        ],
-                      ),
-                    ),
-                  const Spacer(
-                    flex: 1,
-                  ),
-                  if (widget.arg.status == EventStatus.past)
-                    const Flexible(
-                      flex: 3,
-                      fit: FlexFit.loose,
-                      child: Text("details and stats about the event"),
-                    )
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: _showImage(),
-                  ),
-                  if (widget.arg.status == EventStatus.ongoing)
-                    Expanded(
-                      flex: 1,
-                      child: _showPlayer(),
+                      child: _addSongContainer(widget.arg),
                     ),
                 ],
               ),
@@ -231,7 +230,7 @@ class _EventPageState extends State<EventPage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            for (Song s in _songs)
+            for (TrackMetadata s in _songs)
               Container(
                 decoration: BoxDecoration(
                   color: Color.fromARGB(197, 43, 122, 187),
@@ -241,7 +240,7 @@ class _EventPageState extends State<EventPage> {
                 padding: const EdgeInsets.all(10),
                 child: Column(
                   children: [
-                    Text("${s.artist} - ${s.title} "),
+                    Text("${s.artist} - ${s.name} "),
                     const SizedBox(
                       height: 5,
                     )
@@ -322,7 +321,7 @@ class _EventPageState extends State<EventPage> {
               return null;
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
 
@@ -340,7 +339,7 @@ class _EventPageState extends State<EventPage> {
               return null;
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
 
@@ -363,6 +362,10 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
 
+          const SizedBox(
+            height: 20,
+          ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -373,19 +376,125 @@ class _EventPageState extends State<EventPage> {
                       title: _titleController.text,
                       description: _descriptionController.text,
                       genre: _selectedGenre);
-                  context.go("/");
+                  setState(() {});
+                  context.replace("/");
                 },
-                child: Text("apply changes"),
+                child: const Text("apply changes"),
               ),
               ElevatedButton(
                 onPressed: () {
                   _eventDataSource.deleteEvent(event.id);
-                  context.go("/");
+                  setState(() {});
+                  context.replace("/");
                 },
-                child: Text("delete event"),
+                child: const Text("delete event"),
               ),
             ],
           )
+        ],
+      ),
+    );
+  }
+
+  Widget _addSongContainer(Event event) {
+    MusicDataSource _musicDataSource = MusicDataSource.fromCredentials(
+      Env.spotifyClientId,
+      Env.spotifyClientSecret,
+    );
+
+    TextEditingController _songTitle = TextEditingController();
+
+    void updateSongs(String value) async {
+      List<spotify.Track>? updatedSongs =
+          await _musicDataSource.searchTracks(value, limit: 3);
+      setState(() {
+        if (updatedSongs == null) {
+          _songsSearchRes = [];
+        } else {
+          _songsSearchRes = updatedSongs;
+          print(updatedSongs![0].name);
+          print(updatedSongs![1].artists![0].name);
+        }
+      });
+    }
+
+    void addSongToEvent(spotify.Track song) async {
+      await _musicDataSource.saveTrackMetadata(event.id, song);
+      _songTitle.text = "";
+      await _loadSongs();
+    }
+
+    return Container(
+      padding: EdgeInsets.all(20),
+      //sarchbar
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Flexible(
+                flex: 3,
+                child: SizedBox(
+                  //width: MediaQuery.of(context).size.width * 0.5,
+                  child: TextFormField(
+                    controller: _songTitle,
+                    decoration: const InputDecoration(labelText: 'Song Title'),
+                    validator: (value) => null,
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: ElevatedButton(
+                    onPressed: () => updateSongs(_songTitle.text),
+                    child: const Text("search")),
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          if (_songsSearchRes != null && _songsSearchRes != [])
+            for (spotify.Track s in _songsSearchRes!)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          Text(
+                            s.name!,
+                          ),
+                          Text(
+                            s.album!.artists.toString(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              addSongToEvent(s);
+                            });
+                          },
+                          child: Text("add"),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
         ],
       ),
     );
