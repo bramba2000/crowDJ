@@ -78,7 +78,8 @@ void main() {
     setUp(() {
       firestore = FakeFirebaseFirestore();
       dataSource = MusicDataSource.fromCredentials(
-          Env.spotifyClientId, Env.spotifyClientSecret, firestore);
+          Env.spotifyClientId, Env.spotifyClientSecret,
+          firestore: firestore);
     });
 
     test(
@@ -126,7 +127,8 @@ void main() {
     setUp(() {
       firestore = FakeFirebaseFirestore();
       dataSource = MusicDataSource.fromCredentials(
-          Env.spotifyClientId, Env.spotifyClientSecret, firestore);
+          Env.spotifyClientId, Env.spotifyClientSecret,
+          firestore: firestore);
     });
 
     test('Save track metadata should save the track metadata', () async {

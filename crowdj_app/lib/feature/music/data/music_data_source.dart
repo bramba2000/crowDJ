@@ -14,17 +14,17 @@ class MusicDataSource {
   /// Create a new instance of [MusicDataSource] providing a [SpotifyApi] instance
   /// and optionally a [FirebaseFirestore] instance
   /// If no [FirebaseFirestore] instance is provided, the default one will be used
-  MusicDataSource(this._spotifyApi, {FirebaseFirestore? instance})
-      : _instance = instance ?? FirebaseFirestore.instance;
+  MusicDataSource(this._spotifyApi, {FirebaseFirestore? firestore})
+      : _instance = firestore ?? FirebaseFirestore.instance;
 
   /// Create a new instance of [MusicDataSource] providing Spotify credentials
   /// and optionally a [FirebaseFirestore] instance.
   /// See default constuctor for more details
-  factory MusicDataSource.fromCredentials(
-      String clientId, String clientSecret, {FirebaseFirestore? instance}) {
+  factory MusicDataSource.fromCredentials(String clientId, String clientSecret,
+      {FirebaseFirestore? firestore}) {
     final credentials = SpotifyApiCredentials(clientId, clientSecret);
     final spotify = SpotifyApi(credentials);
-    return MusicDataSource(spotify, instance: instance);
+    return MusicDataSource(spotify, firestore: firestore);
   }
 
   /// Get a track from Spotify by its id
