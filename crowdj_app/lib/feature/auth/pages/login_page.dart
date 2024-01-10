@@ -8,6 +8,9 @@ import '../data/auth_data_source.dart';
 import '../data/user_data_source.dart';
 import '../providers/authentication_provider.dart';
 import '../providers/state/authentication_state.dart';
+import '../widgets/form_skeleton.dart';
+import '../widgets/responsive_card_with_image.dart';
+import '../widgets/utils/custom_form_styles.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -21,17 +24,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final FocusNode _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Color.fromARGB(255, 212, 232, 245),
         ),
         alignment: Alignment.center,
-        child: responsiveSingleFormLayout(loginForm()),
+        child: ResponsiveCardWithImage(
+            child: FormSkeleton(
+                title: ("Login to discover the best parties!"),
+                form: loginForm())),
       ),
     );
   }
@@ -79,11 +84,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         children: [
           TextFormField(
             autofocus: true,
-            focusNode: _focusNode,
             controller: _usernameController,
-            decoration: const InputDecoration(
+            decoration: customInputDecorator(
               labelText: 'email',
-              errorText: '',
+              hintText: 'Enter your email',
+              icon: Icons.email,
             ),
             keyboardType: TextInputType.emailAddress,
             validator: (value) =>
@@ -97,75 +102,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             controller: _passwordController,
             keyboardType: TextInputType.visiblePassword,
             obscureText: true,
-            decoration: const InputDecoration(labelText: 'password'),
+            decoration: customInputDecorator(
+              labelText: 'password',
+              hintText: 'Enter your password',
+              icon: Icons.lock,
+            ),
             validator: (value) =>
                 value!.isEmpty ? 'Enter a valid password' : null,
             onFieldSubmitted: (value) => _login(),
           ),
           const SizedBox(height: 16.0),
           ElevatedButton(
-            onPressed: _login,
-            child: const Text('Login'),
+            onPressed: () async => _login(),
+            child: const Text('Let me in!'),
           ),
           const SizedBox(height: 20.0),
-          ElevatedButton(
-            onPressed: () => context.replace('/signin'),
-            child: const Text('register'),
-          ),
+          TextButton(
+              onPressed: () => context.go('/signin'),
+              child: const Text("Don't have an account? Join us!")),
         ],
       ),
-    );
-  }
-
-  Widget responsiveSingleFormLayout(Widget formWidget) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        const double breackPointWidth = 700;
-        const double breackPointHeight = 700;
-
-        if (constraints.maxWidth > breackPointWidth) {
-          return Container(
-            decoration: const BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 20,
-                ),
-              ],
-              color: Colors.white,
-            ),
-            constraints: const BoxConstraints(
-              maxHeight: breackPointHeight,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(25),
-                    child: formWidget,
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Image.asset(
-                    'lib/assets/crowd_mobile_background.jpeg',
-                    alignment: Alignment.centerRight,
-                  ),
-                )
-              ],
-            ),
-          );
-        } else {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: formWidget,
-          );
-        }
-      },
     );
   }
 
@@ -174,8 +130,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await ref
           .read(provider.notifier)
           .signIn(_usernameController.text, _passwordController.text);
-    } else {
-      _focusNode.requestFocus();
     }
   }
 
@@ -191,7 +145,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 }
