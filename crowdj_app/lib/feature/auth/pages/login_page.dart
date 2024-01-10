@@ -41,32 +41,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _mobilePage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: loginForm(),
-    );
-  }
-
-  Widget _desktopPage() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: loginForm(),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Image.asset('lib/assets/crow.jpg'),
-        )
-      ],
-    );
-  }
-
   Widget loginForm() {
     var watch = ref.watch(provider);
     if (watch is AuthenticationStateUnauthenticated) {
