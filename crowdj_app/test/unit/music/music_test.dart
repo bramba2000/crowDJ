@@ -131,6 +131,36 @@ void main() {
           firestore: firestore);
     });
 
+    test(
+        'Get TracksMetadata should retrieve correctly all the tracks for an event',
+        () async {
+      await firestore.collection('events').doc('eventId').set({
+        'name': 'Event name',
+        'description': 'Event description',
+        'owner': 'user1',
+      });
+      await firestore
+          .collection('events')
+          .doc('eventId')
+          .collection('tracks')
+          .add({
+        "id": "11dFghVXANMlKmJXsNCbNl",
+        "name": "Cut To The Feeling",
+        "artist": "Carly Rae Jepsen",
+        "album": "Cut To The Feeling",
+        "imageUrl":
+            "https://i.scdn.co/image/ab67616d0000b273e8f0b6b9a9a3a7b0b9b9b9b9",
+        "proposedBy": "user1",
+        "played": false,
+        "voters": ["user1", "user2"]
+      });
+      final result = await dataSource.getTracksMetadata('eventId');
+      expect(result, isNotNull);
+      expect(result, isA<List<TrackMetadata>>());
+      expect(result.first.name, 'Cut To The Feeling');
+      expect(result.first.artist, 'Carly Rae Jepsen');
+    });
+
     test('Save track metadata should save the track metadata', () async {
       final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
       await dataSource.saveTrackMetadata('eventId', track);

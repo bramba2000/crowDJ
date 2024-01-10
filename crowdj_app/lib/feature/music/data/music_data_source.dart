@@ -105,18 +105,6 @@ class MusicDataSource {
     });
   }
 
-  /// Get a list of [trackId] metadata from Firestore
-  /// It may throw an exception if the track or the event is not found
-  Future<TrackMetadata> getTrackMetadata(String eventId, String trackId) async {
-    final tracks = await _instance
-        .collection(Event.collectionName)
-        .doc(eventId)
-        .collection(TrackMetadata.collectionName)
-        .doc(trackId)
-        .get();
-    return TrackMetadata.fromJson(tracks.data()!);
-  }
-
   /// Get a list of tracks metadata for the event with [eventId] from Firestore
   /// It may throw an exception if the track or the event is not found
   Future<List<TrackMetadata>> getTracksMetadata(String eventId) async {
@@ -124,7 +112,6 @@ class MusicDataSource {
         .collection(Event.collectionName)
         .doc(eventId)
         .collection(TrackMetadata.collectionName)
-        .where('eventId', isEqualTo: eventId)
         .get();
     return tracks.docs.map((e) => TrackMetadata.fromJson(e.data())).toList();
   }
