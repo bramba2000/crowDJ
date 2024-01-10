@@ -45,5 +45,5 @@ dev_dependencies:
 
 flutter:
   assets:
-    - lib/assets/crow.jpg
+    - lib/assets/
   uses-material-design: true
