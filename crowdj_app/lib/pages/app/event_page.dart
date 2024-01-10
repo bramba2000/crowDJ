@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
+import '../../feature/events/widgets/tracks_container.dart';
 
 class EventPage extends StatefulWidget {
   final Event arg;
@@ -160,7 +161,7 @@ class _EventPageState extends State<EventPage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  _songListContainer(),
+                  TracksContainer(eventId: widget.arg.id),
                   const SizedBox(
                     height: 20,
                   ),
@@ -212,40 +213,6 @@ class _EventPageState extends State<EventPage> {
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _songListContainer() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(198, 97, 165, 221),
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            for (TrackMetadata s in _songs)
-              Container(
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(197, 43, 122, 187),
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                margin: const EdgeInsets.all(10),
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Text("${s.artist} - ${s.name} "),
-                    const SizedBox(
-                      height: 5,
-                    )
-                  ],
-                ),
-              )
           ],
         ),
       ),

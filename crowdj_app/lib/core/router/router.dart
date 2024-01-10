@@ -1,7 +1,7 @@
 import '../../feature/auth/data/auth_data_source.dart';
 import '../../feature/auth/data/user_data_source.dart';
 import '../../feature/auth/pages/signin_page.dart';
-import '../../pages/app/EventPage.dart';
+import '../../pages/app/event_page.dart';
 import '../../pages/app/djPages/CreateNewEventPage.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../pages/app/home_page.dart';
