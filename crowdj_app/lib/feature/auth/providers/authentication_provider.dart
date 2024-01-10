@@ -17,6 +17,20 @@ class AuthNotifier extends _$AuthNotifier {
   @override
   AuthenticationState build(
       AuthDataSource firebaseAuth, UserDataSource userDataSource) {
+    firebaseAuth
+        .streamAuthStateChanges()
+        .asyncMap((user) async => user == null
+            ? (null, null)
+            : (user, await userDataSource.getUserProps(user.uid)))
+        .listen((rec) {
+      if (rec.$1 != null && rec.$2 != null) {
+        state =
+            AuthenticationStateAuthenticated(user: rec.$1!, userProps: rec.$2!);
+      } else if (rec.$1 != null && rec.$2 == null) {
+        state = AuthenticationStateUnauthenticated(
+            Exception('User props not found'));
+      }
+    });
     return AuthenticationStateInitial();
   }
 

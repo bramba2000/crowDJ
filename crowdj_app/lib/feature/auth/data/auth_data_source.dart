@@ -38,6 +38,11 @@ class AuthDataSource {
         other._firebaseInstance == _firebaseInstance;
   }
 
+  User? get currentUser => _firebaseInstance.currentUser;
+
+  Stream<User?> streamAuthStateChanges() =>
+      _firebaseInstance.authStateChanges();
+
   @override
   int get hashCode => _firebaseInstance.hashCode;
 }
