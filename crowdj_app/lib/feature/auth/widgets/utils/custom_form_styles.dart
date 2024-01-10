@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Return a nice [InputDecoration] for our login and signup forms
 InputDecoration customInputDecorator({
   String? labelText,
   String? hintText,
@@ -30,3 +31,6 @@ InputDecoration customInputDecorator({
       hintText: hintText,
       prefixIcon: icon != null ? Icon(icon) : null,
     );
+
+/// Return a standard space for form fields
+const SizedBox formFieldSpace = SizedBox(height: 15);

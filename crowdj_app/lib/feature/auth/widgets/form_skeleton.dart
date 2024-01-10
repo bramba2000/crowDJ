@@ -21,12 +21,12 @@ class FormSkeleton extends StatelessWidget {
         if (title != null)
           Text(
             title!,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
           ),
-        if (title != null) const SizedBox(height: 20),
+        if (title != null) const SizedBox(height: 15),
         form,
       ],
     );

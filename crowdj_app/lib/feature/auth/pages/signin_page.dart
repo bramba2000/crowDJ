@@ -7,6 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/user_props.dart';
+import '../widgets/form_skeleton.dart';
+import '../widgets/responsive_card_with_image.dart';
+import '../widgets/utils/custom_form_styles.dart';
 
 class SigninPage extends ConsumerStatefulWidget {
   const SigninPage({super.key});
@@ -18,10 +21,138 @@ class SigninPage extends ConsumerStatefulWidget {
 class _SigninPageState extends ConsumerState<SigninPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _wannabeDJ = false; // false = participant, true = DJ
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnamenameController = TextEditingController();
+  bool _wannabeDJ = false; // false = participant, true = DJ
   String _res = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 212, 232, 245),
+        ),
+        alignment: Alignment.center,
+        child: ResponsiveCardWithImage(
+            child: FormSkeleton(
+                title: ("Join us to discover the best parties!"),
+                form: subscriptionForm())),
+      ),
+    );
+  }
+
+  Widget _mobilePage(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Signin Page")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            errorMessage(),
+            subscriptionForm(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _desktopPage() {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Signin Page")),
+      body: Padding(
+        padding: const EdgeInsets.all(50.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            errorMessage(),
+            subscriptionForm(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget subscriptionForm() {
+    return Form(
+      child: Column(
+        children: [
+          TextFormField(
+            controller: _emailController,
+            decoration: customInputDecorator(
+              labelText: 'email',
+              hintText: 'email',
+              icon: Icons.email,
+            ),
+          ),
+          formFieldSpace,
+          TextField(
+            controller: _passwordController,
+            decoration: customInputDecorator(
+              labelText: 'password',
+              hintText: 'password',
+              icon: Icons.lock,
+            ),
+          ),
+          formFieldSpace,
+          TextField(
+            controller: _nameController,
+            decoration: customInputDecorator(
+              labelText: 'name',
+              hintText: 'name',
+              icon: Icons.person,
+            ),
+          ),
+          formFieldSpace,
+          TextField(
+            controller: _surnamenameController,
+            decoration: customInputDecorator(
+              labelText: 'surname',
+              hintText: 'surname',
+              icon: Icons.person,
+            ),
+          ),
+          formFieldSpace,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Are you a DJ?"),
+              const SizedBox(width: 10),
+              Checkbox(value: _wannabeDJ, onChanged: (_) => toggleButtonState())
+            ],
+          ),
+          formFieldSpace,
+          _registerButton(),
+          formFieldSpace,
+          TextButton(
+              onPressed: () => context.replace('/login'),
+              child: const Text("Already have an account? Login!")),
+        ],
+      ),
+    );
+  }
+
+  Widget _registerButton() {
+    return ElevatedButton(
+      onPressed: _sigUp,
+      child: const Text('join crowDJ'),
+    );
+  }
+
+  Widget errorMessage() {
+    if (_res.isEmpty) {
+      return const SizedBox();
+    } else {
+      return Text(
+        _res,
+        style: const TextStyle(
+          color: Colors.red,
+        ),
+      );
+    }
+  }
 
   Future<void> _sigUp() async {
     await ref
@@ -63,113 +194,5 @@ class _SigninPageState extends ConsumerState<SigninPage> {
     setState(() {
       _wannabeDJ = !_wannabeDJ;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        if (constraints.maxWidth > 600) {
-          return _desktopPage();
-        } else {
-          return _mobilePage(context);
-        }
-      },
-    );
-  }
-
-  Widget _mobilePage(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Signin Page")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            errorMessage(),
-            subscriptionForm(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _desktopPage() {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Signin Page")),
-      body: Padding(
-        padding: const EdgeInsets.all(50.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            errorMessage(),
-            subscriptionForm(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget subscriptionForm() {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 5,
-        ),
-        TextField(
-          controller: _emailController,
-          decoration: const InputDecoration(labelText: 'email'),
-        ),
-        TextField(
-          controller: _passwordController,
-          decoration: const InputDecoration(labelText: 'password'),
-        ),
-        TextField(
-          controller: _nameController,
-          decoration: const InputDecoration(labelText: 'name'),
-        ),
-        TextField(
-          controller: _surnamenameController,
-          decoration: const InputDecoration(labelText: 'surname'),
-        ),
-        const SizedBox(height: 15),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: toggleButtonState,
-              child: const Text('change'),
-            ),
-            const SizedBox(width: 20),
-            Text(
-              _wannabeDJ ? 'DJ' : 'USER',
-              style: const TextStyle(fontSize: 14),
-            ),
-          ],
-        ),
-        const SizedBox(height: 30),
-        _registerButton(),
-      ],
-    );
-  }
-
-  Widget _registerButton() {
-    return ElevatedButton(
-      onPressed: _sigUp,
-      child: const Text('join crowDJ'),
-    );
-  }
-
-  Widget errorMessage() {
-    if (_res.isEmpty) {
-      return const SizedBox();
-    } else {
-      return Text(
-        _res,
-        style: const TextStyle(
-          color: Colors.red,
-        ),
-      );
-    }
   }
 }
