@@ -2,8 +2,8 @@ import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
 import '../../core/env/env.dart';
-import '../../feature/music/data/music_data_source.dart';
-import '../../feature/music/model/track_metadata.dart';
+import '../../feature/events/data/music_data_source.dart';
+import '../../feature/events/models/track_metadata.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

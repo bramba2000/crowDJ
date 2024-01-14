@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/env/env.dart';
-import '../../music/data/music_data_source.dart';
-import '../../music/model/track_metadata.dart';
+import '../data/music_data_source.dart';
+import '../models/track_metadata.dart';
 
 class TracksContainer extends StatelessWidget {
   final String eventId;

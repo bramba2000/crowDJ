@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spotify/spotify.dart';
-import '../../events/models/event_model.dart';
-import '../model/track_metadata.dart';
+import '../models/event_model.dart';
+import '../models/track_metadata.dart';
 
 /// Data source class for music related operations
 /// This class is responsible for:

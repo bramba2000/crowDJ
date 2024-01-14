@@ -1,6 +1,6 @@
 import 'package:crowdj/core/env/env.dart';
-import 'package:crowdj/feature/music/data/music_data_source.dart';
-import 'package:crowdj/feature/music/model/track_metadata.dart';
+import 'package:crowdj/feature/events/data/music_data_source.dart';
+import 'package:crowdj/feature/events/models/track_metadata.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spotify/spotify.dart';
