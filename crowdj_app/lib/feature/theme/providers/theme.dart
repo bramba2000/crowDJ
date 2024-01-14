@@ -11,14 +11,7 @@ class ThemeNotifier extends _$ThemeNotifier {
     return ThemeMode.system;
   }
 
-  void toggleTheme() {
-    if (state == ThemeMode.system) {
-      state = SchedulerBinding.instance.platformDispatcher.platformBrightness ==
-              Brightness.light
-          ? ThemeMode.light
-          : ThemeMode.dark;
-    } else {
-      state = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    }
+  void setThemeMode(ThemeMode mode) {
+    state = mode;
   }
 }
