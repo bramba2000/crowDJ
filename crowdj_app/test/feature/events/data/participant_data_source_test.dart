@@ -75,6 +75,31 @@ void main() {
       await dataSource.removeParticipant(eventId, userId);
     });
 
+    test('Removing all participants of an event should remove them from db',
+        () async {
+      const eventId = 'event1';
+      const userId = 'user1';
+      const userId2 = 'user2';
+      await firestore
+          .collection(Participation.collectionName)
+          .doc('${eventId}_$userId')
+          .set(Participation(
+                  eventId: eventId, userId: userId, joinedAt: DateTime.now())
+              .toJson());
+      await firestore
+          .collection(Participation.collectionName)
+          .doc('${eventId}_$userId2')
+          .set(Participation(
+                  eventId: eventId, userId: userId2, joinedAt: DateTime.now())
+              .toJson());
+      await dataSource.removeAllParticipants(eventId);
+      final result = await firestore
+          .collection(Participation.collectionName)
+          .where('eventId', isEqualTo: eventId)
+          .get();
+      expect(result.docs, isEmpty);
+    });
+
     test(
         'Getting the participants of an event should return only the correct ids',
         () async {

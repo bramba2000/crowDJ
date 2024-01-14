@@ -40,6 +40,19 @@ class ParticipantDataSource {
         .delete();
   }
 
+  /// Remove all participants from an event
+  ///
+  /// If the event does not exist or has no participants, nothing will happen
+  Future<void> removeAllParticipants(String eventId) async {
+    final participations = await _firestore
+        .collection(_participationCollName)
+        .where('eventId', isEqualTo: eventId)
+        .get();
+    for (final doc in participations.docs) {
+      await doc.reference.delete();
+    }
+  }
+
   /// Get the list of participants of an event
   /// If the event does not exist, an exception will be thrown. If the event has no participants,
   /// an empty list will be returned
