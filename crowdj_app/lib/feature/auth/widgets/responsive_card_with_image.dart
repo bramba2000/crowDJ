@@ -22,14 +22,17 @@ class ResponsiveCardWithImage extends StatelessWidget {
 
         if (constraints.maxWidth > breackPointWidth) {
           return Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.3),
                   blurRadius: 20,
                 ),
               ],
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.primaryContainer,
             ),
             constraints: const BoxConstraints(
               maxHeight: breackPointHeight,
@@ -64,15 +67,17 @@ class ResponsiveCardWithImage extends StatelessWidget {
           );
         } else {
           return Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black12,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.3),
                   blurRadius: 20,
                 ),
               ],
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.primaryContainer,
             ),
             constraints: const BoxConstraints(
                 minHeight: minSmallScreenFormHeigth,

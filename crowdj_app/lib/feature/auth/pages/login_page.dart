@@ -11,6 +11,7 @@ import '../providers/state/authentication_state.dart';
 import '../widgets/form_skeleton.dart';
 import '../widgets/responsive_card_with_image.dart';
 import '../widgets/utils/custom_form_styles.dart';
+import '../widgets/utils/theme_action_button.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -28,15 +29,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 212, 232, 245),
-        ),
-        alignment: Alignment.center,
-        child: ResponsiveCardWithImage(
-            child: FormSkeleton(
-                title: ("Login to discover the best parties!"),
-                form: loginForm())),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+            ),
+            alignment: Alignment.center,
+            child: ResponsiveCardWithImage(
+                child: FormSkeleton(
+                    title: ("Login to discover the best parties!"),
+                    form: loginForm())),
+          ),
+          themeActionButton,
+        ],
       ),
     );
   }

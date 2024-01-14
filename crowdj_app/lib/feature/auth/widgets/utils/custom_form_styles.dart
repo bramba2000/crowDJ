@@ -7,23 +7,23 @@ InputDecoration customInputDecorator({
   IconData? icon,
 }) =>
     InputDecoration(
-      fillColor: Colors.white,
+      //fillColor: Colors.white,
       filled: true,
       enabledBorder: const OutlineInputBorder(
         borderSide: BorderSide(
-          color: Color.fromARGB(148, 33, 149, 243),
+          //color: Color.fromARGB(148, 33, 149, 243),
           width: 2,
         ),
       ),
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(
-          color: Colors.blue,
+          //color: Colors.blue,
           width: 2,
         ),
       ),
       errorBorder: const OutlineInputBorder(
         borderSide: BorderSide(
-          color: Colors.red,
+          //  color: Colors.red,
           width: 2,
         ),
       ),
