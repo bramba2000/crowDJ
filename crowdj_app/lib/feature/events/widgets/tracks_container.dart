@@ -46,7 +46,8 @@ class TracksContainer extends StatelessWidget {
             } else {
               return const Center(child: CircularProgressIndicator());
             }
-          }),
+          },
+        ),
     );
   }
 }

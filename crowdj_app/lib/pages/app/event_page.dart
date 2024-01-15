@@ -35,8 +35,6 @@ class _EventPageState extends State<EventPage> {
     );
 
     _songs = await _musicDataSource.getTracksMetadata(widget.arg.id);
-    print(" ---- loded songs");
-    for (TrackMetadata s in _songs) print(s.name);
   }
 
   _initilizeWidget() async {
@@ -100,33 +98,30 @@ class _EventPageState extends State<EventPage> {
   Padding _mobileUserPage() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(widget.arg.title),
-              ],
-            ),
-          ),
-          Expanded(flex: 1, child: Text("max people: ${widget.arg.maxPeople}")),
-          Expanded(
-            child: Column(
-              children: [
-                for (TrackMetadata s in _songs)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(s.name),
-                      Text(s.artist),
-                    ],
-                  )
-              ],
-            ),
-          ),
-        ],
+      child: ListView.builder(
+        itemCount: 1,
+        //scrollDirection: Axis.vertical,
+        itemBuilder: (context, index) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.arg.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              TracksContainer(eventId: widget.arg.id),
+              _addSongContainer(widget.arg),
+            ],
+          );
+        },
       ),
     );
   }
@@ -378,8 +373,6 @@ class _EventPageState extends State<EventPage> {
           _songsSearchRes = [];
         } else {
           _songsSearchRes = updatedSongs;
-          print(updatedSongs![0].name);
-          print(updatedSongs![1].artists![0].name);
         }
       });
     }
@@ -400,7 +393,7 @@ class _EventPageState extends State<EventPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Flexible(
-                flex: 3,
+                //flex: 3,
                 child: SizedBox(
                   //width: MediaQuery.of(context).size.width * 0.5,
                   child: TextFormField(
@@ -411,7 +404,6 @@ class _EventPageState extends State<EventPage> {
                 ),
               ),
               Flexible(
-                flex: 1,
                 child: ElevatedButton(
                     onPressed: () => updateSongs(_songTitle.text),
                     child: const Text("search")),

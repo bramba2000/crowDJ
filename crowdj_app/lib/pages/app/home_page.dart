@@ -487,7 +487,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         mapController: _mapController,
         zoom: _zoom,
       );
-      print("Map has been built");
+      //print("Map has been built");
       //return _map;
     } catch (e) {
       print(e.toString());
@@ -596,32 +596,47 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _slider() {
-    return Slider(
-      value: _radius,
-      min: 1,
-      max: 400000,
-      label: _radius.toString()+" km ",
-      onChanged: (value) {
-        setState(() {
-          _radius = value;
-        });
-      },
+    return Row(
+      children: [
+        Expanded(
+          child: Slider(
+            value: _radius,
+            min: 1,
+            max: 400000,
+            label: _radius.toString()+" km ",
+            divisions: 400,
+            onChanged: (value) {
+              setState(() {
+                _radius = value;
+              });
+            },
+          ),
+        ),
+        Text("$_radius"),
+      ],
     );
   }
   
   Widget _zoomSlider() {
-    return Slider(
-      value: _zoom,
-      min: 10,
-      max: 30,
-      label: _zoom.toString(),
-      divisions: 40,
-      onChanged: (value) {
-        setState(() {
-          _zoom=value;
-          _mapController.move(LatLng(_mapModel.getCenter().latitude, _mapModel.getCenter().longitude), _zoom);
-        });
-      },
+    return Row(
+      children: [
+        Expanded(
+          child: Slider(
+            value: _zoom,
+            min: 10,
+            max: 30,
+            label: _zoom.toString(),
+            divisions: 40,
+            onChanged: (value) {
+              setState(() {
+                _zoom=value;
+                _mapController.move(LatLng(_mapModel.getCenter().latitude, _mapModel.getCenter().longitude), _zoom);
+              });
+            },
+          ),
+        ),
+        Text("$_zoom"),
+      ],
     );
 
   }
