@@ -31,9 +31,7 @@ class _EventPageState extends State<EventPage> {
   List<spotify.Track>? _songsSearchRes;
 
   Future<void> _loadSongs() async {
-    events-feature-integration
     _songs = await _eventService.getTracksMetadata(widget.arg.id);
-    
   }
 
   _initilizeWidget() async {
