@@ -1,21 +1,21 @@
 import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
-import '../../core/env/env.dart';
-import '../../feature/music/data/music_data_source.dart';
-import '../../feature/music/model/track_metadata.dart';
+import '../../feature/events/models/track_metadata.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
+import '../../feature/events/services/event_service.dart';
+import '../../feature/events/services/spotify_service.dart';
 import '../../feature/events/widgets/tracks_container.dart';
 
 class EventPage extends StatefulWidget {
   final Event arg;
 
-  const EventPage({Key? key, required this.arg}) : super(key: key);
+  const EventPage({super.key, required this.arg});
 
   @override
   // _EventPageState createState() => _EventPageState();
@@ -24,17 +24,16 @@ class EventPage extends StatefulWidget {
 
 class _EventPageState extends State<EventPage> {
   bool _showEventEditor = false;
+  final EventService _eventService = EventService();
+  final SpotifyService _spotifyService = SpotifyService.fromEnvironment();
 
   late List<TrackMetadata> _songs;
   List<spotify.Track>? _songsSearchRes;
 
   Future<void> _loadSongs() async {
-    MusicDataSource _musicDataSource = MusicDataSource.fromCredentials(
-      Env.spotifyClientId,
-      Env.spotifyClientSecret,
-    );
-
-    _songs = await _musicDataSource.getTracksMetadata(widget.arg.id);
+    events-feature-integration
+    _songs = await _eventService.getTracksMetadata(widget.arg.id);
+    
   }
 
   _initilizeWidget() async {
@@ -358,16 +357,11 @@ class _EventPageState extends State<EventPage> {
   }
 
   Widget _addSongContainer(Event event) {
-    MusicDataSource _musicDataSource = MusicDataSource.fromCredentials(
-      Env.spotifyClientId,
-      Env.spotifyClientSecret,
-    );
-
     TextEditingController _songTitle = TextEditingController();
 
     void updateSongs(String value) async {
       List<spotify.Track>? updatedSongs =
-          await _musicDataSource.searchTracks(value, limit: 3);
+          await _spotifyService.searchTracks(value, limit: 3);
       setState(() {
         if (updatedSongs == null) {
           _songsSearchRes = [];
@@ -378,7 +372,7 @@ class _EventPageState extends State<EventPage> {
     }
 
     void addSongToEvent(spotify.Track song) async {
-      await _musicDataSource.saveTrackMetadata(event.id, song);
+      await _eventService.addTrackToEvent(event.id, song);
       _songTitle.text = "";
       await _loadSongs();
     }
