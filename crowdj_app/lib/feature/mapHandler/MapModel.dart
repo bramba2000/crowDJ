@@ -16,7 +16,7 @@ class MapModel {
   late GeoPoint _center;
 
   MapModel(
-      {GeoPoint g = const GeoPoint(48.38374662182102, 62.50187384520631)}) {
+      {GeoPoint g = const GeoPoint(41.40293360242581, 2.1751213629094206)}) {
     _center = g;
   }
 
