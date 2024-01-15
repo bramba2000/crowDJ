@@ -8,6 +8,10 @@ import '../data/auth_data_source.dart';
 import '../data/user_data_source.dart';
 import '../providers/authentication_provider.dart';
 import '../providers/state/authentication_state.dart';
+import '../widgets/form_skeleton.dart';
+import '../widgets/responsive_card_with_image.dart';
+import '../widgets/utils/custom_form_styles.dart';
+import '../widgets/utils/theme_action_button.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -22,66 +26,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      await ref
-          .read(provider.notifier)
-          .signIn(_usernameController.text, _passwordController.text);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login Page'),
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            if (constraints.maxWidth > 600) {
-              return _desktopPage();
-            } else {
-              return _mobilePage();
-            }
-          },
-        ),
-      ),
-    );
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
-  }
-
-  Widget _mobilePage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: loginForm(),
-    );
-  }
-
-  Widget _desktopPage() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: loginForm(),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+            ),
+            alignment: Alignment.center,
+            child: ResponsiveCardWithImage(
+                child: FormSkeleton(
+                    title: ("Login to discover the best parties!"),
+                    form: loginForm())),
           ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Image.asset('lib/assets/crow.jpg'),
-        )
-      ],
+          themeActionButton,
+        ],
+      ),
     );
   }
 
@@ -98,40 +60,71 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       key: _formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           TextFormField(
+            autofocus: true,
             controller: _usernameController,
-            decoration: const InputDecoration(
+            decoration: customInputDecorator(
               labelText: 'email',
-              errorText: '',
+              hintText: 'Enter your email',
+              icon: Icons.email,
             ),
             keyboardType: TextInputType.emailAddress,
             validator: (value) =>
                 (value!.isEmpty || !value.contains('@') || !value.contains('.'))
                     ? 'Enter a valid email'
                     : null,
+            onFieldSubmitted: (value) => _login(),
           ),
           const SizedBox(height: 16.0),
           TextFormField(
             controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(labelText: 'password'),
             keyboardType: TextInputType.visiblePassword,
+            obscureText: true,
+            decoration: customInputDecorator(
+              labelText: 'password',
+              hintText: 'Enter your password',
+              icon: Icons.lock,
+            ),
             validator: (value) =>
                 value!.isEmpty ? 'Enter a valid password' : null,
+            onFieldSubmitted: (value) => _login(),
           ),
           const SizedBox(height: 16.0),
           ElevatedButton(
-            onPressed: _login,
-            child: const Text('Login'),
+            onPressed: () async => _login(),
+            child: const Text('Let me in!'),
           ),
           const SizedBox(height: 20.0),
-          ElevatedButton(
-            onPressed: () => context.replace('/signin'),
-            child: const Text('register'),
-          ),
+          TextButton(
+              onPressed: () => context.go('/signin'),
+              child: const Text("Don't have an account? Join us!")),
         ],
       ),
     );
+  }
+
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      await ref
+          .read(provider.notifier)
+          .signIn(_usernameController.text, _passwordController.text);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

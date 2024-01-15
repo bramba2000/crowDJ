@@ -35,7 +35,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final MapController _mapController = MapController();
   late MapModel _mapModel;
   late DynMap _map;
-  double _zoom=17.0;
+  double _zoom = 17.0;
 
   ///----> events <----
   ///
@@ -76,10 +76,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   _initilizeWidget() async {
-    
     await _getUserProps();
     await _loadEvents();
-    
   }
 
   @override
@@ -149,6 +147,14 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("DJ HomePage"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              ref.read(provider.notifier).signOut();
+            },
+            icon: const Icon(Icons.exit_to_app),
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(30),
@@ -616,7 +622,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       ],
     );
   }
-  
+
   Widget _zoomSlider() {
     return Row(
       children: [
@@ -638,6 +644,5 @@ class _HomePageState extends ConsumerState<HomePage> {
         Text("$_zoom"),
       ],
     );
-
   }
 }

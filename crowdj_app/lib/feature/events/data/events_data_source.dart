@@ -23,6 +23,24 @@ class EventDataSource {
         (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
   }
 
+  Event? _eventStatusControl(Event? e) {
+    if (e == null) {
+      return e;
+    }
+    if (e.status != EventStatus.past) {
+      if (e.startTime.isAfter(DateTime.now().add(const Duration(days: 1)))) {
+        return e.copyWith(status: EventStatus.past);
+      } else if (e.startTime.isAfter(DateTime.now()) &&
+          e.status != EventStatus.upcoming) {
+        return e.copyWith(status: EventStatus.upcoming);
+      } else {
+        return e;
+      }
+    } else {
+      return e;
+    }
+  }
+
   EventDataSource([FirebaseFirestore? firestore])
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
@@ -43,7 +61,7 @@ class EventDataSource {
     required String genre,
     bool isPrivate = false,
   }) async {
-    final Event event = isPrivate
+    Event event = isPrivate
         ? Event.private(
             id: _generatePassword(),
             title: title,
@@ -67,6 +85,7 @@ class EventDataSource {
             genre: genre,
             status: EventStatus.upcoming,
           );
+    event = _eventStatusControl(event)!;
     _firestore.collection(_collectionName).doc(event.id).set(event.toJson());
     return event;
   }
@@ -142,7 +161,12 @@ class EventDataSource {
           updatedEvent = updatedEvent.toPublic();
         }
     }
-    await eventRef.set(updatedEvent.toJson());
+    if (status != null) {
+      updatedEvent = _eventStatusControl(updatedEvent)!;
+    }
+    if (updatedEvent != event) {
+      await eventRef.set(updatedEvent.toJson());
+    }
   }
 
   /// Deletes an event from the database
@@ -159,7 +183,12 @@ class EventDataSource {
     final DocumentSnapshot<Map<String, dynamic>> eventSnapshot =
         await _firestore.collection(_collectionName).doc(eventId).get();
     final data = eventSnapshot.data();
-    return data != null ? Event.fromJson(data) : null;
+    final Event? event = data != null ? Event.fromJson(data) : null;
+    final Event? checkedEvent = _eventStatusControl(event);
+    if (checkedEvent != event) {
+      updateEvent(id: eventId, status: checkedEvent?.status);
+    }
+    return data != null ? checkedEvent : null;
   }
 
   /// Retrieves a stream of all the events from the database that are within a
@@ -186,7 +215,12 @@ class EventDataSource {
       for (final DocumentSnapshot document in documentList) {
         final data = document.data() as Map<String, dynamic>?;
         if (data != null) {
-          eventList.add(Event.fromJson(data));
+          final event = Event.fromJson(data);
+          final checkedEvent = _eventStatusControl(event)!;
+          if (checkedEvent != event) {
+            updateEvent(id: checkedEvent.id, status: checkedEvent.status);
+          }
+          eventList.add(checkedEvent);
         }
       }
       return eventList;
@@ -201,9 +235,14 @@ class EventDataSource {
     final documentSnapshot =
         await eventsCollection.where('creatorId', isEqualTo: userId).get();
     if (documentSnapshot.docs.isNotEmpty) {
-      return documentSnapshot.docs
-          .map((e) => Event.fromJson(e.data()))
-          .toList();
+      return documentSnapshot.docs.map((e) {
+        final event = Event.fromJson(e.data());
+        final checkedEvent = _eventStatusControl(event)!;
+        if (checkedEvent != event) {
+          updateEvent(id: checkedEvent.id, status: checkedEvent.status);
+        }
+        return checkedEvent;
+      }).toList();
     }
     return [];
   }
