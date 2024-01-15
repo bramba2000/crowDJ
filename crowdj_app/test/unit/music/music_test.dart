@@ -1,4 +1,3 @@
-import 'package:crowdj/core/env/env.dart';
 import 'package:crowdj/feature/events/data/music_data_source.dart';
 import 'package:crowdj/feature/events/models/track_metadata.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -71,64 +70,29 @@ void main() {
     });
   });
 
-  group('Music data source integrates spotify web api -', () {
-    late MusicDataSource dataSource;
-    late FakeFirebaseFirestore firestore;
-
-    setUp(() {
-      firestore = FakeFirebaseFirestore();
-      dataSource = MusicDataSource.fromCredentials(
-          Env.spotifyClientId, Env.spotifyClientSecret,
-          firestore: firestore);
-    });
-
-    test(
-        'Get track 11dFghVXANMlKmJXsNCbNl should return "Cut To The Feeling" track',
-        () async {
-      final result = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
-      expect(result, isA<Track>());
-      expect(result.name, 'Cut To The Feeling');
-      expect(result.artists?.first.name, 'Carly Rae Jepsen');
-    });
-
-    test('Get track with invalid id should throw an exception', () async {
-      expect(() async => await dataSource.getTrack('invalid_id'),
-          throwsA(isA<Exception>()));
-    });
-
-    test('Get track with empty id should throw an exception', () async {
-      expect(
-          () async => await dataSource.getTrack(''), throwsA(isA<Exception>()));
-    });
-
-    test('Look for track "Cut To The Feeling" should return a of track',
-        () async {
-      final result = await dataSource.searchTrack('Cut To The Feeling');
-      expect(result, isNotNull);
-      expect(result, isA<Track>());
-      expect(result!.name, 'Cut To The Feeling');
-      expect(result.artists?.first.name, 'Carly Rae Jepsen');
-    });
-
-    test('Look for tracks "Cut To The Feeling" should return a list of tracks',
-        () async {
-      final result = await dataSource.searchTracks('Cut To The Feeling');
-      expect(result, isNotNull);
-      expect(result, isA<List<Track>>());
-      expect(result!.first.name, 'Cut To The Feeling');
-      expect(result.first.artists?.first.name, 'Carly Rae Jepsen');
-    });
-  });
-
   group('Music data source handle metatracks with Firestore -', () {
     late MusicDataSource dataSource;
     late FakeFirebaseFirestore firestore;
+    late Track track = Track.fromJson({
+      "id": "11dFghVXANMlKmJXsNCbNl",
+      "name": "Cut To The Feeling",
+      "artists": [
+        {"name": "Carly Rae Jepsen"}
+      ],
+      "album": {
+        "name": "Cut To The Feeling",
+        "images": [
+          {
+            "url":
+                "https://i.scdn.co/image/ab67616d0000b273e8f0b6b9a9a3a7b0b9b9b9b9"
+          }
+        ]
+      },
+    });
 
     setUp(() {
       firestore = FakeFirebaseFirestore();
-      dataSource = MusicDataSource.fromCredentials(
-          Env.spotifyClientId, Env.spotifyClientSecret,
-          firestore: firestore);
+      dataSource = MusicDataSource(firestore: firestore);
     });
 
     test(
@@ -162,7 +126,6 @@ void main() {
     });
 
     test('Save track metadata should save the track metadata', () async {
-      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
       await dataSource.saveTrackMetadata('eventId', track);
       final result = (await firestore
               .collection('events')
@@ -178,7 +141,6 @@ void main() {
     });
 
     test('Mark track as played should update the track metadata', () async {
-      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
       await dataSource.saveTrackMetadata('eventId', track);
       await dataSource.markTrackAsPlayed('eventId', '11dFghVXANMlKmJXsNCbNl');
       final result = (await firestore
@@ -194,7 +156,6 @@ void main() {
     });
 
     test('Vote track should update the track metadata', () async {
-      final track = await dataSource.getTrack('11dFghVXANMlKmJXsNCbNl');
       await dataSource.saveTrackMetadata('eventId', track);
       await dataSource.voteTrack('eventId', '11dFghVXANMlKmJXsNCbNl', 'user1');
       final result = (await firestore

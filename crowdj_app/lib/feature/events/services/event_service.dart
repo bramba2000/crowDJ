@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:spotify/spotify.dart';
 
-import '../../../core/env/env.dart';
 import '../data/events_data_source.dart';
 import '../data/music_data_source.dart';
 import '../data/participant_data_source.dart';
@@ -18,8 +17,7 @@ class EventService {
 
   factory EventService() {
     final eventDataSource = EventDataSource();
-    final musicDataSource = MusicDataSource.fromCredentials(
-        Env.spotifyClientId, Env.spotifyClientSecret);
+    final musicDataSource = MusicDataSource();
     final participants = ParticipantDataSource();
     return EventService._(eventDataSource, musicDataSource, participants);
   }

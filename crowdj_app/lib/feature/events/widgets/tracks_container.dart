@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/env/env.dart';
-import '../data/music_data_source.dart';
 import '../models/track_metadata.dart';
+import '../services/event_service.dart';
 
 class TracksContainer extends StatelessWidget {
   final String eventId;
-  final MusicDataSource _musicDataSource = MusicDataSource.fromCredentials(
-      Env.spotifyClientId, Env.spotifyClientSecret);
+  final EventService _eventService = EventService();
 
   TracksContainer({super.key, required this.eventId});
 
@@ -23,7 +21,7 @@ class TracksContainer extends StatelessWidget {
         minWidth: 100,
       ),
       child: FutureBuilder(
-          future: _musicDataSource.getTracksMetadata(eventId),
+          future: _eventService.getTracksMetadata(eventId),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final tracks = snapshot.data as List<TrackMetadata>;
