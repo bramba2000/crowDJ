@@ -65,7 +65,8 @@ void main() {
       expect(container.read(provider), isA<AuthenticationStateLoading>());
       await future;
       expect(container.read(provider), isA<AuthenticationStateAuthenticated>());
-      verify(mockUserDataSource.getUserProps(mockUser.uid)).called(1);
+      // two calls because one for the initial state build and one for the login
+      verify(mockUserDataSource.getUserProps(mockUser.uid)).called(2);
     });
 
     test('Test notifyier logic when user sign up', () async {
