@@ -1,6 +1,12 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
+import '../../feature/auth/data/auth_data_source.dart';
+import '../../feature/auth/data/user_data_source.dart';
+import '../../feature/auth/providers/authentication_provider.dart';
+import '../../feature/auth/providers/state/authentication_state.dart';
+import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/track_metadata.dart';
 
 import 'package:flutter/material.dart';
@@ -12,17 +18,17 @@ import '../../feature/events/services/event_service.dart';
 import '../../feature/events/services/spotify_service.dart';
 import '../../feature/events/widgets/tracks_container.dart';
 
-class EventPage extends StatefulWidget {
+class EventPage extends ConsumerStatefulWidget {
   final Event arg;
-
-  const EventPage({super.key, required this.arg});
+  final bool sub; // true if the user is already subscribed
+  const EventPage({super.key, required this.arg, this.sub=false});
 
   @override
   // _EventPageState createState() => _EventPageState();
-  _EventPageState createState() => _EventPageState();
+  ConsumerState createState() => _EventPageState();
 }
 
-class _EventPageState extends State<EventPage> {
+class _EventPageState extends ConsumerState<EventPage> {
   bool _showEventEditor = false;
   final EventService _eventService = EventService();
   final SpotifyService _spotifyService = SpotifyService.fromEnvironment();
@@ -115,7 +121,8 @@ class _EventPageState extends State<EventPage> {
                 ],
               ),
               TracksContainer(eventId: widget.arg.id),
-              _addSongContainer(widget.arg),
+              if(widget.sub) _addSongContainer(widget.arg)
+              else _registerToEvent(widget.arg),
             ],
           );
         },
@@ -449,4 +456,34 @@ class _EventPageState extends State<EventPage> {
       ),
     );
   }
+
+  Widget _registerToEvent(Event event){
+    
+    final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
+    String _userID;
+
+    return Container(
+      child: ElevatedButton( 
+
+        onPressed: () async {
+
+          ParticipantDataSource participantDataSource = ParticipantDataSource();
+            var watch = ref.watch(provider);
+            if (watch is AuthenticationStateAuthenticated) {
+              _userID = watch.user.uid;
+              //print("---user props loaded")
+              participantDataSource.addParticipant(event.id, _userID);
+            } else {
+              throw ErrorDescription(" impossible to load user props ");
+            }
+
+          context.replace("/");
+          
+        },
+
+        child: Text("subscribe"),
+      ),
+    );
+  }
+
 }

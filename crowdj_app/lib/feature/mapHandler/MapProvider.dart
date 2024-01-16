@@ -14,7 +14,7 @@ fromAddrToCoord(String addr) async {
 
   //https://api.geoapify.com/v1/geocode/search?text=38%20Upper%20Montagu%20Street%2C%20Westminster%20W1H%201LJ%2C%20United%20Kingdom&apiKey=889b9139bce84f2f9205fdde6846d83f
   var response = await http.get(Uri.parse(endpoint+"?text="+addr+"&apiKey="+api));
-  print(Uri.parse(endpoint+"?text="+addr+"&apiKey="+api));
+  //print(Uri.parse(endpoint+"?text="+addr+"&apiKey="+api));
 
   return jsonDecode(response.body);
 

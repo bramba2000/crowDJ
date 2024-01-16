@@ -288,6 +288,17 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("HomePage"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              
+              await ref.read(provider.notifier).signOut();
+
+              context.go("/");
+    
+            }, 
+            icon: const Icon(Icons.logout))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -485,7 +496,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _builUserMap() async {
     try {
-      _mapModel = await MapModel.createEventsMap(_events); //createEventsMap()
+      _mapModel = await MapModel.createEventsMap(_events, context); //createEventsMap()
       _mapModel.addYourCurrentPlace(_mapModel.getCenter());
       _map = DynMap(
         mapModel: _mapModel,

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 
@@ -32,19 +33,22 @@ class MapModel {
   ///the events close to a User. See createEventsMap() static constructor
   MapModel._withMarkers(this._center, this._markers);
 
-  static Future<MapModel> createEventsMap(List<Event> events) async {
+  static Future<MapModel> createEventsMap(List<Event> events, BuildContext context) async {
     final GeoPoint center = await getCurrentLocation();
     final List<Marker> eventLocations = [];
 
     for (Event e in events) {
-      print("---new marker");
+      //print("---new marker");
       eventLocations.add(
         Marker(
           point: LatLng(e.location.latitude, e.location.longitude),
           width: 60,
           height: 60,
           child: IconButton(
-            onPressed: () => print("${e.title}"),
+            onPressed: () {
+              print("${e.title}");
+              context.go("/event", extra: e);
+            },
             icon: const Icon(
               Icons.place,
               color: Colors.red,
