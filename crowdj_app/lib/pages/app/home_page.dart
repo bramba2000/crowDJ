@@ -6,7 +6,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/router/utils/EventExtra.dart';
 import '../../feature/events/data/events_data_source.dart';
+import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/mapHandler/DynMap.dart';
 import '../../feature/mapHandler/MapModel.dart';
@@ -40,28 +42,41 @@ class _HomePageState extends ConsumerState<HomePage> {
   ///----> events <----
   ///
   final EventDataSource _eventDataSource = EventDataSource();
-  late List<Event> _events = [];
+  late List<Event> _nearEvents = [];
+  late List<Event?> _myEvents = [];
   double _radius = 5;
 
-  Future<void> _loadEvents() async {
+  Future<void> _loadNearEvents() async {
     try {
       if (_userProps.userType == UserType.dj) {
-        _events = await _eventDataSource.getEventsOfUser(_userID);
+        _myEvents = await _eventDataSource.getEventsOfUser(_userID);
         print("---------------------------------------dj _events updated:");
-      } else {
-        await _eventDataSource
-            .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
-            .listen((list) {
-          // Handle each list as it arrives
-          _events = list;
-          print("---------------------------------------user _events updated:" +
-              _events.toString());
-        });
-      }
+      } 
+
+      await _eventDataSource
+          .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
+          .listen((list) {
+        // Handle each list as it arrives
+        _nearEvents = list;
+        print("---------------------------------------user _events updated:" +
+            _nearEvents.toString());
+      });
+      
     } on Exception catch (e) {
       print(" error!!!!!!!!!!! " + e.toString());
-      _events = [];
+      _nearEvents = [];
     }
+  }
+
+  Future<void> _loadMyEvents() async {
+    List<String> myEventsIDs;
+    _myEvents=[];
+    myEventsIDs = await ParticipantDataSource().getRegisteredEvents(_userID);
+
+    for (String id in myEventsIDs){
+      _myEvents.add(await _eventDataSource.getEvent(id));
+    }
+
   }
 
   Future<void> _getUserProps() async {
@@ -77,7 +92,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   _initilizeWidget() async {
     await _getUserProps();
-    await _loadEvents();
+    await _loadMyEvents();
+    await _loadNearEvents();
   }
 
   @override
@@ -195,14 +211,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _events!.length,
+                  itemCount: _myEvents.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       margin: const EdgeInsets.all(20),
                       padding: const EdgeInsets.all(20),
                       color: const Color.fromARGB(199, 64, 150, 221),
                       height: 200,
-                      child: _djEventRow(_events![index]),
+                      child: _djEventRow(_myEvents[index]!),
                     );
                   },
                 ),
@@ -261,7 +277,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          context.go("/event", extra: e);
+                          context.go("/event", extra: EventExtra(event: e, sub: true));
                         },
                         child: const Text("manage the event"),
                       ),
@@ -290,12 +306,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         title: const Text("HomePage"),
         actions: [
           IconButton(
-            onPressed: () async {
-              
+            onPressed: () async {          
               await ref.read(provider.notifier).signOut();
-
-              context.go("/");
-    
+              context.go("/");    
             }, 
             icon: const Icon(Icons.logout))
         ],
@@ -343,7 +356,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget yourEvents() {
     return Column(children: [
       const Text(
-        "YOUR EVENTS",
+        "MY EVENTS",
         style: TextStyle(
           fontSize: 20,
           color: Colors.blueGrey,
@@ -353,20 +366,20 @@ class _HomePageState extends ConsumerState<HomePage> {
       const SizedBox(
         height: 30,
       ),
-      eventList(),
+      _myEvents.isEmpty ? const Text("you didn't subscribe to any event") : eventList(),
     ]);
   }
 
   Widget eventList() {
-    print(_events.toString());
+    //print(_myEvents.toString());
     return Column(
       children: [
-        for (var event in _events!)
+        for (Event? event in _myEvents)
           Row(
             children: [
               ElevatedButton(
                 onPressed: () {
-                  context.go("/event", extra: event);
+                  context.go("/event", extra: EventExtra(event: event, sub: true) );
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
@@ -376,12 +389,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                   backgroundColor: const Color.fromARGB(255, 60, 158, 238),
                 ),
                 child: Text(
-                  event.title,
+                  event!.title,
                   style: const TextStyle(fontSize: 20.0, color: Colors.black),
                 ),
               ),
             ],
           ),
+        
         const SizedBox(
           height: 30,
         ),
@@ -496,7 +510,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _builUserMap() async {
     try {
-      _mapModel = await MapModel.createEventsMap(_events, context); //createEventsMap()
+      _mapModel = await MapModel.createEventsMap(_nearEvents, _myEvents, context); //createEventsMap()
       _mapModel.addYourCurrentPlace(_mapModel.getCenter());
       _map = DynMap(
         mapModel: _mapModel,
@@ -587,7 +601,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(
-          _events!.length,
+          _nearEvents!.length,
           (index) => Container(
             padding: const EdgeInsets.all(8.0),
             margin: const EdgeInsets.all(8.0),
@@ -595,7 +609,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Row(
               children: [
                 elevatedBox(
-                    _events![index], const Color.fromARGB(255, 99, 136, 235)),
+                    _nearEvents![index], const Color.fromARGB(255, 99, 136, 235)),
                 const SizedBox(width: 10.0),
                 ElevatedButton(
                     onPressed: () => print("accettato"),

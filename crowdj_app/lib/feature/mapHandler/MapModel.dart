@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 
+import '../../core/router/utils/EventExtra.dart';
 import '../events/models/event_model.dart';
 
 ///the MapModel contains methods and informations to be shown in a Map,
@@ -33,7 +34,7 @@ class MapModel {
   ///the events close to a User. See createEventsMap() static constructor
   MapModel._withMarkers(this._center, this._markers);
 
-  static Future<MapModel> createEventsMap(List<Event> events, BuildContext context) async {
+  static Future<MapModel> createEventsMap(List<Event> events, List<Event?> myEvents, BuildContext context) async {
     final GeoPoint center = await getCurrentLocation();
     final List<Marker> eventLocations = [];
 
@@ -47,11 +48,16 @@ class MapModel {
           child: IconButton(
             onPressed: () {
               print("${e.title}");
-              context.go("/event", extra: e);
+              context.go("/event", 
+                          extra: EventExtra(
+                            event: e, 
+                            sub: myEvents.any((obj) => obj!.id  == e.id),
+                          ),
+                        );
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.place,
-              color: Colors.red,
+              color:(myEvents.any((obj) => obj!.id  == e.id))? Colors.green: Colors.red,
             ),
           ),
         ),

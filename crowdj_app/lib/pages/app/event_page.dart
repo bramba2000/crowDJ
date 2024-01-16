@@ -47,7 +47,17 @@ class _EventPageState extends ConsumerState<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("EVENT PAGE")),
+      appBar: AppBar(
+        title: const Text("EVENT PAGE"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.replace("/");
+            },
+            icon: const Icon(Icons.arrow_back),
+          )
+        ],
+        ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return FutureBuilder<void>(
@@ -478,7 +488,7 @@ class _EventPageState extends ConsumerState<EventPage> {
             }
 
           context.replace("/");
-          
+
         },
 
         child: Text("subscribe"),
