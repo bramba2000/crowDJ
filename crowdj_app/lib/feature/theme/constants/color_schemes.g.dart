@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
@@ -67,3 +71,42 @@ const darkColorScheme = ColorScheme(
   outlineVariant: Color(0xFF3F484A),
   scrim: Color(0xFF000000),
 );
+
+const ColorScheme darkLavaColorScheme = ColorScheme(
+  primary: Color(0xFFE57373), // Primary color
+  primaryContainer: Color(0xFFB71C1C), // Darker shade of primary color
+  secondary: Color(0xFFFFB74D), // Secondary color
+  secondaryContainer: Color(0xFFFF9800), // Darker shade of secondary color
+  surface: Color(0xFF263238), // Surface color (background)
+  background: Color(0xFF212121), // Background color
+  error: Color(0xFFB00020), // Error color
+  onPrimary: Colors.white, // Text/icon color on primary color
+  onSecondary: Colors.black, // Text/icon color on secondary color
+  onSurface: Colors.white, // Text/icon color on surface color
+  onBackground: Colors.white, // Text/icon color on background color
+  onError: Colors.white, // Text/icon color on error color
+  brightness: Brightness.dark, // Dark theme
+);
+
+ColorScheme darkColorScheme2 = ColorScheme(
+    background: Color(int.parse("#ff0e0e0e".replaceAll('#', '0xFF'))),
+    brightness: Brightness.dark,
+    error: Color(int.parse("#ffcf6679".replaceAll('#', '0xFF'))),
+    errorContainer: Color(int.parse("#ffcf6679".replaceAll('#', '0xFF'))),
+    inversePrimary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    inverseSurface: Color(int.parse("#ffffffff".replaceAll('#', '0xFF'))),
+    onBackground: Color(int.parse("#ffffffff".replaceAll('#', '0xFF'))),
+    onError: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    onPrimary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    onSecondary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    onSurface: Color(int.parse("#ffffffff".replaceAll('#', '0xFF'))),
+    onTertiary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    primary: Color(0XFFf5b6b4),
+    primaryContainer: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    scrim: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
+    secondary: Color(int.parse("#ff5adcb4".replaceAll('#', '0xFF'))),
+    secondaryContainer: Color(int.parse("#ff4dbd9b".replaceAll('#', '0xFF'))),
+    surface: Color(int.parse("#ff451654".replaceAll('#', '0xFF'))),
+    
+  );
+

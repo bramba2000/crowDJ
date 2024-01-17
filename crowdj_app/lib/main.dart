@@ -21,7 +21,7 @@ class MainApp extends ConsumerWidget {
     return MaterialApp.router(
       routerConfig: ref.watch(routerProvider),
       theme: ThemeData.from(colorScheme: lightColorScheme),
-      darkTheme: ThemeData.from(colorScheme: darkColorScheme),
+      darkTheme: ThemeData.from(colorScheme: darkColorScheme2), //darkColorScheme
       themeMode: ref.watch(themeNotifierProvider),
       title: "CrowDJ",
     );
