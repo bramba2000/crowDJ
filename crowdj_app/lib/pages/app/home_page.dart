@@ -640,7 +640,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             },
           ),
         ),
-        Text("$_radius"),
+        Text("${_radius.truncate()}"),
       ],
     );
   }

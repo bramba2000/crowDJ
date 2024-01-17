@@ -21,7 +21,7 @@ import '../../feature/events/widgets/tracks_container.dart';
 class EventPage extends ConsumerStatefulWidget {
   final Event arg;
   final bool sub; // true if the user is already subscribed
-  const EventPage({super.key, required this.arg, this.sub=false});
+  const EventPage({super.key, required this.arg, this.sub = false});
 
   @override
   // _EventPageState createState() => _EventPageState();
@@ -29,6 +29,8 @@ class EventPage extends ConsumerStatefulWidget {
 }
 
 class _EventPageState extends ConsumerState<EventPage> {
+  final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
+  var _userWatch;
   bool _showEventEditor = false;
   final EventService _eventService = EventService();
   final SpotifyService _spotifyService = SpotifyService.fromEnvironment();
@@ -40,8 +42,18 @@ class _EventPageState extends ConsumerState<EventPage> {
     _songs = await _eventService.getTracksMetadata(widget.arg.id);
   }
 
+  void _loadUserProps() {
+    var watch = ref.watch(provider);
+    if (watch is AuthenticationStateAuthenticated) {
+      _userWatch = watch.user;
+    } else {
+      throw ErrorDescription(" impossible to load user props ");
+    }
+  }
+
   _initilizeWidget() async {
     await _loadSongs();
+    _loadUserProps();
   }
 
   @override
@@ -57,7 +69,7 @@ class _EventPageState extends ConsumerState<EventPage> {
             icon: const Icon(Icons.arrow_back),
           )
         ],
-        ),
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return FutureBuilder<void>(
@@ -130,9 +142,11 @@ class _EventPageState extends ConsumerState<EventPage> {
                   ),
                 ],
               ),
-              TracksContainer(eventId: widget.arg.id),
-              if(widget.sub) _addSongContainer(widget.arg)
-              else _registerToEvent(widget.arg),
+              TracksContainer(eventId: widget.arg.id, userID:_userWatch.uid),
+              if (widget.sub)
+                _addSongContainer(widget.arg)
+              else
+                _registerToEvent(widget.arg),
             ],
           );
         },
@@ -170,7 +184,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  TracksContainer(eventId: widget.arg.id),
+                  TracksContainer(eventId: widget.arg.id,  userID:_userWatch.uid),
                   const SizedBox(
                     height: 20,
                   ),
@@ -467,33 +481,16 @@ class _EventPageState extends ConsumerState<EventPage> {
     );
   }
 
-  Widget _registerToEvent(Event event){
-    
-    final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
-    String _userID;
-
+  Widget _registerToEvent(Event event) {
     return Container(
-      child: ElevatedButton( 
-
+      child: ElevatedButton(
         onPressed: () async {
-
           ParticipantDataSource participantDataSource = ParticipantDataSource();
-            var watch = ref.watch(provider);
-            if (watch is AuthenticationStateAuthenticated) {
-              _userID = watch.user.uid;
-              //print("---user props loaded")
-              participantDataSource.addParticipant(event.id, _userID);
-            } else {
-              throw ErrorDescription(" impossible to load user props ");
-            }
-
+          participantDataSource.addParticipant(event.id, _userWatch.uid);
           context.replace("/");
-
         },
-
         child: Text("subscribe"),
       ),
     );
   }
-
 }
