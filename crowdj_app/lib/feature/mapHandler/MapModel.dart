@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -152,8 +154,28 @@ class MapModel {
     return _center;
   }
 
+  LatLng getCenterLatLng() {
+    return LatLng(getCenter().latitude, getCenter().longitude);
+  }
+
   //return all the Marker in _markers
   List<Marker> getMarkers() {
     return _markers;
+  }
+
+
+  //esteem the zoom based on the distance (radius)
+  double calculateZoomLevel(double distanceInKm, double mapWidth) {
+    const double earthRadius = 6371.0; // Earth radius in kilometers
+  const double paddingFactor = 1.1; // A padding factor to provide some extra space
+
+  // Calculate the angular distance covered by the given distance
+  double angularDistance = distanceInKm / earthRadius;
+
+  // Calculate the zoom level based on the screen width and angular distance
+  double zoomLevel = log(mapWidth / (angularDistance * 256.0 * paddingFactor)) / log(2.0);
+
+  // Ensure the zoom level is within a reasonable range
+  return max(0.0, min(zoomLevel, 18.0));
   }
 }

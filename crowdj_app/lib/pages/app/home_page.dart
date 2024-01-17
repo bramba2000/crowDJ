@@ -50,7 +50,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     try {
       if (_userProps.userType == UserType.dj) {
         _myEvents = await _eventDataSource.getEventsOfUser(_userID);
-        print("---------------------------------------dj _events updated:");
       } 
 
       await _eventDataSource
@@ -58,8 +57,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           .listen((list) {
         // Handle each list as it arrives
         _nearEvents = list;
-        print("---------------------------------------user _events updated:" +
-            _nearEvents.toString());
       });
       
     } on Exception catch (e) {
@@ -332,9 +329,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(
               height: 30,
             ),
-            _userMap(screenWidth, screenHeight),
-            _zoomSlider(),
-            _slider(),
+            _userMap(),
+            //_zoomSlider(),
+            _nearEventSlider(screenWidth),
             const SizedBox(
               height: 30,
             ),
@@ -445,7 +442,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     ]);
   }
 
-  Widget _userMap(screenWidth, screenHeight) {
+  Widget _userMap() {
     return Container(
       padding: const EdgeInsets.all(16.0),
       height: 300,
@@ -474,9 +471,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             } else {
               print("----------------- no snapshot errors, returning the map");
               return Container(
-                  padding: EdgeInsets.all(8),
-                  height: 300,
-                  width: 100,
+                  padding: EdgeInsets.all(8),             
                   child: _map);
             }
           }
@@ -626,19 +621,21 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _slider() {
+  Widget _nearEventSlider(double screenWidth) {
     return Row(
       children: [
         Expanded(
           child: Slider(
             value: _radius,
             min: 1,
-            max: 400000,
+            max: 100,
             label: _radius.toString()+" km ",
-            divisions: 400,
+            divisions: 100,
             onChanged: (value) {
               setState(() {
                 _radius = value;
+                _zoom = _mapModel.calculateZoomLevel(_radius, screenWidth );
+                _mapController.move(_mapModel.getCenterLatLng(), _zoom);
               });
             },
           ),
@@ -654,14 +651,14 @@ class _HomePageState extends ConsumerState<HomePage> {
         Expanded(
           child: Slider(
             value: _zoom,
-            min: 10,
-            max: 30,
+            min: 5,
+            max: 18,
             label: _zoom.toString(),
             divisions: 40,
             onChanged: (value) {
               setState(() {
                 _zoom=value;
-                _mapController.move(LatLng(_mapModel.getCenter().latitude, _mapModel.getCenter().longitude), _zoom);
+                _mapController.move(_mapModel.getCenterLatLng(), _zoom);
               });
             },
           ),
