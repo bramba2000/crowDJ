@@ -372,25 +372,28 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Column(
       children: [
         for (Event? event in _myEvents)
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  context.go("/event", extra: EventExtra(event: event, sub: true) );
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        12.0), // Set border radius to 0 for a square button
+          Container(
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    context.go("/event", extra: EventExtra(event: event, sub: true) );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          12.0), // Set border radius to 0 for a square button
+                    ),
+                    backgroundColor: const Color.fromARGB(255, 60, 158, 238),
                   ),
-                  backgroundColor: const Color.fromARGB(255, 60, 158, 238),
+                  child: Text(
+                    event!.title,
+                    style: const TextStyle(fontSize: 20.0, color: Colors.black),
+                  ),
                 ),
-                child: Text(
-                  event!.title,
-                  style: const TextStyle(fontSize: 20.0, color: Colors.black),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         
         const SizedBox(
