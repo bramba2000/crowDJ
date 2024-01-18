@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
@@ -114,7 +115,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               } else {
                 print(
                     "----------------- no snapshot errors, returning the map");
-                if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
+                if (constraints.maxWidth > 600 && _userProps.userType==UserType.dj) {
                   return _desktopDjPage();
                 } else {
                   return _mobileUserPage(screenWidth, screenHeight);
