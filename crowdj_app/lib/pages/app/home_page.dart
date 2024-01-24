@@ -51,7 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     try {
       if (_userProps.userType == UserType.dj) {
         _myEvents = await _eventDataSource.getEventsOfUser(_userID);
-      } 
+      }
 
       await _eventDataSource
           .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
@@ -59,7 +59,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         // Handle each list as it arrives
         _nearEvents = list;
       });
-      
     } on Exception catch (e) {
       print(" error!!!!!!!!!!! " + e.toString());
       _nearEvents = [];
@@ -68,13 +67,12 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _loadMyEvents() async {
     List<String> myEventsIDs;
-    _myEvents=[];
+    _myEvents = [];
     myEventsIDs = await ParticipantDataSource().getRegisteredEvents(_userID);
 
-    for (String id in myEventsIDs){
+    for (String id in myEventsIDs) {
       _myEvents.add(await _eventDataSource.getEvent(id));
     }
-
   }
 
   Future<void> _getUserProps() async {
@@ -115,7 +113,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               } else {
                 print(
                     "----------------- no snapshot errors, returning the map");
-                if (constraints.maxWidth > 600 && _userProps.userType==UserType.dj) {
+                if (constraints.maxWidth > 600 &&
+                    _userProps.userType == UserType.dj) {
                   return _desktopDjPage();
                 } else {
                   return _mobileUserPage(screenWidth, screenHeight);
@@ -275,7 +274,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          context.go("/event", extra: EventExtra(event: e, sub: true));
+                          context.go("/event/${e.id}",
+                              extra: EventExtra(event: e, sub: true));
                         },
                         child: const Text("manage the event"),
                       ),
@@ -304,11 +304,11 @@ class _HomePageState extends ConsumerState<HomePage> {
         title: const Text("HomePage"),
         actions: [
           IconButton(
-            onPressed: () async {          
-              await ref.read(provider.notifier).signOut();
-              context.go("/");    
-            }, 
-            icon: const Icon(Icons.logout))
+              onPressed: () async {
+                await ref.read(provider.notifier).signOut();
+                context.go("/");
+              },
+              icon: const Icon(Icons.logout))
         ],
       ),
       body: Padding(
@@ -364,7 +364,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       const SizedBox(
         height: 30,
       ),
-      _myEvents.isEmpty ? const Text("you didn't subscribe to any event") : eventList(),
+      _myEvents.isEmpty
+          ? const Text("you didn't subscribe to any event")
+          : eventList(),
     ]);
   }
 
@@ -379,7 +381,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    context.go("/event", extra: EventExtra(event: event, sub: true) );
+                    context.go("/event/{${event.id}}",
+                        extra: EventExtra(event: event, sub: true));
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -396,7 +399,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               ],
             ),
           ),
-        
         const SizedBox(
           height: 30,
         ),
@@ -474,9 +476,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               );
             } else {
               print("----------------- no snapshot errors, returning the map");
-              return Container(
-                  padding: EdgeInsets.all(8),             
-                  child: _map);
+              return Container(padding: EdgeInsets.all(8), child: _map);
             }
           }
           if (snapshot.connectionState == ConnectionState.active) {
@@ -509,7 +509,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _builUserMap() async {
     try {
-      _mapModel = await MapModel.createEventsMap(_nearEvents, _myEvents, context); //createEventsMap()
+      _mapModel = await MapModel.createEventsMap(
+          _nearEvents, _myEvents, context); //createEventsMap()
       _mapModel.addYourCurrentPlace(_mapModel.getCenter());
       _map = DynMap(
         mapModel: _mapModel,
@@ -607,8 +608,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             color: Colors.blue,
             child: Row(
               children: [
-                elevatedBox(
-                    _nearEvents![index], const Color.fromARGB(255, 99, 136, 235)),
+                elevatedBox(_nearEvents![index],
+                    const Color.fromARGB(255, 99, 136, 235)),
                 const SizedBox(width: 10.0),
                 ElevatedButton(
                     onPressed: () => print("accettato"),
@@ -633,12 +634,12 @@ class _HomePageState extends ConsumerState<HomePage> {
             value: _radius,
             min: 1,
             max: 100,
-            label: _radius.toString()+" km ",
+            label: _radius.toString() + " km ",
             divisions: 100,
             onChanged: (value) {
               setState(() {
                 _radius = value;
-                _zoom = _mapModel.calculateZoomLevel(_radius, screenWidth );
+                _zoom = _mapModel.calculateZoomLevel(_radius, screenWidth);
                 _mapController.move(_mapModel.getCenterLatLng(), _zoom);
               });
             },
@@ -661,7 +662,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             divisions: 40,
             onChanged: (value) {
               setState(() {
-                _zoom=value;
+                _zoom = value;
                 _mapController.move(_mapModel.getCenterLatLng(), _zoom);
               });
             },

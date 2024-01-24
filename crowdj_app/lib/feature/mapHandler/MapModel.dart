@@ -36,7 +36,8 @@ class MapModel {
   ///the events close to a User. See createEventsMap() static constructor
   MapModel._withMarkers(this._center, this._markers);
 
-  static Future<MapModel> createEventsMap(List<Event> events, List<Event?> myEvents, BuildContext context) async {
+  static Future<MapModel> createEventsMap(
+      List<Event> events, List<Event?> myEvents, BuildContext context) async {
     final GeoPoint center = await getCurrentLocation();
     final List<Marker> eventLocations = [];
 
@@ -50,16 +51,19 @@ class MapModel {
           child: IconButton(
             onPressed: () {
               print("${e.title}");
-              context.go("/event", 
-                          extra: EventExtra(
-                            event: e, 
-                            sub: myEvents.any((obj) => obj!.id  == e.id),
-                          ),
-                        );
+              context.go(
+                "/event/${e.id}",
+                extra: EventExtra(
+                  event: e,
+                  sub: myEvents.any((obj) => obj!.id == e.id),
+                ),
+              );
             },
             icon: Icon(
               Icons.place,
-              color:(myEvents.any((obj) => obj!.id  == e.id))? Colors.green: Colors.red,
+              color: (myEvents.any((obj) => obj!.id == e.id))
+                  ? Colors.green
+                  : Colors.red,
             ),
           ),
         ),
@@ -163,17 +167,18 @@ class MapModel {
     return _markers;
   }
 
-
   //esteem the zoom based on the distance (radius)
   double calculateZoomLevel(double distanceInKm, double mapWidth) {
     const double earthRadius = 6371.0; // Earth radius in kilometers
-    const double paddingFactor = 1.1; // A padding factor to provide some extra space
+    const double paddingFactor =
+        1.1; // A padding factor to provide some extra space
 
     // Calculate the angular distance covered by the given distance
     double angularDistance = distanceInKm / earthRadius;
 
     // Calculate the zoom level based on the screen width and angular distance
-    double zoomLevel = log(mapWidth / (angularDistance * 256.0 * paddingFactor)) / log(2.0);
+    double zoomLevel =
+        log(mapWidth / (angularDistance * 256.0 * paddingFactor)) / log(2.0);
 
     // Ensure the zoom level is within a reasonable range
     return max(0.0, min(zoomLevel, 18.0));
