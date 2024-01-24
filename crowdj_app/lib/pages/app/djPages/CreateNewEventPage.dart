@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../feature/events/data/events_data_source.dart';
+import '../../../feature/events/models/event_data.dart';
 import '../../../feature/events/models/event_model.dart';
 import '../../../feature/mapHandler/DynMap.dart';
 import '../../../feature/mapHandler/MapModel.dart';
@@ -35,17 +36,17 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
 
   ///----> music and songs <----
   List<String> musicGenres = [
-      'all genres',
-      'Rock',
-      'Pop',
-      'Hip Hop',
-      'Electronic',
-      'Jazz',
-      'Classical',
-      'Country',
-      'R&B',
-      'Blues',
-    ];
+    'all genres',
+    'Rock',
+    'Pop',
+    'Hip Hop',
+    'Electronic',
+    'Jazz',
+    'Classical',
+    'Country',
+    'R&B',
+    'Blues',
+  ];
 
   ///----> map <----
   late GeoPoint _location;
@@ -58,7 +59,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
 
   ///----> user props <----
   late UserProps _userProps;
-  late var _provider ;
+  late var _provider;
   late String _userID;
 
   ///----> event props <----
@@ -87,9 +88,8 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
   }
 
   Future<void> _initializeUserProps() async {
-    
     _provider = authNotifierProvider(AuthDataSource(), UserDataSource());
-    
+
     ///user initialization
     ///
     watch = ref.watch(_provider);
@@ -103,7 +103,6 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
     ///event_data_source initialization
     ///
     _eventDataSource = EventDataSource();
-
   }
 
   @override
@@ -121,7 +120,6 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
   }
 
   Widget _desktopDjPage() {
-
     return Scaffold(
       appBar: AppBar(title: const Text(" Create a New Event Page")),
       body: Padding(
@@ -422,7 +420,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
           print('Date: $_selectedDate');
           print("Address : ${_addressController.text}");
 
-          _eventDataSource.createEvent(
+          _eventDataSource.createEvent(EventData(
             title: _titleController.text,
             description: _descriptionController.text,
             maxPeople: int.tryParse(_maxPeopleContoller.text)!,
@@ -430,10 +428,9 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
             startTime: _selectedDate,
             creatorId: _userID,
             genre: _selectedGenre,
-          );
+          ));
 
           context.replace('/');
-
         }
       },
       child: const Text('Submit'),

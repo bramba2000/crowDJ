@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crowdj/feature/events/data/events_data_source.dart';
+import 'package:crowdj/feature/events/models/event_data.dart';
 import 'package:crowdj/feature/events/models/event_model.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +17,7 @@ void main() {
     test('Event should be created correctly', () async {
       final EventDataSource dataSource = EventDataSource(fakeFirestore);
 
-      dataSource.createEvent(
+      dataSource.createEvent(EventData(
         title: 'title',
         description: 'description',
         maxPeople: 10,
@@ -24,7 +25,7 @@ void main() {
         startTime: DateTime.now(),
         creatorId: 'creatorId',
         genre: 'genre',
-      );
+      ));
 
       expect((await fakeFirestore.collection('events').count().get()).count, 1);
       final Map<String, dynamic> event = (await fakeFirestore
