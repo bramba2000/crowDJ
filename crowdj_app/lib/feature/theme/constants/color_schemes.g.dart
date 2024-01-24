@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
@@ -88,25 +84,23 @@ const ColorScheme darkLavaColorScheme = ColorScheme(
   brightness: Brightness.dark, // Dark theme
 );
 
-ColorScheme darkColorScheme2 = ColorScheme(
-    background: Color(int.parse("#ff0e0e0e".replaceAll('#', '0xFF'))),
-    brightness: Brightness.dark,
-    error: Color(int.parse("#ffcf6679".replaceAll('#', '0xFF'))),
-    errorContainer: Color(int.parse("#ffcf6679".replaceAll('#', '0xFF'))),
-    inversePrimary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    inverseSurface: Color(int.parse("#ffffffff".replaceAll('#', '0xFF'))),
-    onBackground: Color(int.parse("#ffffffff".replaceAll('#', '0xFF'))),
-    onError: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    onPrimary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    onSecondary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    onSurface: Color(int.parse("#ffffffff".replaceAll('#', '0xFF'))),
-    onTertiary: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    primary: Color(0XFFf5b6b4),
-    primaryContainer: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    scrim: Color(int.parse("#ff000000".replaceAll('#', '0xFF'))),
-    secondary: Color(int.parse("#ff5adcb4".replaceAll('#', '0xFF'))),
-    secondaryContainer: Color(int.parse("#ff4dbd9b".replaceAll('#', '0xFF'))),
-    surface: Color(int.parse("#ff451654".replaceAll('#', '0xFF'))),
-    
-  );
-
+const ColorScheme darkColorScheme2 = ColorScheme(
+  brightness: Brightness.dark,
+  background: Color(0xFF0E0E0E),
+  error: Color(0xFFCF6679),
+  errorContainer: Color(0xFFCF6679),
+  inversePrimary: Color(0xFF000000),
+  inverseSurface: Color(0xFFFFFFFF),
+  onBackground: Color(0xFFFFFFFF),
+  onError: Color(0xFF000000),
+  onPrimary: Color(0xFF000000),
+  onSecondary: Color(0xFF000000),
+  onSurface: Color(0xFFFFFFFF),
+  onTertiary: Color(0xFF000000),
+  primary: Color(0xFFF5B6B4),
+  primaryContainer: Color(0xFF000000),
+  scrim: Color(0xFF000000),
+  secondary: Color(0xFF5ADCB4),
+  secondaryContainer: Color(0xFF4DBD9B),
+  surface: Color(0xFF451654),
+);
