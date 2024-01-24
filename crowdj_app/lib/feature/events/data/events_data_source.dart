@@ -29,9 +29,9 @@ class EventDataSource {
       return e;
     }
     if (e.status != EventStatus.past) {
-      if (e.startTime.isAfter(DateTime.now().add(const Duration(days: 1)))) {
+      if (e.startTime.isBefore(DateTime.now().add(const Duration(days: 1)))) {
         return e.copyWith(status: EventStatus.past);
-      } else if (e.startTime.isAfter(DateTime.now()) &&
+      } else if (e.startTime.isBefore(DateTime.now()) &&
           e.status != EventStatus.upcoming) {
         return e.copyWith(status: EventStatus.upcoming);
       } else {
@@ -57,6 +57,9 @@ class EventDataSource {
   ) async {
     String id = _firestore.collection(_collectionName).doc().id;
     Event event = Event.fromEventData(id, eventData);
+    if (eventData.isPrivate) {
+      event = (event as PrivateEvent).copyWith(password: _generatePassword());
+    }
     event = _eventStatusControl(event)!;
     _firestore.collection(_collectionName).doc(event.id).set(event.toJson());
     return event;
