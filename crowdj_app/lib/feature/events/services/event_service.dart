@@ -27,10 +27,19 @@ class EventService {
   ///
   /// If the user is already registered, nothing will happen. If the event does
   /// not exist, an [ArgumentError] is thrown. See also [ParticipantDataSource.addParticipant]
-  Future<void> addParticipant(String eventId, String userId) async {
+  Future<void> addParticipant(String eventId, String userId,
+      {String? password}) async {
     final event = await _eventDataSource.getEvent(eventId);
     if (event == null) {
       throw ArgumentError('Event with id $eventId does not exist');
+    }
+    if (event is PrivateEvent) {
+      if (password == null) {
+        throw ArgumentError('Event is private, a password is required');
+      }
+      if (event.password != password) {
+        throw ArgumentError('Password is incorrect');
+      }
     }
     return _participantsDataSource.addParticipant(eventId, userId);
   }
