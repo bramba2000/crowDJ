@@ -46,13 +46,13 @@ GoRouter router(RouterRef ref) {
           GoRoute(
               path: "event/:id",
               pageBuilder: (context, state) {
-                EventExtra args = state.extra as EventExtra;
+                EventExtra? args = state.extra as EventExtra?;
                 String eventId = state.pathParameters['id']!;
                 return MaterialPage(
                   child: EventPage(
                     eventId: eventId,
-                    event: args.event,
-                    isParticipant: args.sub,
+                    event: args?.event,
+                    isParticipant: args?.sub ?? false,
                   ),
                 );
               }),
