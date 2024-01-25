@@ -92,6 +92,8 @@ class _EventFormState extends State<EventForm> {
             ),
             TextFormField(
               controller: _descriptionController,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
               decoration: const InputDecoration(
                 labelText: 'Description',
               ),

@@ -119,10 +119,6 @@ class _EventPageState extends ConsumerState<EventPage> {
                                           )
                                         : EventDisplay(event: snapshot.data!),
                                   ),
-                                  if (widget.isParticipant &&
-                                      snapshot.data!.status ==
-                                          EventStatus.upcoming)
-                                    _addSongContainer(snapshot.data!),
                                 ],
                               ),
                             ),

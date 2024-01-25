@@ -22,9 +22,18 @@ class EventDisplay extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(event.description),
-          Text(event.startTime.toString()),
-          Text(event.genre),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(event.description),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(event.startTime.toString()),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(event.genre),
+          ),
         ],
       ),
     );
