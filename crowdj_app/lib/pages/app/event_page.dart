@@ -91,72 +91,69 @@ class _EventPageState extends ConsumerState<EventPage> {
                   child: Text("error occurs while loading the stream"),
                 ),
               (ConnectionState.done, false) => Center(
-                  child: Expanded(
-                    child: Column(
-                      children: [
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          direction: Axis.horizontal,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 40,
-                          runSpacing: 10,
-                          children: [
-                            Container(
-                              constraints: const BoxConstraints(
-                                maxWidth: 400,
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: _userType == UserType.dj
-                                        ? EventForm(
-                                            event: snapshot.data!,
-                                            canEdit: _userType == UserType.dj,
-                                          )
-                                        : EventDisplay(event: snapshot.data!),
-                                  ),
-                                  if (widget.isParticipant &&
-                                      snapshot.data!.status ==
-                                          EventStatus.upcoming)
-                                    _addSongContainer(snapshot.data!),
-                                ],
-                              ),
+                  child: Column(
+                    children: [
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        direction: Axis.horizontal,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 40,
+                        runSpacing: 10,
+                        children: [
+                          Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 400,
                             ),
-                            Container(
-                              constraints: const BoxConstraints(
-                                maxWidth: 600,
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (snapshot.data!.status ==
-                                      EventStatus.ongoing)
-                                    Flexible(
-                                      //fit: FlexFit.loose,
-                                      flex: 4,
-                                      child: Column(
-                                        children: [
-                                          _showImage(),
-                                          _showPlayer(),
-                                        ],
-                                      ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: _userType == UserType.dj
+                                      ? EventForm(
+                                          event: snapshot.data!,
+                                          canEdit: _userType == UserType.dj,
+                                        )
+                                      : EventDisplay(event: snapshot.data!),
+                                ),
+                                if (widget.isParticipant &&
+                                    snapshot.data!.status ==
+                                        EventStatus.upcoming)
+                                  _addSongContainer(snapshot.data!),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 600,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (snapshot.data!.status ==
+                                    EventStatus.ongoing)
+                                  Flexible(
+                                    //fit: FlexFit.loose,
+                                    flex: 4,
+                                    child: Column(
+                                      children: [
+                                        _showImage(),
+                                        _showPlayer(),
+                                      ],
                                     ),
-                                  TracksContainer(
-                                      eventId: widget.eventId,
-                                      userID: _userId!),
-                                  if (snapshot.data!.status ==
-                                      EventStatus.upcoming) ...[
-                                    _addSongContainer(snapshot.data!),
-                                  ],
+                                  ),
+                                TracksContainer(
+                                    eventId: widget.eventId, userID: _userId!),
+                                if (snapshot.data!.status ==
+                                    EventStatus.upcoming) ...[
+                                  _addSongContainer(snapshot.data!),
                                 ],
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               (ConnectionState.active || ConnectionState.waiting, false) =>
