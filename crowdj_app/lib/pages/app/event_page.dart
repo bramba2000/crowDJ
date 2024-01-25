@@ -6,6 +6,7 @@ import 'package:spotify/spotify.dart' as spotify;
 
 import '../../feature/auth/data/auth_data_source.dart';
 import '../../feature/auth/data/user_data_source.dart';
+import '../../feature/auth/models/user_props.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
 import '../../feature/events/data/participant_data_source.dart';
@@ -18,6 +19,7 @@ import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/services/spotify_service.dart';
+import '../../feature/events/widgets/event_form.dart';
 import '../../feature/events/widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
@@ -38,18 +40,14 @@ class EventPage extends ConsumerStatefulWidget {
 
 class _EventPageState extends ConsumerState<EventPage> {
   late final String? _userId;
+  late final UserType _userType;
   bool _showEventEditor = false;
   final EventService _eventService = EventService();
   final SpotifyService _spotifyService = SpotifyService.fromEnvironment();
   late final Future<Event?> _event =
       widget.event != null ? Future.value(widget.event) : _loadEvent();
 
-  late List<TrackMetadata> _songs;
   List<spotify.Track>? _songsSearchRes;
-
-  Future<void> _loadSongs() async {
-    _songs = await _eventService.getTracksMetadata(widget.eventId);
-  }
 
   Future<Event?> _loadEvent() async =>
       widget.event ?? await _eventService.getEvent(widget.eventId);
@@ -65,12 +63,21 @@ class _EventPageState extends ConsumerState<EventPage> {
   void initState() {
     super.initState();
     final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
-    _userId = ref.read(provider.select(
+    final result = ref.read(provider.select(
       (state) => switch (state) {
-        AuthenticationStateAuthenticated auth => auth.user.uid,
+        AuthenticationStateAuthenticated auth => (
+            auth.user.uid,
+            auth.userProps.userType
+          ),
         _ => null,
       },
     ));
+    if (result == null) {
+      throw Exception("user not authenticated");
+    } else {
+      _userId = result.$1;
+      _userType = result.$2;
+    }
   }
 
   @override
@@ -83,46 +90,74 @@ class _EventPageState extends ConsumerState<EventPage> {
         builder: (context, constraints) {
           return FutureBuilder(
             future: _event,
-            builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasError) {
-                  print(snapshot.error.toString());
-                  return const SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: Text("error occurs while loading the stream"),
-                  );
-                } else {
-                  if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
-                    return _desktopDjPage(snapshot.data);
-                  } else {
-                    return _mobileUserPage(snapshot.data);
-                  }
-                }
-              }
-              if (snapshot.connectionState == ConnectionState.active) {
-                if (snapshot.hasError) {
-                  return Container(
-                    height: 100,
-                    width: 100,
-                    child: Text(
-                      "----------------- error: ${snapshot.error.toString()}",
-                    ),
-                  );
-                } else {
-                  return const Center(
-                    child: Column(
+            builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
+                switch ((snapshot.connectionState, snapshot.hasError)) {
+              (_, true) => const SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Text("error occurs while loading the stream"),
+                ),
+              (ConnectionState.done, false) => constraints.maxWidth > 1000
+                  ? Row(
                       children: [
-                        CircularProgressIndicator(),
-                        Text("loading ..."),
+                        Flexible(
+                            flex: 1,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: EventForm(
+                                    event: snapshot.data,
+                                    canEdit: _userType == UserType.dj,
+                                  ),
+                                ),
+                              ],
+                            )),
+                        Flexible(
+                          //fit: FlexFit.loose,
+                          flex: 1,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (snapshot.data!.status == EventStatus.ongoing)
+                                Flexible(
+                                  //fit: FlexFit.loose,
+                                  flex: 4,
+                                  child: Column(
+                                    children: [
+                                      _showImage(),
+                                      _showPlayer(),
+                                    ],
+                                  ),
+                                ),
+                              if (snapshot.data!.status ==
+                                  EventStatus.upcoming) ...[
+                                _addSongContainer(snapshot.data!),
+                                TracksContainer(
+                                    eventId: widget.eventId, userID: _userId!)
+                              ],
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  );
-                }
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+                    )
+                  : _mobileUserPage(snapshot.data),
+              (ConnectionState.active || ConnectionState.waiting, false) =>
+                const Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      Text(
+                          "Wait a few seconds while we look for this amazing event"),
+                    ],
+                  ),
+                ),
+              (ConnectionState.none, false) => const SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Text("the state is null :/"),
+                ),
             },
           );
         },
@@ -424,7 +459,7 @@ class _EventPageState extends ConsumerState<EventPage> {
     void addSongToEvent(spotify.Track song) async {
       await _eventService.addTrackToEvent(event.id, song);
       _songTitle.text = "";
-      await _loadSongs();
+      //await _loadSongs();
     }
 
     return Container(

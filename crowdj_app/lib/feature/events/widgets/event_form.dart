@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../../mapHandler/MapProvider.dart';
 import '../models/event_model.dart';
 
 /// A widget to create, modify or show an event.
@@ -34,19 +32,15 @@ class _EventFormState extends State<EventForm> {
   late final _descriptionController =
       TextEditingController(text: widget.event?.description);
   late final _dateController =
-      TextEditingController(text: widget.event?.startTime.toString());
+      TextEditingController(text: _formatDate(widget.event?.startTime));
   late final _timeController =
-      TextEditingController(text: widget.event?.startTime.toString());
-  late final _addressController =
-      TextEditingController(text: widget.event?.location.toString());
-  late String? _musicGenre = widget.event?.genre ?? 'all genres';
+      TextEditingController(text: _formatTime(widget.event?.startTime));
+  late String? _musicGenre = widget.event?.genre;
   late bool _isPrivate = switch (widget.event) {
     PrivateEvent? _ => true,
     _ => false,
   };
   late bool _isEdit = widget.startWithEdit || widget.isCreation;
-  late bool _mapIsVisible = false;
-  late GeoPoint _location;
 
   List<String> musicGenres = [
     'all genres',
@@ -61,6 +55,21 @@ class _EventFormState extends State<EventForm> {
     'Blues',
   ];
 
+  String _formatDate(DateTime? date) {
+    if (date == null) {
+      return '';
+    }
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _formatTime(DateTime? date) {
+    if (date == null) {
+      return '';
+    }
+    final time = TimeOfDay.fromDateTime(date);
+    return '${time.hour}:${time.minute} ${time.period == DayPeriod.am ? 'AM' : 'PM'}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -70,7 +79,6 @@ class _EventFormState extends State<EventForm> {
           children: [
             TextFormField(
               controller: _titleController,
-              autofocus: widget.startWithEdit,
               decoration: const InputDecoration(
                 labelText: 'Title',
               ),
@@ -80,7 +88,7 @@ class _EventFormState extends State<EventForm> {
                 }
                 return null;
               },
-              enabled: widget.canEdit,
+              enabled: _isEdit,
             ),
             TextFormField(
               controller: _descriptionController,
@@ -93,7 +101,7 @@ class _EventFormState extends State<EventForm> {
                 }
                 return null;
               },
-              enabled: widget.isCreation,
+              enabled: _isEdit,
             ),
             TextFormField(
               controller: _dateController,
@@ -115,7 +123,7 @@ class _EventFormState extends State<EventForm> {
                 }
                 return null;
               },
-              enabled: widget.isCreation,
+              enabled: _isEdit,
             ),
             TextFormField(
               controller: _timeController,
@@ -127,7 +135,10 @@ class _EventFormState extends State<EventForm> {
                   context: context,
                   initialTime: TimeOfDay.now(),
                 );
-                _timeController.text = time.toString();
+                if (time != null) {
+                  // ignore: use_build_context_synchronously
+                  _timeController.text = time.format(context);
+                }
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -135,18 +146,20 @@ class _EventFormState extends State<EventForm> {
                 }
                 return null;
               },
-              enabled: widget.isCreation,
+              enabled: _isEdit,
             ),
             DropdownButtonFormField(
               decoration: const InputDecoration(
                 labelText: 'Music Genre',
               ),
               value: _musicGenre,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _musicGenre = newValue;
-                });
-              },
+              onChanged: _isEdit
+                  ? (String? newValue) {
+                      setState(() {
+                        _musicGenre = newValue;
+                      });
+                    }
+                  : null,
               items: musicGenres.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -157,28 +170,37 @@ class _EventFormState extends State<EventForm> {
             SwitchListTile(
               title: const Text('Private'),
               value: _isPrivate,
-              onChanged: (bool value) {
-                setState(() {
-                  _isPrivate = value;
-                });
-              },
+              onChanged: _isEdit
+                  ? (bool value) {
+                      setState(() {
+                        _isPrivate = value;
+                      });
+                    }
+                  : null,
               secondary: const Icon(Icons.lock),
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (widget.canEdit)
-                  OutlinedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEdit = !_isEdit;
-                      });
-                    },
-                    child: Text(_isEdit ? 'Cancel' : 'Edit'),
+                if (widget.canEdit && !widget.isCreation)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isEdit = !_isEdit;
+                        });
+                      },
+                      child: Text(_isEdit ? 'Cancel' : 'Edit'),
+                    ),
                   ),
                 if (_isEdit || widget.isCreation)
-                  ElevatedButton(
-                    onPressed: _confirmForm,
-                    child: Text(widget.isCreation ? 'Create' : 'Save'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: _confirmForm,
+                      child: Text(widget.isCreation ? 'Create' : 'Save'),
+                    ),
                   )
               ],
             )
