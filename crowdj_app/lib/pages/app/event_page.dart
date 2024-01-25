@@ -10,7 +10,6 @@ import '../../feature/auth/models/user_props.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
 import '../../feature/events/data/participant_data_source.dart';
-import '../../feature/events/models/track_metadata.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,6 +18,7 @@ import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/services/spotify_service.dart';
+import '../../feature/events/widgets/event_display.dart';
 import '../../feature/events/widgets/event_form.dart';
 import '../../feature/events/widgets/tracks_container.dart';
 
@@ -51,13 +51,6 @@ class _EventPageState extends ConsumerState<EventPage> {
 
   Future<Event?> _loadEvent() async =>
       widget.event ?? await _eventService.getEvent(widget.eventId);
-
-  Future _initilizeWidget() async {
-    final list = await Future.wait([
-      //_loadSongs(),
-      _loadEvent(),
-    ]);
-  }
 
   @override
   void initState() {
@@ -97,52 +90,75 @@ class _EventPageState extends ConsumerState<EventPage> {
                   width: 100,
                   child: Text("error occurs while loading the stream"),
                 ),
-              (ConnectionState.done, false) => constraints.maxWidth > 1000
-                  ? Row(
+              (ConnectionState.done, false) => Center(
+                  child: Expanded(
+                    child: Column(
                       children: [
-                        Flexible(
-                            flex: 1,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: EventForm(
-                                    event: snapshot.data,
-                                    canEdit: _userType == UserType.dj,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          direction: Axis.horizontal,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 40,
+                          runSpacing: 10,
+                          children: [
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 400,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: _userType == UserType.dj
+                                        ? EventForm(
+                                            event: snapshot.data!,
+                                            canEdit: _userType == UserType.dj,
+                                          )
+                                        : EventDisplay(event: snapshot.data!),
                                   ),
-                                ),
-                              ],
-                            )),
-                        Flexible(
-                          //fit: FlexFit.loose,
-                          flex: 1,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (snapshot.data!.status == EventStatus.ongoing)
-                                Flexible(
-                                  //fit: FlexFit.loose,
-                                  flex: 4,
-                                  child: Column(
-                                    children: [
-                                      _showImage(),
-                                      _showPlayer(),
-                                    ],
-                                  ),
-                                ),
-                              if (snapshot.data!.status ==
-                                  EventStatus.upcoming) ...[
-                                _addSongContainer(snapshot.data!),
-                                TracksContainer(
-                                    eventId: widget.eventId, userID: _userId!)
-                              ],
-                            ],
-                          ),
+                                  if (widget.isParticipant &&
+                                      snapshot.data!.status ==
+                                          EventStatus.upcoming)
+                                    _addSongContainer(snapshot.data!),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 600,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (snapshot.data!.status ==
+                                      EventStatus.ongoing)
+                                    Flexible(
+                                      //fit: FlexFit.loose,
+                                      flex: 4,
+                                      child: Column(
+                                        children: [
+                                          _showImage(),
+                                          _showPlayer(),
+                                        ],
+                                      ),
+                                    ),
+                                  TracksContainer(
+                                      eventId: widget.eventId,
+                                      userID: _userId!),
+                                  if (snapshot.data!.status ==
+                                      EventStatus.upcoming) ...[
+                                    _addSongContainer(snapshot.data!),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    )
-                  : _mobileUserPage(snapshot.data),
+                    ),
+                  ),
+                ),
               (ConnectionState.active || ConnectionState.waiting, false) =>
                 const Center(
                   child: Column(
