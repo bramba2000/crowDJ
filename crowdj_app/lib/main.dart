@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -21,9 +22,16 @@ class MainApp extends ConsumerWidget {
     return MaterialApp.router(
       routerConfig: ref.watch(routerProvider),
       theme: ThemeData.from(colorScheme: lightColorScheme),
-      darkTheme: ThemeData.from(colorScheme: darkColorScheme2), //darkColorScheme
+      darkTheme:
+          ThemeData.from(colorScheme: darkColorScheme2), //darkColorScheme
       themeMode: ref.watch(themeNotifierProvider),
       title: "CrowDJ",
+      supportedLocales: const [Locale('en', 'US'), Locale('it', 'IT')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/event_model.dart';
 
@@ -27,14 +28,20 @@ class EventForm extends StatefulWidget {
 
 class _EventFormState extends State<EventForm> {
   final _formKey = GlobalKey<FormState>();
+  final _dateFormat = DateFormat.yMd();
+  final _timeFormat = DateFormat.jm();
   late final _titleController =
       TextEditingController(text: widget.event?.title);
   late final _descriptionController =
       TextEditingController(text: widget.event?.description);
-  late final _dateController =
-      TextEditingController(text: _formatDate(widget.event?.startTime));
-  late final _timeController =
-      TextEditingController(text: _formatTime(widget.event?.startTime));
+  late final _dateController = TextEditingController(
+      text: widget.event?.startTime != null
+          ? _dateFormat.format(widget.event!.startTime)
+          : null);
+  late final _timeController = TextEditingController(
+      text: widget.event?.startTime != null
+          ? _timeFormat.format(widget.event!.startTime)
+          : null);
   late String? _musicGenre = widget.event?.genre;
   late bool _isPrivate = switch (widget.event) {
     PrivateEvent? _ => true,
@@ -54,21 +61,6 @@ class _EventFormState extends State<EventForm> {
     'R&B',
     'Blues',
   ];
-
-  String _formatDate(DateTime? date) {
-    if (date == null) {
-      return '';
-    }
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  String _formatTime(DateTime? date) {
-    if (date == null) {
-      return '';
-    }
-    final time = TimeOfDay.fromDateTime(date);
-    return '${time.hour}:${time.minute} ${time.period == DayPeriod.am ? 'AM' : 'PM'}';
-  }
 
   @override
   Widget build(BuildContext context) {

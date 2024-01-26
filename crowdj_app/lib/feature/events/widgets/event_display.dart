@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/event_model.dart';
 
@@ -7,8 +8,9 @@ import '../models/event_model.dart';
 /// This widget is used to display the details of an [Event] in the [EventDetailsScreen].
 class EventDisplay extends StatelessWidget {
   final Event event;
+  final DateFormat _dateFormat = DateFormat.yMd().add_jm();
 
-  const EventDisplay({required this.event});
+  EventDisplay({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class EventDisplay extends StatelessWidget {
             ),
           ),
           Text(event.description),
-          Text(event.startTime.toString()),
+          Text(_dateFormat.format(event.startTime)),
           Text(event.genre),
         ],
       ),
