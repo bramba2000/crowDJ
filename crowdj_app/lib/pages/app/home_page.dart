@@ -46,15 +46,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   ///
   final EventDataSource _eventDataSource = EventDataSource();
   late List<Event> _nearEvents = [];
-  late List<Event?> _myEvents = [];
+  late final Future<List<Event?>> _myEventsFuture;
+  late List<Event?> _myEvents;
   double _radius = 5;
 
   Future<void> _loadNearEvents() async {
     try {
-      if (_userProps.userType == UserType.dj) {
-        _myEvents = await _eventDataSource.getEventsOfUser(_userID);
-      }
-
       await _eventDataSource
           .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
           .listen((list) {
@@ -67,18 +64,20 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
-  Future<void> _loadMyEvents() async {
+  Future<List<Event?>> _loadMyEvents() async {
     List<String> myEventsIDs;
-    _myEvents = [];
+    List<Event?> event_list = [];
     myEventsIDs = await ParticipantDataSource().getRegisteredEvents(_userID);
 
     for (String id in myEventsIDs) {
-      _myEvents.add(await _eventDataSource.getEvent(id));
+      event_list.add(await _eventDataSource.getEvent(id));
     }
+    _myEvents=event_list;
+    return event_list;
   }
 
-  Future<void> _getUserProps() async {
-    var watch = ref.watch(provider);
+  void _getUserProps() {
+    var watch = ref.read(provider);
     if (watch is AuthenticationStateAuthenticated) {
       _userProps = watch.userProps;
       _userID = watch.user.uid;
@@ -88,10 +87,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
-  _initilizeWidget() async {
-    await _getUserProps();
-    await _loadMyEvents();
-    await _loadNearEvents();
+  @override
+  void initState() {
+    super.initState();
+    _getUserProps();
+    _myEventsFuture = _loadMyEvents();
   }
 
   @override
@@ -102,9 +102,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return FutureBuilder<void>(
-          future: _initilizeWidget(),
-          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        
+        return FutureBuilder<List<Event?>>(
+          future: _myEventsFuture,
+          builder: (BuildContext context, AsyncSnapshot<List<Event?>> snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasError) {
                 return const SizedBox(
@@ -113,8 +114,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: Text("error occurs while loading the info"),
                 );
               } else {
-                print(
-                    "----------------- no snapshot errors, returning the map");
+
+                
                 if (_userProps.userType == UserType.dj) {
                   return _desktopDjPage();
                 } else {
