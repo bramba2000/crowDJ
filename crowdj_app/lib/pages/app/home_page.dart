@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/utils/EventExtra.dart';
+import '../../feature/auth/widgets/utils/theme_action_button.dart';
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
@@ -41,7 +42,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   final EventDataSource _eventDataSource = EventDataSource();
   late final Future<List<Event?>> _myEventsFuture;
   late List<Event?> _myEvents;
-
 
   Future<List<Event?>> _loadMyEvents() async {
     List<String> myEventsIDs;
@@ -138,7 +138,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               ref.read(provider.notifier).signOut();
             },
             icon: const Icon(Icons.exit_to_app),
-          )
+          ),
+          themeActionButton,
         ],
       ),
       body: Padding(
@@ -250,11 +251,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         title: const Text("HomePage"),
         actions: [
           IconButton(
-              onPressed: () async {
-                await ref.read(provider.notifier).signOut();
-                context.go("/");
-              },
-              icon: const Icon(Icons.logout))
+            onPressed: () async {
+              await ref.read(provider.notifier).signOut();
+              context.go("/");
+            },
+            icon: const Icon(Icons.logout),
+          ),
+          themeActionButton,
         ],
       ),
       body: Padding(
@@ -279,7 +282,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             UserMap(
               myEvents: _myEvents,
               eventDataSource: _eventDataSource,
-            ),          
+            ),
             const SizedBox(
               height: 30,
             ),
@@ -459,5 +462,4 @@ class _HomePageState extends ConsumerState<HomePage> {
       //return DynMap(mapModel: _model, center: _model.getCenter() , mapController: MapController());
     }
   }
-
 }
