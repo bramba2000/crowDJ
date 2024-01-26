@@ -26,7 +26,6 @@ class _TracksContainerState extends State<TracksContainer> {
   @override
   Widget build(BuildContext context) {
     _loadUserProps();
-
     return songsListView();
   }
 

@@ -11,6 +11,7 @@ import '../../core/router/utils/EventExtra.dart';
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
+import '../../feature/events/widgets/privateInviteForm.dart';
 import '../../feature/mapHandler/DynMap.dart';
 import '../../feature/mapHandler/MapModel.dart';
 import '../../feature/auth/data/auth_data_source.dart';
@@ -337,14 +338,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               height: 30,
             ),
             const Text(
-              "YOUR INVITATIONS",
+              "JOIN A PRIVATE EVENT",
               style: TextStyle(
                 fontSize: 20,
                 color: Colors.blueGrey,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            invitationsList(),
+            privateInviteForm(),
           ],
         ),
       ),
@@ -594,36 +595,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       throw Error();
       //return DynMap(mapModel: _model, center: _model.getCenter() , mapController: MapController());
     }
-  }
-
-  Widget invitationsList() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(
-          _nearEvents!.length,
-          (index) => Container(
-            padding: const EdgeInsets.all(8.0),
-            margin: const EdgeInsets.all(8.0),
-            color: Colors.blue,
-            child: Row(
-              children: [
-                elevatedBox(_nearEvents![index],
-                    const Color.fromARGB(255, 99, 136, 235)),
-                const SizedBox(width: 10.0),
-                ElevatedButton(
-                    onPressed: () => print("accettato"),
-                    child: const Text("accept")),
-                const SizedBox(width: 10.0),
-                ElevatedButton(
-                    onPressed: () => print("declinato"),
-                    child: const Text("decline")),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _nearEventSlider(double screenWidth) {
