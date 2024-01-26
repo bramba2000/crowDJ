@@ -79,105 +79,103 @@ class _EventPageState extends ConsumerState<EventPage> {
       appBar: AppBar(
         title: const Text("EVENT PAGE"),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return FutureBuilder(
-            future: _event,
-            builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
-                switch ((snapshot.connectionState, snapshot.hasError)) {
-              (_, true) => const SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Text("error occurs while loading the stream"),
-                ),
-              (ConnectionState.done, false) => Center(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.all(constraints.maxWidth > 1000 ? 20.0 : 8),
-                    child: Column(
+      body: FutureBuilder(
+        future: _event,
+        builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
+            switch ((snapshot.connectionState, snapshot.hasError)) {
+          (_, true) => const SizedBox(
+              height: 100,
+              width: 100,
+              child: Text("error occurs while loading the stream"),
+            ),
+          (ConnectionState.done, false) => Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_userType != UserType.dj ||
+                        snapshot.data!.status != EventStatus.upcoming)
+                      Text(
+                        snapshot.data!.title,
+                        style: const TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.w800),
+                      ),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      direction: Axis.horizontal,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 40,
+                      runSpacing: 10,
                       children: [
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          direction: Axis.horizontal,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 40,
-                          runSpacing: 10,
-                          children: [
-                            Container(
-                              constraints: const BoxConstraints(
-                                maxWidth: 400,
+                        Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 600,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: _userType == UserType.dj
+                                    ? EventForm(
+                                        event: snapshot.data!,
+                                        canEdit: _userType == UserType.dj &&
+                                            snapshot.data!.status !=
+                                                EventStatus.past,
+                                      )
+                                    : EventDisplay(event: snapshot.data!),
                               ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: _userType == UserType.dj
-                                        ? EventForm(
-                                            event: snapshot.data!,
-                                            canEdit: _userType == UserType.dj,
-                                          )
-                                        : EventDisplay(event: snapshot.data!),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 600,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (snapshot.data!.status == EventStatus.ongoing)
+                                Flexible(
+                                  //fit: FlexFit.loose,
+                                  flex: 4,
+                                  child: Column(
+                                    children: [
+                                      _showImage(),
+                                      _showPlayer(),
+                                    ],
                                   ),
-                                  if (widget.isParticipant &&
-                                      snapshot.data!.status ==
-                                          EventStatus.upcoming)
-                                    _addSongContainer(snapshot.data!),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              constraints: const BoxConstraints(
-                                maxWidth: 600,
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (snapshot.data!.status ==
-                                      EventStatus.ongoing)
-                                    Flexible(
-                                      //fit: FlexFit.loose,
-                                      flex: 4,
-                                      child: Column(
-                                        children: [
-                                          _showImage(),
-                                          _showPlayer(),
-                                        ],
-                                      ),
-                                    ),
-                                  TracksContainer(
-                                      eventId: widget.eventId,
-                                      userID: _userId!),
-                                  if (snapshot.data!.status ==
-                                      EventStatus.upcoming) ...[
-                                    _addSongContainer(snapshot.data!),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                              TracksContainer(
+                                  eventId: widget.eventId, userID: _userId!),
+                              if (snapshot.data!.status ==
+                                  EventStatus.upcoming) ...[
+                                _addSongContainer(snapshot.data!),
+                              ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-              (ConnectionState.active || ConnectionState.waiting, false) =>
-                const Center(
-                  child: Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      Text(
-                          "Wait a few seconds while we look for this amazing event"),
-                    ],
-                  ),
-                ),
-              (ConnectionState.none, false) => const SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Text("the state is null :/"),
-                ),
-            },
-          );
+              ),
+            ),
+          (ConnectionState.active || ConnectionState.waiting, false) =>
+            const Center(
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  Text(
+                      "Wait a few seconds while we look for this amazing event"),
+                ],
+              ),
+            ),
+          (ConnectionState.none, false) => const SizedBox(
+              height: 100,
+              width: 100,
+              child: Text("the state is null :/"),
+            ),
         },
       ),
     );
