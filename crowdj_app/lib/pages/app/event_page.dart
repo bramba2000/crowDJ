@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
 import '../../feature/auth/data/auth_data_source.dart';
 import '../../feature/auth/data/user_data_source.dart';
+import '../../feature/auth/models/user_props.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
 import '../../feature/events/data/participant_data_source.dart';
-import '../../feature/events/models/track_metadata.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,12 +18,20 @@ import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/services/spotify_service.dart';
+import '../../feature/events/widgets/event_display.dart';
+import '../../feature/events/widgets/event_form.dart';
 import '../../feature/events/widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
-  final Event arg;
-  final bool sub; // true if the user is already subscribed
-  const EventPage({super.key, required this.arg, this.sub = false});
+  final String eventId;
+  final Event? event;
+  final bool isParticipant; // true if the user is already subscribed
+  const EventPage({
+    super.key,
+    required this.eventId,
+    this.event,
+    this.isParticipant = false,
+  });
 
   @override
   // _EventPageState createState() => _EventPageState();
@@ -29,31 +39,38 @@ class EventPage extends ConsumerStatefulWidget {
 }
 
 class _EventPageState extends ConsumerState<EventPage> {
-  final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
-  var _userWatch;
+  late final String? _userId;
+  late final UserType _userType;
   bool _showEventEditor = false;
   final EventService _eventService = EventService();
   final SpotifyService _spotifyService = SpotifyService.fromEnvironment();
+  late final Future<Event?> _event =
+      widget.event != null ? Future.value(widget.event) : _loadEvent();
 
-  late List<TrackMetadata> _songs;
   List<spotify.Track>? _songsSearchRes;
 
-  Future<void> _loadSongs() async {
-    _songs = await _eventService.getTracksMetadata(widget.arg.id);
-  }
+  Future<Event?> _loadEvent() async =>
+      widget.event ?? await _eventService.getEvent(widget.eventId);
 
-  void _loadUserProps() {
-    var watch = ref.watch(provider);
-    if (watch is AuthenticationStateAuthenticated) {
-      _userWatch = watch.user;
+  @override
+  void initState() {
+    super.initState();
+    final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
+    final result = ref.read(provider.select(
+      (state) => switch (state) {
+        AuthenticationStateAuthenticated auth => (
+            auth.user.uid,
+            auth.userProps.userType
+          ),
+        _ => null,
+      },
+    ));
+    if (result == null) {
+      throw Exception("user not authenticated");
     } else {
-      throw ErrorDescription(" impossible to load user props ");
+      _userId = result.$1;
+      _userType = result.$2;
     }
-  }
-
-  _initilizeWidget() async {
-    await _loadSongs();
-    _loadUserProps();
   }
 
   @override
@@ -61,58 +78,104 @@ class _EventPageState extends ConsumerState<EventPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("EVENT PAGE"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.replace("/");
-            },
-            icon: const Icon(Icons.arrow_back),
-          )
-        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return FutureBuilder<void>(
-            future: _initilizeWidget(),
-            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasError) {
-                  return const SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: Text("error occurs while loading the info"),
-                  );
-                } else {
-                  if (constraints.maxWidth > 600 /* && usertype==DJ*/) {
-                    return _desktopDjPage();
-                  } else {
-                    return _mobileUserPage();
-                  }
-                }
-              }
-              if (snapshot.connectionState == ConnectionState.active) {
-                if (snapshot.hasError) {
-                  return Container(
-                    height: 100,
-                    width: 100,
-                    child: Text(
-                      "----------------- error: ${snapshot.error.toString()}",
-                    ),
-                  );
-                } else {
-                  return const Center(
+          return FutureBuilder(
+            future: _event,
+            builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
+                switch ((snapshot.connectionState, snapshot.hasError)) {
+              (_, true) => const SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Text("error occurs while loading the stream"),
+                ),
+              (ConnectionState.done, false) => Center(
+                  child: Padding(
+                    padding:
+                        EdgeInsets.all(constraints.maxWidth > 1000 ? 20.0 : 8),
                     child: Column(
                       children: [
-                        CircularProgressIndicator(),
-                        Text("loading ..."),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          direction: Axis.horizontal,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 40,
+                          runSpacing: 10,
+                          children: [
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 400,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: _userType == UserType.dj
+                                        ? EventForm(
+                                            event: snapshot.data!,
+                                            canEdit: _userType == UserType.dj,
+                                          )
+                                        : EventDisplay(event: snapshot.data!),
+                                  ),
+                                  if (widget.isParticipant &&
+                                      snapshot.data!.status ==
+                                          EventStatus.upcoming)
+                                    _addSongContainer(snapshot.data!),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 600,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (snapshot.data!.status ==
+                                      EventStatus.ongoing)
+                                    Flexible(
+                                      //fit: FlexFit.loose,
+                                      flex: 4,
+                                      child: Column(
+                                        children: [
+                                          _showImage(),
+                                          _showPlayer(),
+                                        ],
+                                      ),
+                                    ),
+                                  TracksContainer(
+                                      eventId: widget.eventId,
+                                      userID: _userId!),
+                                  if (snapshot.data!.status ==
+                                      EventStatus.upcoming) ...[
+                                    _addSongContainer(snapshot.data!),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  );
-                }
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+                  ),
+                ),
+              (ConnectionState.active || ConnectionState.waiting, false) =>
+                const Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      Text(
+                          "Wait a few seconds while we look for this amazing event"),
+                    ],
+                  ),
+                ),
+              (ConnectionState.none, false) => const SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Text("the state is null :/"),
+                ),
             },
           );
         },
@@ -120,7 +183,13 @@ class _EventPageState extends ConsumerState<EventPage> {
     );
   }
 
-  Padding _mobileUserPage() {
+  Padding _mobileUserPage(Event? event) {
+    if (event == null) {
+      return const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Text("error occurs while loading the info"),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: ListView.builder(
@@ -134,7 +203,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    widget.arg.title,
+                    event.title,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -142,11 +211,11 @@ class _EventPageState extends ConsumerState<EventPage> {
                   ),
                 ],
               ),
-              TracksContainer(eventId: widget.arg.id, userID:_userWatch.uid),
-              if (widget.sub)
-                _addSongContainer(widget.arg)
+              TracksContainer(eventId: event.id, userID: _userId!),
+              if (widget.isParticipant)
+                _addSongContainer(event)
               else
-                _registerToEvent(widget.arg),
+                _registerToEvent(event),
             ],
           );
         },
@@ -154,90 +223,93 @@ class _EventPageState extends ConsumerState<EventPage> {
     );
   }
 
-  Widget _desktopDjPage() {
+  Widget _desktopDjPage(Event? event) {
+    if (event == null) {
+      return const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Text("error occurs while loading the info"),
+      );
+    }
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
-      child: Container(
-        child: Row(
-          children: [
-            Flexible(
-              //fit: FlexFit.loose,
-              flex: 1,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.arg.title,
-                    style: const TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: AutofillHints.nickname),
+      child: Row(
+        children: [
+          Flexible(
+            //fit: FlexFit.loose,
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  event.title,
+                  style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: AutofillHints.nickname),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "max people: ${event.maxPeople}",
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TracksContainer(eventId: event.id, userID: _userId!),
+                const SizedBox(
+                  height: 20,
+                ),
+                if (event.status == EventStatus.upcoming)
+                  ElevatedButton(
+                    child: _showEventEditor
+                        ? const Text("undo")
+                        : const Text("edit"),
+                    onPressed: () {
+                      setState(() {
+                        _showEventEditor = !_showEventEditor;
+                      });
+                    },
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "max people: ${widget.arg.maxPeople}",
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TracksContainer(eventId: widget.arg.id,  userID:_userWatch.uid),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  if (widget.arg.status == EventStatus.upcoming)
-                    ElevatedButton(
-                      child: _showEventEditor
-                          ? const Text("undo")
-                          : const Text("edit"),
-                      onPressed: () {
-                        setState(() {
-                          _showEventEditor = !_showEventEditor;
-                        });
-                      },
-                    ),
-                  if (_showEventEditor &&
-                      widget.arg.status == EventStatus.upcoming)
-                    eventEditorForm(widget.arg),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  if (widget.arg.status == EventStatus.past)
-                    Text("details and stats about the event"),
-                ],
-              ),
+                if (_showEventEditor && event.status == EventStatus.upcoming)
+                  eventEditorForm(event),
+                const SizedBox(
+                  height: 20,
+                ),
+                if (event.status == EventStatus.past)
+                  const Text("details and stats about the event"),
+              ],
             ),
-            Flexible(
-              //fit: FlexFit.loose,
-              flex: 1,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.arg.status == EventStatus.ongoing)
-                    Flexible(
-                      //fit: FlexFit.loose,
-                      flex: 4,
-                      child: Column(
-                        children: [
-                          _showImage(),
-                          _showPlayer(),
-                        ],
-                      ),
+          ),
+          Flexible(
+            //fit: FlexFit.loose,
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (event.status == EventStatus.ongoing)
+                  Flexible(
+                    //fit: FlexFit.loose,
+                    flex: 4,
+                    child: Column(
+                      children: [
+                        _showImage(),
+                        _showPlayer(),
+                      ],
                     ),
-                  if (widget.arg.status == EventStatus.upcoming)
-                    Flexible(
-                      fit: FlexFit.loose,
-                      flex: 1,
-                      child: _addSongContainer(widget.arg),
-                    ),
-                ],
-              ),
+                  ),
+                if (event.status == EventStatus.upcoming)
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 1,
+                    child: _addSongContainer(event),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -258,14 +330,14 @@ class _EventPageState extends ConsumerState<EventPage> {
           return Image.network(img);
         } else {
           // Display a loading indicator while the image is being fetched
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
       },
     );
   }
 
   Widget _showPlayer() {
-    return SizedBox(
+    return const SizedBox(
       child: Text(
         "player",
       ),
@@ -273,13 +345,13 @@ class _EventPageState extends ConsumerState<EventPage> {
   }
 
   Widget eventEditorForm(Event event) {
-    TextEditingController _titleController = TextEditingController();
-    _titleController.text = event.title;
-    TextEditingController _descriptionController = TextEditingController();
-    _descriptionController.text = event.description;
-    String _selectedGenre = event.genre;
+    TextEditingController titleController = TextEditingController();
+    titleController.text = event.title;
+    TextEditingController descriptionController = TextEditingController();
+    descriptionController.text = event.description;
+    String selectedGenre = event.genre;
 
-    EventDataSource _eventDataSource = EventDataSource();
+    EventDataSource eventDataSource = EventDataSource();
 
     List<String> musicGenres = [
       'all genres',
@@ -301,8 +373,8 @@ class _EventPageState extends ConsumerState<EventPage> {
         children: [
           //title
           TextFormField(
-            controller: _titleController,
-            decoration: InputDecoration(labelText: "title"),
+            controller: titleController,
+            decoration: const InputDecoration(labelText: "title"),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter a title';
@@ -316,8 +388,9 @@ class _EventPageState extends ConsumerState<EventPage> {
 
           //description
           TextFormField(
-            controller: _descriptionController,
-            decoration: InputDecoration(labelText: "description of the event"),
+            controller: descriptionController,
+            decoration:
+                const InputDecoration(labelText: "description of the event"),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter a description';
@@ -334,7 +407,7 @@ class _EventPageState extends ConsumerState<EventPage> {
 
           //genre
           DropdownButtonFormField<String>(
-            value: _selectedGenre,
+            value: selectedGenre,
             items: musicGenres.map((genre) {
               return DropdownMenuItem<String>(
                 value: genre,
@@ -342,7 +415,7 @@ class _EventPageState extends ConsumerState<EventPage> {
               );
             }).toList(),
             onChanged: (value) {
-              _selectedGenre = value!;
+              selectedGenre = value!;
             },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
@@ -360,11 +433,11 @@ class _EventPageState extends ConsumerState<EventPage> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _eventDataSource.updateEvent(
+                  eventDataSource.updateEvent(
                       id: event.id,
-                      title: _titleController.text,
-                      description: _descriptionController.text,
-                      genre: _selectedGenre);
+                      title: titleController.text,
+                      description: descriptionController.text,
+                      genre: selectedGenre);
                   setState(() {});
                   context.replace("/");
                 },
@@ -372,7 +445,7 @@ class _EventPageState extends ConsumerState<EventPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  _eventDataSource.deleteEvent(event.id);
+                  eventDataSource.deleteEvent(event.id);
                   setState(() {});
                   context.replace("/");
                 },
@@ -386,7 +459,7 @@ class _EventPageState extends ConsumerState<EventPage> {
   }
 
   Widget _addSongContainer(Event event) {
-    TextEditingController _songTitle = TextEditingController();
+    TextEditingController songTitle = TextEditingController();
 
     void updateSongs(String value) async {
       List<spotify.Track>? updatedSongs =
@@ -402,12 +475,12 @@ class _EventPageState extends ConsumerState<EventPage> {
 
     void addSongToEvent(spotify.Track song) async {
       await _eventService.addTrackToEvent(event.id, song);
-      _songTitle.text = "";
-      await _loadSongs();
+      songTitle.text = "";
+      //await _loadSongs();
     }
 
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       //sarchbar
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -420,7 +493,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                 child: SizedBox(
                   //width: MediaQuery.of(context).size.width * 0.5,
                   child: TextFormField(
-                    controller: _songTitle,
+                    controller: songTitle,
                     decoration: const InputDecoration(labelText: 'Song Title'),
                     validator: (value) => null,
                   ),
@@ -428,7 +501,7 @@ class _EventPageState extends ConsumerState<EventPage> {
               ),
               Flexible(
                 child: ElevatedButton(
-                    onPressed: () => updateSongs(_songTitle.text),
+                    onPressed: () => updateSongs(songTitle.text),
                     child: const Text("search")),
               )
             ],
@@ -469,7 +542,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                               addSongToEvent(s);
                             });
                           },
-                          child: Text("add"),
+                          child: const Text("add"),
                         ),
                       ),
                     ),
@@ -482,15 +555,13 @@ class _EventPageState extends ConsumerState<EventPage> {
   }
 
   Widget _registerToEvent(Event event) {
-    return Container(
-      child: ElevatedButton(
-        onPressed: () async {
-          ParticipantDataSource participantDataSource = ParticipantDataSource();
-          participantDataSource.addParticipant(event.id, _userWatch.uid);
-          context.replace("/");
-        },
-        child: Text("subscribe"),
-      ),
+    return ElevatedButton(
+      onPressed: () async {
+        ParticipantDataSource participantDataSource = ParticipantDataSource();
+        participantDataSource.addParticipant(event.id, _userId!);
+        context.replace("/");
+      },
+      child: const Text("subscribe"),
     );
   }
 }

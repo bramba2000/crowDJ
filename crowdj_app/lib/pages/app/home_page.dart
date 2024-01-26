@@ -275,7 +275,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          context.go("/event",
+                          context.go("/event/${e.id}",
                               extra: EventExtra(event: e, sub: true));
                         },
                         child: const Text("manage the event"),
@@ -382,7 +382,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    context.go("/event",
+                    context.go("/event/{${event.id}}",
                         extra: EventExtra(event: event, sub: true));
                   },
                   style: ElevatedButton.styleFrom(
@@ -596,8 +596,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       //return DynMap(mapModel: _model, center: _model.getCenter() , mapController: MapController());
     }
   }
-
-
 
   Widget _nearEventSlider(double screenWidth) {
     return Row(

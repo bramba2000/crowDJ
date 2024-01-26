@@ -44,13 +44,15 @@ GoRouter router(RouterRef ref) {
                 );
               }),
           GoRoute(
-              path: "event",
+              path: "event/:id",
               pageBuilder: (context, state) {
-                EventExtra args = state.extra as EventExtra;
+                EventExtra? args = state.extra as EventExtra?;
+                String eventId = state.pathParameters['id']!;
                 return MaterialPage(
                   child: EventPage(
-                    arg: args.event,
-                    sub: args.sub,
+                    eventId: eventId,
+                    event: args?.event,
+                    isParticipant: args?.sub ?? false,
                   ),
                 );
               }),

@@ -98,7 +98,7 @@ const ColorScheme darkColorScheme2 = ColorScheme(
   onSurface: Color(0xFFFFFFFF),
   onTertiary: Color(0xFF000000),
   primary: Color(0xFFF5B6B4),
-  primaryContainer: Color(0xFF000000),
+  primaryContainer: Color(0xFFF79B98),
   scrim: Color(0xFF000000),
   secondary: Color(0xFF5ADCB4),
   secondaryContainer: Color(0xFF4DBD9B),
