@@ -11,6 +11,7 @@ import '../../core/router/utils/EventExtra.dart';
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
+import '../../feature/events/widgets/event_display.dart';
 import '../../feature/events/widgets/privateInviteForm.dart';
 import '../../feature/mapHandler/DynMap.dart';
 import '../../feature/mapHandler/MapModel.dart';
@@ -114,8 +115,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               } else {
                 print(
                     "----------------- no snapshot errors, returning the map");
-                if (constraints.maxWidth > 600 &&
-                    _userProps.userType == UserType.dj) {
+                if (_userProps.userType == UserType.dj) {
                   return _desktopDjPage();
                 } else {
                   return _mobileUserPage(screenWidth, screenHeight);
@@ -128,7 +128,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   height: 100,
                   width: 100,
                   child: Text(
-                    "----------------- error:" + snapshot.error.toString(),
+                    "----------------- error: ${snapshot.error.toString()}",
                   ),
                 );
               } else {
@@ -154,10 +154,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Scaffold _desktopDjPage() {
-    //print("user: " + _userProps.toString());
-    //print("id: " + _userID);
-    //print("_events: " + _events.toString());
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("DJ HomePage"),
@@ -210,13 +206,13 @@ class _HomePageState extends ConsumerState<HomePage> {
               Expanded(
                 child: ListView.builder(
                   itemCount: _myEvents.length,
+                  shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       margin: const EdgeInsets.all(20),
                       padding: const EdgeInsets.all(20),
                       color: const Color.fromARGB(199, 64, 150, 221),
-                      height: 200,
-                      child: _djEventRow(_myEvents[index]!),
+                      child: _djEventWrap(_myEvents[index]!),
                     );
                   },
                 ),
@@ -228,72 +224,46 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _djEventRow(Event e) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _djEventWrap(Event e) {
+    return Wrap(
+      alignment: WrapAlignment.spaceEvenly,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      direction: Axis.horizontal,
       children: [
-        Expanded(
-          flex: 1,
+        Container(
+          //decoration: BoxDecoration(color: Colors.red),
+          constraints: const BoxConstraints(maxWidth: 300),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    e.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 20,
+                EventDisplay(event: e),
+                const SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        context.go("/event/${e.id}",
+                            extra: EventExtra(event: e, sub: true));
+                      },
+                      child: const Text("manage the event"),
                     ),
-                  ),
+                  ],
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    "max people: ${e.maxPeople}",
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    "genre: ${e.genre}",
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    "${e.startTime.day}/${e.startTime.month}/${e.startTime.year}",
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          context.go("/event/${e.id}",
-                              extra: EventExtra(event: e, sub: true));
-                        },
-                        child: const Text("manage the event"),
-                      ),
-                    ],
-                  ),
+                const SizedBox(
+                  height: 30,
                 ),
               ],
             ),
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: SizedBox(
-            height: 200,
-            width: 200,
-            child: _djMap(e),
-          ),
+        Container(
+          //decoration: BoxDecoration(color: Colors.green),
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 200),
+          child: _djMap(e),
         )
       ],
     );
@@ -534,21 +504,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         builder: (BuildContext context, AsyncSnapshot<DynMap> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              print("error occurs while loading the map " +
-                  snapshot.error.toString());
+              //print("error occurs while loading the map " +
+              //    snapshot.error.toString());
               return Container(
                 height: 100,
                 width: 100,
-                child: Text("error occurs while loading the map" +
-                    snapshot.error.toString()),
+                child: Text(
+                    "error occurs while loading the map ${snapshot.error.toString()}"),
               );
             } else {
-              print("----------------- no snapshot errors, returning the map");
-              return Container(
-                  padding: EdgeInsets.all(8),
-                  height: 300,
-                  width: 100,
-                  child: snapshot.data);
+              return Container(child: snapshot.data);
             }
           }
           if (snapshot.connectionState == ConnectionState.active) {
@@ -557,7 +522,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 height: 100,
                 width: 100,
                 child: Text(
-                    "----------------- error:" + snapshot.error.toString()),
+                    "----------------- error: ${snapshot.error.toString()} "),
               );
             } else {
               return const Center(
