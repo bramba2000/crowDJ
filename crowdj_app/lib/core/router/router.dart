@@ -13,7 +13,6 @@ import '../../feature/auth/pages/login_page.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../feature/events/models/event_model.dart';
 import 'utils/EventExtra.dart';
 
 part 'router.g.dart';
@@ -49,7 +48,10 @@ GoRouter router(RouterRef ref) {
               pageBuilder: (context, state) {
                 EventExtra args = state.extra as EventExtra;
                 return MaterialPage(
-                  child: EventPage(arg: args.event, sub: args.sub,),
+                  child: EventPage(
+                    arg: args.event,
+                    sub: args.sub,
+                  ),
                 );
               }),
         ],

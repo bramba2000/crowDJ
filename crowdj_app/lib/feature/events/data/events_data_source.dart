@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 
+import '../models/event_data.dart';
 import '../models/event_model.dart';
 
 class EventDataSource {
@@ -28,9 +29,9 @@ class EventDataSource {
       return e;
     }
     if (e.status != EventStatus.past) {
-      if (e.startTime.isAfter(DateTime.now().add(const Duration(days: 1)))) {
+      if (e.startTime.isBefore(DateTime.now().add(const Duration(days: 1)))) {
         return e.copyWith(status: EventStatus.past);
-      } else if (e.startTime.isAfter(DateTime.now()) &&
+      } else if (e.startTime.isBefore(DateTime.now()) &&
           e.status != EventStatus.upcoming) {
         return e.copyWith(status: EventStatus.upcoming);
       } else {
@@ -51,40 +52,14 @@ class EventDataSource {
   /// and it will be added to the database as a private event
   /// * If [isPrivate] is false or not provided, the event will be added to the
   /// database as a public event
-  Future<Event> createEvent({
-    required String title,
-    required String description,
-    required int maxPeople,
-    required GeoPoint location,
-    required DateTime startTime,
-    required String creatorId,
-    required String genre,
-    bool isPrivate = false,
-  }) async {
-    Event event = isPrivate
-        ? Event.private(
-            id: _generatePassword(),
-            title: title,
-            description: description,
-            maxPeople: maxPeople,
-            location: GeoFirePoint(location.latitude, location.longitude),
-            startTime: startTime,
-            creatorId: creatorId,
-            genre: genre,
-            status: EventStatus.upcoming,
-            password: _generatePassword(),
-          )
-        : Event.public(
-            id: _generatePassword(),
-            title: title,
-            description: description,
-            maxPeople: maxPeople,
-            location: GeoFirePoint(location.latitude, location.longitude),
-            startTime: startTime,
-            creatorId: creatorId,
-            genre: genre,
-            status: EventStatus.upcoming,
-          );
+  Future<Event> createEvent(
+    EventData eventData,
+  ) async {
+    String id = _firestore.collection(_collectionName).doc().id;
+    Event event = Event.fromEventData(id, eventData);
+    if (eventData.isPrivate) {
+      event = (event as PrivateEvent).copyWith(password: _generatePassword());
+    }
     event = _eventStatusControl(event)!;
     _firestore.collection(_collectionName).doc(event.id).set(event.toJson());
     return event;

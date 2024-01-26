@@ -4,6 +4,7 @@ import 'package:spotify/spotify.dart';
 import '../data/events_data_source.dart';
 import '../data/music_data_source.dart';
 import '../data/participant_data_source.dart';
+import '../models/event_data.dart';
 import '../models/event_model.dart';
 import '../models/track_metadata.dart';
 
@@ -26,10 +27,19 @@ class EventService {
   ///
   /// If the user is already registered, nothing will happen. If the event does
   /// not exist, an [ArgumentError] is thrown. See also [ParticipantDataSource.addParticipant]
-  Future<void> addParticipant(String eventId, String userId) async {
+  Future<void> addParticipant(String eventId, String userId,
+      {String? password}) async {
     final event = await _eventDataSource.getEvent(eventId);
     if (event == null) {
       throw ArgumentError('Event with id $eventId does not exist');
+    }
+    if (event is PrivateEvent) {
+      if (password == null) {
+        throw ArgumentError('Event is private, a password is required');
+      }
+      if (event.password != password) {
+        throw ArgumentError('Password is incorrect');
+      }
     }
     return _participantsDataSource.addParticipant(eventId, userId);
   }
@@ -49,35 +59,8 @@ class EventService {
   /// Creates an event
   ///
   /// See also [EventDataSource.createEvent]
-  Future<void> createEvent({
-    required String title,
-    required String description,
-    required int maxPeople,
-    required GeoPoint location,
-    required DateTime startTime,
-    required String creatorId,
-    required String genre,
-    bool? isPrivate,
-  }) =>
-      isPrivate == null
-          ? _eventDataSource.createEvent(
-              title: title,
-              description: description,
-              maxPeople: maxPeople,
-              location: location,
-              startTime: startTime,
-              creatorId: creatorId,
-              genre: genre,
-            )
-          : _eventDataSource.createEvent(
-              title: title,
-              description: description,
-              maxPeople: maxPeople,
-              location: location,
-              startTime: startTime,
-              creatorId: creatorId,
-              genre: genre,
-            );
+  Future<Event> createEvent({required EventData eventData}) =>
+      _eventDataSource.createEvent(eventData);
 
   /// Delete an event
   ///

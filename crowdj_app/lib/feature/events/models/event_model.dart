@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 import '../utils/location_helper.dart';
+import 'event_data.dart';
 
 part 'event_model.freezed.dart';
 part 'event_model.g.dart';
@@ -51,6 +52,35 @@ class Event with _$Event {
   }) = PublicEvent;
 
   factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
+
+  factory Event.fromEventData(String id, EventData data) {
+    return data.isPrivate
+        ? Event.private(
+            id: id,
+            title: data.title,
+            description: data.description,
+            maxPeople: data.maxPeople,
+            location:
+                GeoFirePoint(data.location.latitude, data.location.longitude),
+            startTime: data.startTime,
+            creatorId: data.creatorId,
+            genre: data.genre,
+            status: EventStatus.upcoming,
+            password: '',
+          )
+        : Event.public(
+            id: id,
+            title: data.title,
+            description: data.description,
+            maxPeople: data.maxPeople,
+            location:
+                GeoFirePoint(data.location.latitude, data.location.longitude),
+            startTime: data.startTime,
+            creatorId: data.creatorId,
+            genre: data.genre,
+            status: EventStatus.upcoming,
+          );
+  }
 
   /// If the event is public, returns a [PrivateEvent] with the given password
   /// and the same fields; otherwise, returns the event itself.
