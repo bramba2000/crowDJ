@@ -20,6 +20,7 @@ import '../../feature/auth/data/user_data_source.dart';
 import '../../feature/auth/models/user_props.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
+import '../../feature/mapHandler/UserMap.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -35,34 +36,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   late UserProps _userProps;
   late String _userID;
 
-  ///---->map<----
-  ///
-  final MapController _mapController = MapController();
-  late MapModel _mapModel;
-  late DynMap _map;
-  double _zoom = 17.0;
-
   ///----> events <----
   ///
   final EventDataSource _eventDataSource = EventDataSource();
-  late List<Event> _nearEvents = [];
   late final Future<List<Event?>> _myEventsFuture;
   late List<Event?> _myEvents;
-  double _radius = 5;
 
-  Future<void> _loadNearEvents() async {
-    try {
-      await _eventDataSource
-          .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
-          .listen((list) {
-        // Handle each list as it arrives
-        _nearEvents = list;
-      });
-    } on Exception catch (e) {
-      print(" error!!!!!!!!!!! " + e.toString());
-      _nearEvents = [];
-    }
-  }
 
   Future<List<Event?>> _loadMyEvents() async {
     List<String> myEventsIDs;
@@ -72,7 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     for (String id in myEventsIDs) {
       event_list.add(await _eventDataSource.getEvent(id));
     }
-    _myEvents=event_list;
+    _myEvents = event_list;
     return event_list;
   }
 
@@ -97,15 +76,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     // Get the screen size
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        
         return FutureBuilder<List<Event?>>(
           future: _myEventsFuture,
-          builder: (BuildContext context, AsyncSnapshot<List<Event?>> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Event?>> snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasError) {
                 return const SizedBox(
@@ -114,12 +90,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: Text("error occurs while loading the info"),
                 );
               } else {
-
-                
                 if (_userProps.userType == UserType.dj) {
                   return _desktopDjPage();
                 } else {
-                  return _mobileUserPage(screenWidth, screenHeight);
+                  return _mobileUserPage();
                 }
               }
             }
@@ -270,7 +244,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Scaffold _mobileUserPage(double screenWidth, double screenHeight) {
+  Scaffold _mobileUserPage() {
     return Scaffold(
       appBar: AppBar(
         title: const Text("HomePage"),
@@ -302,9 +276,10 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(
               height: 30,
             ),
-            _userMap(),
-            //_zoomSlider(),
-            _nearEventSlider(screenWidth),
+            UserMap(
+              myEvents: _myEvents,
+              eventDataSource: _eventDataSource,
+            ),          
             const SizedBox(
               height: 30,
             ),
@@ -420,84 +395,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     ]);
   }
 
-  Widget _userMap() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      height: 300,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: const Color.fromARGB(255, 60, 158, 238),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3), // changes position of shadow
-          ),
-        ],
-      ),
-      child: FutureBuilder<void>(
-        future: _builUserMap(),
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return Container(
-                height: 100,
-                width: 100,
-                child: const Text("error occurs while loading the map"),
-              );
-            } else {
-              print("----------------- no snapshot errors, returning the map");
-              return Container(padding: EdgeInsets.all(8), child: _map);
-            }
-          }
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasError) {
-              return Container(
-                height: 100,
-                width: 100,
-                child: Text(
-                    "----------------- error:" + snapshot.error.toString()),
-              );
-            } else {
-              return const Center(
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: CircularProgressIndicator(
-                    semanticsLabel: "Loading ... ",
-                  ),
-                ),
-              );
-            }
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _builUserMap() async {
-    try {
-      _mapModel = await MapModel.createEventsMap(
-          _nearEvents, _myEvents, context); //createEventsMap()
-      _mapModel.addYourCurrentPlace(_mapModel.getCenter());
-      _map = DynMap(
-        mapModel: _mapModel,
-        center: _mapModel.getCenter(),
-        mapController: _mapController,
-        zoom: _zoom,
-      );
-      //print("Map has been built");
-      //return _map;
-    } catch (e) {
-      print(e.toString());
-      //return _map;
-    }
-  }
-
   Widget _djMap(Event e) {
     return Container(
       child: FutureBuilder<DynMap>(
@@ -563,50 +460,4 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
-  Widget _nearEventSlider(double screenWidth) {
-    return Row(
-      children: [
-        Expanded(
-          child: Slider(
-            value: _radius,
-            min: 1,
-            max: 100,
-            label: _radius.toString() + " km ",
-            divisions: 100,
-            onChanged: (value) {
-              setState(() {
-                _radius = value;
-                _zoom = _mapModel.calculateZoomLevel(_radius, screenWidth);
-                _mapController.move(_mapModel.getCenterLatLng(), _zoom);
-              });
-            },
-          ),
-        ),
-        Text("${_radius.truncate()}"),
-      ],
-    );
-  }
-
-  Widget _zoomSlider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Slider(
-            value: _zoom,
-            min: 5,
-            max: 18,
-            label: _zoom.toString(),
-            divisions: 40,
-            onChanged: (value) {
-              setState(() {
-                _zoom = value;
-                _mapController.move(_mapModel.getCenterLatLng(), _zoom);
-              });
-            },
-          ),
-        ),
-        Text("$_zoom"),
-      ],
-    );
-  }
 }
