@@ -12,6 +12,7 @@ import '../../feature/auth/widgets/utils/theme_action_button.dart';
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
+import '../../feature/events/services/event_service.dart';
 import '../../feature/events/widgets/event_display.dart';
 import '../../feature/events/widgets/privateInviteForm.dart';
 import '../../feature/mapHandler/DynMap.dart';
@@ -44,13 +45,17 @@ class _HomePageState extends ConsumerState<HomePage> {
   late List<Event?> _myEvents;
 
   Future<List<Event?>> _loadMyEvents() async {
-    List<String> myEventsIDs;
     List<Event?> event_list = [];
-    myEventsIDs = await ParticipantDataSource().getRegisteredEvents(_userID);
-
-    for (String id in myEventsIDs) {
-      event_list.add(await _eventDataSource.getEvent(id));
+    if (_userProps.userType == UserType.dj) {
+      event_list = await EventService().getEventsByCreator(_userID);
+    } else {
+      List<String> myEventsIDs =
+          await ParticipantDataSource().getRegisteredEvents(_userID);
+      for (String id in myEventsIDs) {
+        event_list.add(await _eventDataSource.getEvent(id));
+      }
     }
+
     _myEvents = event_list;
     return event_list;
   }
@@ -139,7 +144,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             },
             icon: const Icon(Icons.exit_to_app),
           ),
-          themeActionButton,
+          //themeActionButton,
         ],
       ),
       body: Padding(
@@ -257,7 +262,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             },
             icon: const Icon(Icons.logout),
           ),
-          themeActionButton,
+          //themeActionButton,
         ],
       ),
       body: Padding(
