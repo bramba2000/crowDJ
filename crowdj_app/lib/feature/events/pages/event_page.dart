@@ -4,23 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
-import '../../feature/auth/data/auth_data_source.dart';
-import '../../feature/auth/data/user_data_source.dart';
-import '../../feature/auth/models/user_props.dart';
-import '../../feature/auth/providers/authentication_provider.dart';
-import '../../feature/auth/providers/state/authentication_state.dart';
-import '../../feature/events/data/participant_data_source.dart';
+import '../../auth/data/auth_data_source.dart';
+import '../../auth/data/user_data_source.dart';
+import '../../auth/models/user_props.dart';
+import '../../auth/providers/authentication_provider.dart';
+import '../../auth/providers/state/authentication_state.dart';
+import '../data/participant_data_source.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../../feature/events/data/events_data_source.dart';
-import '../../feature/events/models/event_model.dart';
-import '../../feature/events/services/event_service.dart';
-import '../../feature/events/services/spotify_service.dart';
-import '../../feature/events/widgets/event_display.dart';
-import '../../feature/events/widgets/event_form.dart';
-import '../../feature/events/widgets/tracks_container.dart';
+import '../data/events_data_source.dart';
+import '../models/event_model.dart';
+import '../services/event_service.dart';
+import '../services/spotify_service.dart';
+import '../widgets/event_display.dart';
+import '../widgets/event_form.dart';
+import '../widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
   final String eventId;
