@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 
+import '../../mapHandler/widgets/address_form_field.dart';
 import '../models/event_model.dart';
 
 /// A widget to create, modify or show an event.
@@ -27,29 +29,11 @@ class EventForm extends StatefulWidget {
 }
 
 class _EventFormState extends State<EventForm> {
-  final _formKey = GlobalKey<FormState>();
+  // ============ Interal fields ============
   final _dateFormat = DateFormat.yMd();
   final _timeFormat = DateFormat.jm();
-  late final _titleController =
-      TextEditingController(text: widget.event?.title);
-  late final _descriptionController =
-      TextEditingController(text: widget.event?.description);
-  late final _dateController = TextEditingController(
-      text: widget.event?.startTime != null
-          ? _dateFormat.format(widget.event!.startTime)
-          : null);
-  late final _timeController = TextEditingController(
-      text: widget.event?.startTime != null
-          ? _timeFormat.format(widget.event!.startTime)
-          : null);
-  late String? _musicGenre = widget.event?.genre;
-  late bool _isPrivate = switch (widget.event) {
-    PrivateEvent? _ => true,
-    _ => false,
-  };
-  late bool _isEdit = widget.startWithEdit || widget.isCreation;
-
-  List<String> musicGenres = [
+  // TODO: move to a global file
+  List<String> musicGenres = const [
     'all genres',
     'Rock',
     'Pop',
@@ -62,6 +46,31 @@ class _EventFormState extends State<EventForm> {
     'Blues',
   ];
 
+  // ============ Form controller ============
+  final _formKey = GlobalKey<FormState>();
+  late final _titleController =
+      TextEditingController(text: widget.event?.title);
+  late final _descriptionController =
+      TextEditingController(text: widget.event?.description);
+  late final _dateController = TextEditingController(
+      text: widget.event?.startTime != null
+          ? _dateFormat.format(widget.event!.startTime)
+          : null);
+  late final _timeController = TextEditingController(
+      text: widget.event?.startTime != null
+          ? _timeFormat.format(widget.event!.startTime)
+          : null);
+
+  // ============ Form field variables ============
+  late String? _musicGenre = widget.event?.genre;
+  late bool _isPrivate = switch (widget.event) {
+    PrivateEvent? _ => true,
+    _ => false,
+  };
+
+  // ============ State variables ============
+  late bool _isEdit = widget.startWithEdit || widget.isCreation;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -69,6 +78,7 @@ class _EventFormState extends State<EventForm> {
         key: _formKey,
         child: Column(
           children: [
+            /// Title field
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -82,6 +92,8 @@ class _EventFormState extends State<EventForm> {
               },
               enabled: _isEdit,
             ),
+
+            /// Description field
             TextFormField(
               controller: _descriptionController,
               maxLines: null,
@@ -96,6 +108,8 @@ class _EventFormState extends State<EventForm> {
               },
               enabled: _isEdit,
             ),
+
+            /// Date field
             TextFormField(
               controller: _dateController,
               onTap: () async {
@@ -118,6 +132,8 @@ class _EventFormState extends State<EventForm> {
               },
               enabled: _isEdit,
             ),
+
+            /// Time field
             TextFormField(
               controller: _timeController,
               decoration: const InputDecoration(
@@ -141,6 +157,8 @@ class _EventFormState extends State<EventForm> {
               },
               enabled: _isEdit,
             ),
+
+            /// Genre field
             DropdownButtonFormField(
               decoration: const InputDecoration(
                 labelText: 'Music Genre',
@@ -160,6 +178,8 @@ class _EventFormState extends State<EventForm> {
                 );
               }).toList(),
             ),
+
+            /// Public/Private switch
             SwitchListTile(
               title: const Text('Private'),
               value: _isPrivate,
@@ -172,6 +192,16 @@ class _EventFormState extends State<EventForm> {
                   : null,
               secondary: const Icon(Icons.lock),
             ),
+
+            /// Address field
+            AddressFormField(
+              initialPosition: widget.event?.location != null
+                  ? LatLng(widget.event!.location.latitude,
+                      widget.event!.location.longitude)
+                  : null,
+            ),
+
+            /// Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
