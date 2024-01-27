@@ -7,6 +7,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+
+import '../../../core/env/env.dart';
 
 /// A widget to get the information about an address.
 ///
@@ -28,10 +31,9 @@ class AddressFormField extends StatefulWidget {
 class _AddressFormFieldState extends State<AddressFormField> {
   static const double _initialZoom = 13.0;
   static const String _endpoint = "https://api.geoapify.com/v1/geocode/search";
-  static const String _api = "889b9139bce84f2f9205fdde6846d83f";
 
   late bool _isMapVisible = widget.initialPosition != null;
-  late LatLng _currentPosition = widget.initialPosition ?? LatLng(0, 0);
+  late LatLng _currentPosition = widget.initialPosition ?? const LatLng(0, 0);
   final MapController _mapController = MapController();
   final _addressController = TextEditingController();
 
@@ -90,6 +92,7 @@ class _AddressFormFieldState extends State<AddressFormField> {
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  tileProvider: CancellableNetworkTileProvider(),
                   userAgentPackageName: 'it.polimi.dima',
                 ),
                 RichAttributionWidget(
@@ -111,7 +114,8 @@ class _AddressFormFieldState extends State<AddressFormField> {
 
   Future<GeoPoint> _reverseAddress() async {
     final address = _addressController.text;
-    final parse = Uri.parse("$_endpoint?text=$address&apiKey=$_api");
+    final parse =
+        Uri.parse("$_endpoint?text=$address&apiKey=${Env.geoAPIToken}");
     final response = await http.get(parse);
     final json = jsonDecode(response.body);
     return _geoPointFromJson(json);

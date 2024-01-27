@@ -10,7 +10,7 @@ import '../../../feature/events/models/event_data.dart';
 import '../../../feature/events/models/event_model.dart';
 import '../../../feature/mapHandler/DynMap.dart';
 import '../../../feature/mapHandler/MapModel.dart';
-import '../../../feature/mapHandler/MapProvider.dart';
+import '../../../feature/mapHandler/widgets/map_utils.dart';
 import '../../../feature/auth/data/auth_data_source.dart';
 import '../../../feature/auth/data/user_data_source.dart';
 import '../../../feature/auth/models/user_props.dart';
