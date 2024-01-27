@@ -14,7 +14,7 @@ import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/widgets/event_display.dart';
-import '../../feature/events/widgets/privateInviteForm.dart';
+import '../../feature/events/widgets/join_event_form.dart';
 import '../../feature/mapHandler/DynMap.dart';
 import '../../feature/mapHandler/MapModel.dart';
 import '../../feature/auth/data/auth_data_source.dart';
@@ -299,7 +299,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            privateInviteForm(),
           ],
         ),
       ),

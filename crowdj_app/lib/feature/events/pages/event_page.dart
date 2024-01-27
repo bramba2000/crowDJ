@@ -20,6 +20,7 @@ import '../services/event_service.dart';
 import '../services/spotify_service.dart';
 import '../widgets/event_display.dart';
 import '../widgets/event_form.dart';
+import '../widgets/join_event_form.dart';
 import '../widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
@@ -92,14 +93,8 @@ class _EventPageState extends ConsumerState<EventPage> {
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    if (_userType != UserType.dj ||
-                        snapshot.data!.status != EventStatus.upcoming)
-                      Text(
-                        snapshot.data!.title,
-                        style: const TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.w800),
-                      ),
                     Wrap(
                       alignment: WrapAlignment.center,
                       direction: Axis.horizontal,
@@ -125,6 +120,11 @@ class _EventPageState extends ConsumerState<EventPage> {
                                       )
                                     : EventDisplay(event: snapshot.data!),
                               ),
+                              if (!widget.isParticipant)
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: JoinEventForm(event: snapshot.data!),
+                                ),
                             ],
                           ),
                         ),
