@@ -23,6 +23,7 @@ import '../../feature/auth/models/user_props.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../feature/auth/providers/state/authentication_state.dart';
 import '../../feature/mapHandler/UserMap.dart';
+import 'utils/appBar.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -135,22 +136,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Scaffold _desktopDjPage() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("DJ HomePage"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ref.read(provider.notifier).signOut();
-            },
-            icon: const Icon(Icons.exit_to_app),
-          ),
-          //themeActionButton,
-        ],
-      ),
+      appBar: CustomAppBar(text: "DJ Homepage"),
       body: Padding(
         padding: const EdgeInsets.all(30),
         child: Container(
-          color: const Color.fromARGB(200, 19, 102, 170),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+          ),
           child: Column(
             children: [
               Container(
@@ -170,16 +162,31 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               Container(
                 margin: const EdgeInsets.all(20),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                child: Row(
                   children: [
-                    Text(
-                      "TITLE",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text(
+                          "TITLE",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                      ),
                     ),
-                    Text(
-                      "PALCE",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text(
+                          "PLACE",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -190,9 +197,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
                       margin: const EdgeInsets.all(20),
                       padding: const EdgeInsets.all(20),
-                      color: const Color.fromARGB(199, 64, 150, 221),
+                      //color: const Color.fromARGB(199, 64, 150, 221),
                       child: _djEventWrap(_myEvents[index]!),
                     );
                   },
@@ -212,7 +222,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       direction: Axis.horizontal,
       children: [
         Container(
-          //decoration: BoxDecoration(color: Colors.red),
           constraints: const BoxConstraints(maxWidth: 300),
           child: Center(
             child: Column(
@@ -242,7 +251,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ),
         Container(
-          //decoration: BoxDecoration(color: Colors.green),
           constraints: const BoxConstraints(maxWidth: 600, maxHeight: 200),
           child: _djMap(e),
         )
@@ -252,18 +260,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Scaffold _mobileUserPage() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("HomePage"),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await ref.read(provider.notifier).signOut();
-              context.go("/");
-            },
-            icon: const Icon(Icons.logout),
-          ),
-          //themeActionButton,
-        ],
+      appBar: CustomAppBar(
+        text: "Homepage",
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -277,7 +275,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               "NEARBY EVENTS",
               style: TextStyle(
                 fontSize: 20,
-                color: Colors.blueGrey,
+                //color: Colors.blueGrey,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -291,14 +289,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(
               height: 30,
             ),
-            const Text(
-              "JOIN A PRIVATE EVENT",
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.blueGrey,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ],
         ),
       ),
@@ -311,7 +301,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         "MY EVENTS",
         style: TextStyle(
           fontSize: 20,
-          color: Colors.blueGrey,
+          //color: Colors.blueGrey,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -343,11 +333,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                       borderRadius: BorderRadius.circular(
                           12.0), // Set border radius to 0 for a square button
                     ),
-                    backgroundColor: const Color.fromARGB(255, 60, 158, 238),
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   child: Text(
                     event!.title,
-                    style: const TextStyle(fontSize: 20.0, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 20.0,
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer),
                   ),
                 ),
               ],
@@ -380,7 +373,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           Text(
             e.title,
             style: const TextStyle(
-              color: Color.fromARGB(255, 47, 35, 150),
+              //color: Color.fromARGB(255, 47, 35, 150),
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
             ),
@@ -391,7 +384,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           Text(
             "${e.maxPeople}",
             style: const TextStyle(
-              color: Color.fromARGB(255, 47, 35, 150),
+              //color: Color.fromARGB(255, 47, 35, 150),
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
             ),
@@ -409,8 +402,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         builder: (BuildContext context, AsyncSnapshot<DynMap> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              //print("error occurs while loading the map " +
-              //    snapshot.error.toString());
               return Container(
                 height: 100,
                 width: 100,

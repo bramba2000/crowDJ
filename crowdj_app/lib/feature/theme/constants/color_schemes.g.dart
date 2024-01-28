@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../providers/CustomColorScheme.dart';
 
 const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
@@ -86,7 +91,7 @@ const ColorScheme darkLavaColorScheme = ColorScheme(
 
 const ColorScheme darkColorScheme2 = ColorScheme(
   brightness: Brightness.dark,
-  background: Color(0xFF0E0E0E),
+  background: Color.fromARGB(255, 48, 16, 54),
   error: Color(0xFFCF6679),
   errorContainer: Color(0xFFCF6679),
   inversePrimary: Color(0xFF000000),
@@ -94,13 +99,15 @@ const ColorScheme darkColorScheme2 = ColorScheme(
   onBackground: Color(0xFFFFFFFF),
   onError: Color(0xFF000000),
   onPrimary: Color(0xFF000000),
-  onSecondary: Color(0xFF000000),
+  onSecondary: Color.fromARGB(255, 81, 54, 143),
   onSurface: Color(0xFFFFFFFF),
   onTertiary: Color(0xFF000000),
   primary: Color(0xFFF5B6B4),
   primaryContainer: Color(0xFFF79B98),
   scrim: Color(0xFF000000),
   secondary: Color(0xFF5ADCB4),
-  secondaryContainer: Color(0xFF4DBD9B),
+  secondaryContainer: Color.fromARGB(255, 72, 190, 107),
   surface: Color(0xFF451654),
 );
+
+late ColorScheme darkColorScheme3 ;

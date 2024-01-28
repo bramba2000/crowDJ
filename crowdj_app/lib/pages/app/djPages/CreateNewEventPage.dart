@@ -16,6 +16,7 @@ import '../../../feature/auth/data/user_data_source.dart';
 import '../../../feature/auth/models/user_props.dart';
 import '../../../feature/auth/providers/authentication_provider.dart';
 import '../../../feature/auth/providers/state/authentication_state.dart';
+import '../utils/appBar.dart';
 
 class CreateNeweventPage extends ConsumerStatefulWidget {
   @override
@@ -121,7 +122,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
 
   Widget _desktopDjPage() {
     return Scaffold(
-      appBar: AppBar(title: const Text(" Create a New Event Page")),
+      appBar: CustomAppBar(text: " Create New Event "),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

@@ -20,10 +20,11 @@ class EventDisplay extends StatelessWidget {
           Text(
             event.title,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 10,),
           Text(event.description),
           Text(_dateFormat.format(event.startTime)),
           Text(event.genre),

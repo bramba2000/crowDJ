@@ -50,4 +50,5 @@ dev_dependencies:
 flutter:
   assets:
     - lib/assets/
+    - lib/feature/theme/constants/theme3.json
   uses-material-design: true

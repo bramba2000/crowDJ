@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
+import '../../../pages/app/utils/appBar.dart';
 import '../../auth/data/auth_data_source.dart';
 import '../../auth/data/user_data_source.dart';
 import '../../auth/models/user_props.dart';
@@ -77,9 +78,7 @@ class _EventPageState extends ConsumerState<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("EVENT PAGE"),
-      ),
+      appBar: CustomAppBar(text: "EVENT PAGE",),
       body: FutureBuilder(
         future: _event,
         builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
@@ -147,7 +146,9 @@ class _EventPageState extends ConsumerState<EventPage> {
                                   ),
                                 ),
                               TracksContainer(
-                                  eventId: widget.eventId, userID: _userId!),
+                                eventId: widget.eventId,
+                                userID: _userId!,
+                              ),
                               if (snapshot.data!.status ==
                                   EventStatus.upcoming) ...[
                                 _addSongContainer(snapshot.data!),

@@ -32,7 +32,7 @@ class _TracksContainerState extends State<TracksContainer> {
   Widget songsListView() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromARGB(198, 97, 165, 221),
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
         borderRadius: BorderRadius.circular(20.0),
       ),
       constraints: const BoxConstraints(
@@ -59,7 +59,7 @@ class _TracksContainerState extends State<TracksContainer> {
                         padding: const EdgeInsets.all(5),
                         margin: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(198, 97, 165, 221),
+                          color: Theme.of(context).colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: Dismissible(
