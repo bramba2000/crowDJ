@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 
 import '../../../core/env/env.dart';
+import '../models/map_data.dart';
+import 'custom_map.dart';
 
 /// A widget to get the information about an address.
 ///
@@ -83,28 +83,9 @@ class _AddressFormFieldState extends State<AddressFormField> {
           const SizedBox(width: 20, height: 10),
           Container(
             constraints: const BoxConstraints(maxHeight: 400),
-            child: FlutterMap(
+            child: CustomMap(
               mapController: _mapController,
-              options: MapOptions(
-                initialCenter: _currentPosition,
-                initialZoom: _initialZoom,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  tileProvider: CancellableNetworkTileProvider(),
-                  userAgentPackageName: 'it.polimi.dima',
-                ),
-                RichAttributionWidget(
-                  attributions: [
-                    TextSourceAttribution(
-                      'OpenStreetMap contributors',
-                      onTap: () => launchUrl(
-                          Uri.parse('https://openstreetmap.org/copyright')),
-                    ),
-                  ],
-                ),
-              ],
+              mapData: MapData.fromCenter(_currentPosition),
             ),
           )
         ]
