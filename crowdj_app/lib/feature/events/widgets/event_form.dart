@@ -7,7 +7,7 @@ import '../models/event_model.dart';
 
 /// A widget to create, modify or show an event.
 ///
-/// If an event is not provided, the widget will be in creation mode. Otherwise,
+/// If an [event] is not provided, the widget will be in creation mode. Otherwise,
 /// if an event is provided, the widget will be in show mode. If [canEdit] is
 /// true, the widget will be in edit mode and the user will be able to modify.
 /// If [startWithEdit] is true, the widget will start in edit mode.
@@ -17,8 +17,7 @@ class EventForm extends StatefulWidget {
   final bool canEdit;
   final bool startWithEdit;
 
-  /// Creates a new event form. If [event] is not null, the form will be in show
-  /// mode. If [canEdit] is true, the form will be in edit mode and the user
+  /// Creates a new event form.
   const EventForm(
       {super.key, this.event, this.canEdit = false, this.startWithEdit = false})
       : isCreation = event == null,
