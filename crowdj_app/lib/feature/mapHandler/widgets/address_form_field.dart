@@ -20,16 +20,19 @@ import 'custom_map.dart';
 class AddressFormField extends StatefulWidget {
   final LatLng? initialPosition;
   final void Function(LatLng)? onPositionChanged;
+  final bool enabled;
 
   const AddressFormField(
-      {super.key, this.initialPosition, this.onPositionChanged});
+      {super.key,
+      this.initialPosition,
+      this.onPositionChanged,
+      this.enabled = true});
 
   @override
   State<AddressFormField> createState() => _AddressFormFieldState();
 }
 
 class _AddressFormFieldState extends State<AddressFormField> {
-  static const double _initialZoom = 13.0;
   static const String _endpoint = "https://api.geoapify.com/v1/geocode/search";
 
   late bool _isMapVisible = widget.initialPosition != null;
@@ -58,6 +61,7 @@ class _AddressFormFieldState extends State<AddressFormField> {
               }
               return null;
             },
+            enabled: widget.enabled,
             onEditingComplete: () async {
               final point = await _reverseAddress();
               if (!_isMapVisible) {

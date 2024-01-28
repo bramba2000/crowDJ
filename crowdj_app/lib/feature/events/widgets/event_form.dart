@@ -199,6 +199,7 @@ class _EventFormState extends State<EventForm> {
                   ? LatLng(widget.event!.location.latitude,
                       widget.event!.location.longitude)
                   : null,
+              enabled: _isEdit,
             ),
 
             /// Buttons
