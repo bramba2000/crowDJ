@@ -2,7 +2,7 @@ import '../../feature/auth/data/auth_data_source.dart';
 import '../../feature/auth/data/user_data_source.dart';
 import '../../feature/auth/pages/signin_page.dart';
 import '../../feature/events/pages/event_page.dart';
-import '../../pages/app/djPages/CreateNewEventPage.dart';
+import '../../feature/events/pages/new_event_page.dart';
 import '../../feature/auth/providers/authentication_provider.dart';
 import '../../pages/app/home_page.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ GoRouter router(RouterRef ref) {
               path: "newEvent",
               pageBuilder: (context, state) {
                 return MaterialPage(
-                  child: CreateNeweventPage(),
+                  child: NewEventPage(),
                 );
               }),
           GoRoute(

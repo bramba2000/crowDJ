@@ -1,35 +1,44 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../auth/data/auth_data_source.dart';
+import '../../auth/data/user_data_source.dart';
+import '../../auth/providers/authentication_provider.dart';
+import '../../auth/providers/state/authentication_state.dart';
 import '../../mapHandler/widgets/address_form_field.dart';
+import '../models/event_data.dart';
 import '../models/event_model.dart';
+import '../services/event_service.dart';
 
 /// A widget to create, modify or show an event.
 ///
-/// If an event is not provided, the widget will be in creation mode. Otherwise,
+/// If an [event] is not provided, the widget will be in creation mode. Otherwise,
 /// if an event is provided, the widget will be in show mode. If [canEdit] is
 /// true, the widget will be in edit mode and the user will be able to modify.
 /// If [startWithEdit] is true, the widget will start in edit mode.
-class EventForm extends StatefulWidget {
+class EventForm extends ConsumerStatefulWidget {
   final Event? event;
   final bool isCreation;
   final bool canEdit;
   final bool startWithEdit;
 
-  /// Creates a new event form. If [event] is not null, the form will be in show
-  /// mode. If [canEdit] is true, the form will be in edit mode and the user
+  /// Creates a new event form.
   const EventForm(
       {super.key, this.event, this.canEdit = false, this.startWithEdit = false})
       : isCreation = event == null,
         assert(!startWithEdit || (canEdit && startWithEdit));
 
   @override
-  State<EventForm> createState() => _EventFormState();
+  ConsumerState<EventForm> createState() => _EventFormState();
 }
 
-class _EventFormState extends State<EventForm> {
+class _EventFormState extends ConsumerState<EventForm> {
   // ============ Interal fields ============
+  final _eventService = EventService();
   final _dateFormat = DateFormat.yMd();
   final _timeFormat = DateFormat.jm();
   // TODO: move to a global file
@@ -63,13 +72,18 @@ class _EventFormState extends State<EventForm> {
 
   // ============ Form field variables ============
   late String? _musicGenre = widget.event?.genre;
-  late bool _isPrivate = switch (widget.event) {
-    PrivateEvent? _ => true,
-    _ => false,
-  };
+  late bool _isPrivate = widget.isCreation || widget.event! is PrivateEvent;
+  late DateTime? _startTime = widget.event?.startTime;
+  late int _maxPeople = widget.event?.maxPeople ?? 100;
+  late GeoPoint? _location = null;
 
   // ============ State variables ============
   late bool _isEdit = widget.startWithEdit || widget.isCreation;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,52 +124,14 @@ class _EventFormState extends State<EventForm> {
             ),
 
             /// Date field
-            TextFormField(
-              controller: _dateController,
-              onTap: () async {
-                DateTime? date = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                _dateController.text = date.toString();
-              },
+            DateTimeFormField(
               decoration: const InputDecoration(
-                labelText: 'Date',
+                labelText: 'Start time',
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a date';
-                }
-                return null;
-              },
-              enabled: _isEdit,
-            ),
-
-            /// Time field
-            TextFormField(
-              controller: _timeController,
-              decoration: const InputDecoration(
-                labelText: 'Time',
-              ),
-              onTap: () async {
-                TimeOfDay? time = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-                if (time != null) {
-                  // ignore: use_build_context_synchronously
-                  _timeController.text = time.format(context);
-                }
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a time';
-                }
-                return null;
-              },
-              enabled: _isEdit,
+              initialValue: _startTime,
+              validator: (value) =>
+                  value == null ? 'Please enter a date' : null,
+              onChanged: _isEdit ? (value) => _startTime = value : null,
             ),
 
             /// Genre field
@@ -193,12 +169,34 @@ class _EventFormState extends State<EventForm> {
               secondary: const Icon(Icons.lock),
             ),
 
+            /// Max people field
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Max people',
+              ),
+              keyboardType: TextInputType.number,
+              onFieldSubmitted: (value) => _maxPeople = int.parse(value),
+              validator: (value) {
+                if (value == null ||
+                    value.isEmpty ||
+                    int.tryParse(value) == null) {
+                  return 'Please enter a number';
+                }
+                return null;
+              },
+              enabled: _isEdit,
+            ),
+
             /// Address field
             AddressFormField(
               initialPosition: widget.event?.location != null
                   ? LatLng(widget.event!.location.latitude,
                       widget.event!.location.longitude)
                   : null,
+              enabled: _isEdit,
+              onPositionChanged: (LatLng position) {
+                _location = GeoPoint(position.latitude, position.longitude);
+              },
             ),
 
             /// Buttons
@@ -242,5 +240,26 @@ class _EventFormState extends State<EventForm> {
     super.dispose();
   }
 
-  void _confirmForm() {}
+  void _confirmForm() {
+    if (_formKey.currentState!.validate()) {
+      if (widget.isCreation) {
+        final creatorId = ref.read(
+            authNotifierProvider(defaultAuthDataSource, defaultUserDataSource));
+        assert(creatorId is AuthenticationStateAuthenticated);
+
+        _eventService.createEvent(
+            eventData: EventData(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          startTime:
+              DateTime.parse(_dateController.text + _timeController.text),
+          genre: _musicGenre!,
+          isPrivate: _isPrivate,
+          location: const GeoPoint(0, 0),
+          maxPeople: _maxPeople,
+          creatorId: (creatorId as AuthenticationStateAuthenticated).user.uid,
+        ));
+      }
+    }
+  }
 }

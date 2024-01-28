@@ -30,6 +30,7 @@ dependencies:
   intl: any
   flutter_localizations:
     sdk: flutter
+  date_field: ^4.0.1
 
 dev_dependencies:
   flutter_test:
