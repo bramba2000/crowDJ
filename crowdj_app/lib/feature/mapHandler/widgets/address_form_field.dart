@@ -57,7 +57,8 @@ class _AddressFormFieldState extends State<AddressFormField> {
               labelText: 'Address',
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
+              if ((value == null || value.isEmpty) &&
+                  widget.initialPosition == null) {
                 return 'Please enter an address';
               }
               return null;

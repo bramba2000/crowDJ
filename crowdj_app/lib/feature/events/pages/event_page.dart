@@ -78,7 +78,9 @@ class _EventPageState extends ConsumerState<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(text: "EVENT PAGE",),
+      appBar: CustomAppBar(
+        text: "EVENT PAGE",
+      ),
       body: FutureBuilder(
         future: _event,
         builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
@@ -116,6 +118,15 @@ class _EventPageState extends ConsumerState<EventPage> {
                                         canEdit: _userType == UserType.dj &&
                                             snapshot.data!.status !=
                                                 EventStatus.past,
+                                        onEventSubmitted: () {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Event successfully updated'),
+                                            ),
+                                          );
+                                        },
                                       )
                                     : EventDisplay(event: snapshot.data!),
                               ),
