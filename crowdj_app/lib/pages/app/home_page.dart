@@ -2,19 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/utils/EventExtra.dart';
-import '../../feature/auth/widgets/utils/theme_action_button.dart';
 import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/data/participant_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/widgets/event_display.dart';
-import '../../feature/events/widgets/join_event_form.dart';
 import '../../feature/mapHandler/DynMap.dart';
 import '../../feature/mapHandler/MapModel.dart';
 import '../../feature/auth/data/auth_data_source.dart';
@@ -161,7 +158,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.all(20),
+                //margin: const EdgeInsets.all(20),
                 child: Row(
                   children: [
                     Expanded(

@@ -22,6 +22,7 @@ import '../services/spotify_service.dart';
 import '../widgets/event_display.dart';
 import '../widgets/event_form.dart';
 import '../widgets/join_event_form.dart';
+import '../widgets/music_player.dart';
 import '../widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
@@ -78,7 +79,9 @@ class _EventPageState extends ConsumerState<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(text: "EVENT PAGE",),
+      appBar: CustomAppBar(
+        text: "EVENT PAGE",
+      ),
       body: FutureBuilder(
         future: _event,
         builder: (BuildContext context, AsyncSnapshot<Event?> snapshot) =>
@@ -95,7 +98,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Wrap(
-                      alignment: WrapAlignment.center,
+                      alignment: WrapAlignment.spaceEvenly,
                       direction: Axis.horizontal,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 40,
@@ -103,7 +106,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                       children: [
                         Container(
                           constraints: const BoxConstraints(
-                            maxWidth: 600,
+                            maxWidth: 400,
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -129,22 +132,19 @@ class _EventPageState extends ConsumerState<EventPage> {
                         ),
                         Container(
                           constraints: const BoxConstraints(
-                            maxWidth: 600,
+                            maxWidth: 400,
+                          ),
+                          child: musicPlayer(
+                              eventId: widget.eventId, 
+                              userID: _userId!),
+                        ),
+                        Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 400,
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (snapshot.data!.status == EventStatus.ongoing)
-                                Flexible(
-                                  //fit: FlexFit.loose,
-                                  flex: 4,
-                                  child: Column(
-                                    children: [
-                                      _showImage(),
-                                      _showPlayer(),
-                                    ],
-                                  ),
-                                ),
                               TracksContainer(
                                 eventId: widget.eventId,
                                 userID: _userId!,
