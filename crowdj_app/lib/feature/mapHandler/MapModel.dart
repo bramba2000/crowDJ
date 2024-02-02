@@ -50,7 +50,7 @@ class MapModel {
           height: 60,
           child: IconButton(
             onPressed: () {
-              print("${e.title}");
+              print(e.title);
               context.go(
                 "/event/${e.id}",
                 extra: EventExtra(
@@ -150,7 +150,9 @@ class MapModel {
   //does the same of appPalce() but for a list of GeoPoint
   void updatePlaces(List<GeoPoint> places) {
     _markers.clear();
-    for (GeoPoint pl in places) addPlace(pl);
+    for (GeoPoint pl in places) {
+      addPlace(pl);
+    }
   }
 
   //return the current center

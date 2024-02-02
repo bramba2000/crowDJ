@@ -7,7 +7,6 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../feature/events/data/events_data_source.dart';
 import '../../../feature/events/models/event_data.dart';
-import '../../../feature/events/models/event_model.dart';
 import '../../../feature/mapHandler/DynMap.dart';
 import '../../../feature/mapHandler/MapModel.dart';
 import '../../../feature/mapHandler/widgets/map_utils.dart';
@@ -19,6 +18,8 @@ import '../../../feature/auth/providers/state/authentication_state.dart';
 import '../utils/appBar.dart';
 
 class CreateNeweventPage extends ConsumerStatefulWidget {
+  const CreateNeweventPage({super.key});
+
   @override
   ConsumerState<CreateNeweventPage> createState() => _CreateNeweventPageState();
 }
@@ -26,11 +27,11 @@ class CreateNeweventPage extends ConsumerStatefulWidget {
 class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
   ///----> form <----
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
-  TextEditingController _maxPeopleContoller = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _maxPeopleContoller = TextEditingController();
   int selectedNumber = 1;
-  TextEditingController _addressController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   DateTime _selectedDate = DateTime(0);
   String _selectedGenre = "all genres";
   bool _isPrivate = false;
@@ -275,19 +276,16 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
             onTap: () => _selectDate(context),
             controller: TextEditingController(
                 text: _selectedDate != null
-                    ? "${_selectedDate!.toLocal()}".split(' ')[0]
+                    ? "${_selectedDate.toLocal()}".split(' ')[0]
                     : ''),
             validator: (value) {
-              if (_selectedDate == null) {
-                return 'Please select a date';
-              }
               return null;
             },
           ),
         ),
         IconButton(
           onPressed: () => _selectDate(context),
-          icon: Icon(Icons.calendar_today),
+          icon: const Icon(Icons.calendar_today),
         ),
       ],
     );
@@ -354,16 +352,13 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
                   (addrDetails) => setState(
                     () {
                       _location = getGeoPointFromJson(addrDetails);
-                      print("Lat:" +
-                          _location.latitude.toString() +
-                          " Lng:" +
-                          _location.longitude.toString());
+                      print("Lat:${_location.latitude} Lng:${_location.longitude}");
                       _mapController.move(
                           LatLng(_location.latitude, _location.longitude),
                           13.0);
                       _mapModel = MapModel(g: _location);
-                      _mapModel!.updatePlace(_location);
-                      _mapModel!.updateCenter(_location);
+                      _mapModel.updatePlace(_location);
+                      _mapModel.updateCenter(_location);
                       print("all updated");
                       _map = DynMap(
                         mapModel: _mapModel,
@@ -389,7 +384,7 @@ class _CreateNeweventPageState extends ConsumerState<CreateNeweventPage> {
     print("show map");
     try {
       return Container(
-        padding: EdgeInsets.all(40),
+        padding: const EdgeInsets.all(40),
         height: 400,
         //width: 400,
         child: _map,

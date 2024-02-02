@@ -140,7 +140,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                           constraints: const BoxConstraints(
                             maxWidth: 400,
                           ),
-                          child: musicPlayer(
+                          child: MusicPlayer(
                               eventId: widget.eventId, userID: _userId!),
                         ),
                         Container(

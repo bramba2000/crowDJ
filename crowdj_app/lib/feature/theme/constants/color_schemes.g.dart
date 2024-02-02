@@ -1,9 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import '../providers/CustomColorScheme.dart';
 
 const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
@@ -110,4 +105,4 @@ const ColorScheme darkColorScheme2 = ColorScheme(
   surface: Color(0xFF451654),
 );
 
-late ColorScheme darkColorScheme3 ;
+late ColorScheme darkColorScheme3;

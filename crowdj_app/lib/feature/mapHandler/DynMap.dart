@@ -13,11 +13,11 @@ class DynMap extends StatefulWidget {
   final MapController mapController;
   double zoom;
 
-  DynMap({Key? key, 
+  DynMap({super.key, 
     required this.mapModel, 
     required this.center,
     required this.mapController,
-    this.zoom=14.0}): super(key: key);
+    this.zoom=14.0});
 
   @override
   _MapState createState() => _MapState();

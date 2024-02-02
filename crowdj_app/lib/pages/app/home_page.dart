@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -43,19 +42,19 @@ class _HomePageState extends ConsumerState<HomePage> {
   late List<Event?> _myEvents;
 
   Future<List<Event?>> _loadMyEvents() async {
-    List<Event?> event_list = [];
+    List<Event?> eventList = [];
     if (_userProps.userType == UserType.dj) {
-      event_list = await EventService().getEventsByCreator(_userID);
+      eventList = await EventService().getEventsByCreator(_userID);
     } else {
       List<String> myEventsIDs =
           await ParticipantDataSource().getRegisteredEvents(_userID);
       for (String id in myEventsIDs) {
-        event_list.add(await _eventDataSource.getEvent(id));
+        eventList.add(await _eventDataSource.getEvent(id));
       }
     }
 
-    _myEvents = event_list;
-    return event_list;
+    _myEvents = eventList;
+    return eventList;
   }
 
   void _getUserProps() {
@@ -102,7 +101,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             }
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasError) {
-                return Container(
+                return SizedBox(
                   height: 100,
                   width: 100,
                   child: Text(
@@ -399,7 +398,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         builder: (BuildContext context, AsyncSnapshot<DynMap> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              return Container(
+              return SizedBox(
                 height: 100,
                 width: 100,
                 child: Text(
@@ -411,7 +410,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           }
           if (snapshot.connectionState == ConnectionState.active) {
             if (snapshot.hasError) {
-              return Container(
+              return SizedBox(
                 height: 100,
                 width: 100,
                 child: Text(
@@ -439,11 +438,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<DynMap> _builDJMap(GeoPoint eventLocation) async {
     try {
-      MapModel _model = await MapModel(g: eventLocation);
-      _model.updatePlace(eventLocation);
+      MapModel model = MapModel(g: eventLocation);
+      model.updatePlace(eventLocation);
       return DynMap(
-        mapModel: _model,
-        center: _model.getCenter(),
+        mapModel: model,
+        center: model.getCenter(),
         mapController: MapController(),
         zoom: 10,
       );
