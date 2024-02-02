@@ -20,7 +20,7 @@ import '../services/spotify_service.dart';
 import '../widgets/event_display.dart';
 import '../widgets/event_form.dart';
 import '../widgets/join_event_form.dart';
-import '../widgets/music_player.dart';
+// import '../widgets/music_player.dart';
 import '../widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
@@ -136,13 +136,13 @@ class _EventPageState extends ConsumerState<EventPage> {
                             ],
                           ),
                         ),
-                        Container(
+                        /* Container(
                           constraints: const BoxConstraints(
                             maxWidth: 400,
                           ),
                           child: MusicPlayer(
                               eventId: widget.eventId, userID: _userId!),
-                        ),
+                        ), */
                         Container(
                           constraints: const BoxConstraints(
                             maxWidth: 400,
@@ -152,7 +152,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                             children: [
                               TracksContainer(
                                 eventId: widget.eventId,
-                                userID: _userId,
+                                userID: _userId!,
                               ),
                               if (snapshot.data!.status ==
                                   EventStatus.upcoming) ...[
