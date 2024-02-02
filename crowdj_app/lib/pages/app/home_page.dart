@@ -261,7 +261,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         text: "Homepage",
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
             yourEvents(),
@@ -294,11 +294,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget yourEvents() {
     return Column(children: [
-      const Text(
+      Text(
         "MY EVENTS",
         style: TextStyle(
           fontSize: 20,
-          //color: Colors.blueGrey,
+          color: Theme.of(context).colorScheme.onBackground,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -330,14 +330,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                       borderRadius: BorderRadius.circular(
                           12.0), // Set border radius to 0 for a square button
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   child: Text(
                     event!.title,
                     style: TextStyle(
                         fontSize: 20.0,
                         color:
-                            Theme.of(context).colorScheme.onSecondaryContainer),
+                            Theme.of(context).colorScheme.onPrimaryContainer),
                   ),
                 ),
               ],

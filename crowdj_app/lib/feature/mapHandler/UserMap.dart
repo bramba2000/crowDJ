@@ -101,15 +101,7 @@ class _UserMapState extends State<UserMap> {
       height: 300,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),
-        color: const Color.fromARGB(255, 60, 158, 238),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3), // changes position of shadow
-          ),
-        ],
+        color: Theme.of(context).colorScheme.primaryContainer,
       ),
       child: FutureBuilder<void>(
         future: _builUserMap(),
@@ -123,7 +115,9 @@ class _UserMapState extends State<UserMap> {
               );
             } else {
               print("----------------- no snapshot errors, returning the map");
-              return Container(padding: EdgeInsets.all(8), child: _map);
+              return Container(
+                child: _map,
+              );
             }
           }
           if (snapshot.connectionState == ConnectionState.active) {
