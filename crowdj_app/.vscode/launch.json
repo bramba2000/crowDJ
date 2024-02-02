@@ -5,9 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "crowdj_app",
+            "name": "crowdj_app (debug mode)",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": ["--web-port", "8080"]
         },
         {
             "name": "crowdj_app (profile mode)",
