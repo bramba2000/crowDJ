@@ -119,6 +119,15 @@ class _EventPageState extends ConsumerState<EventPage> {
                                         canEdit: _userType == UserType.dj &&
                                             snapshot.data!.status !=
                                                 EventStatus.past,
+                                        onEventSubmitted: () {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Event successfully updated'),
+                                            ),
+                                          );
+                                        },
                                       )
                                     : EventDisplay(event: snapshot.data!),
                               ),

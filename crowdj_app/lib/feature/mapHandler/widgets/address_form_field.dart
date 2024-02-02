@@ -16,7 +16,8 @@ import 'custom_map.dart';
 /// The widget is composed by a text field and a map. The user can insert an
 /// address in the text field and the map will show the position of the address.
 /// The map is visible only if the user insert an address or an [initialPosition]
-/// is provided. The [onPositionChanged] callback is called when the corrent
+/// is provided. The [onPositionChanged] callback is called when the current
+/// retrieved position is changed.
 class AddressFormField extends StatefulWidget {
   final LatLng? initialPosition;
   final void Function(LatLng)? onPositionChanged;
@@ -56,7 +57,8 @@ class _AddressFormFieldState extends State<AddressFormField> {
               labelText: 'Address',
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
+              if ((value == null || value.isEmpty) &&
+                  widget.initialPosition == null) {
                 return 'Please enter an address';
               }
               return null;
@@ -86,7 +88,7 @@ class _AddressFormFieldState extends State<AddressFormField> {
         if (_isMapVisible) ...[
           const SizedBox(width: 20, height: 10),
           Container(
-            constraints: const BoxConstraints(maxHeight: 400),
+            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 580),
             child: CustomMap(
               mapController: _mapController,
               mapData: MapData.fromCenter(_currentPosition),

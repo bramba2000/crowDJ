@@ -4,39 +4,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../feature/auth/data/auth_data_source.dart';
 import '../../../feature/auth/data/user_data_source.dart';
 import '../../../feature/auth/providers/authentication_provider.dart';
-import '../../../feature/auth/widgets/utils/theme_action_button.dart';
+import '../../../feature/theme/widgets/theme_button.dart';
 
-class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget{
-
-  String text;
+class CustomAppBar extends ConsumerStatefulWidget
+    implements PreferredSizeWidget {
+  final String text;
   final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
 
-  CustomAppBar({required this.text});
-  
+  CustomAppBar({super.key, required this.text});
+
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
-  
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
   @override
   ConsumerState<CustomAppBar> createState() => _CustomAppBarState();
 }
 
 class _CustomAppBarState extends ConsumerState<CustomAppBar> {
-@override
+  @override
   Widget build(BuildContext context) {
-
     return AppBar(
-        title: Text(widget.text),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ref.read(widget.provider.notifier).signOut();
-            },
-            icon: const Icon(Icons.exit_to_app),
-          ),
-          themeActionButton,
-        ],
-      );
+      title: Text(widget.text),
+      actions: [
+        IconButton(
+          onPressed: () {
+            ref.read(widget.provider.notifier).signOut();
+          },
+          icon: const Icon(Icons.exit_to_app),
+        ),
+        const ThemeButton(),
+      ],
+    );
   }
-  
-
 }

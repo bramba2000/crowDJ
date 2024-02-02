@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../auth/data/auth_data_source.dart';
@@ -25,10 +24,15 @@ class EventForm extends ConsumerStatefulWidget {
   final bool isCreation;
   final bool canEdit;
   final bool startWithEdit;
+  final Function? onEventSubmitted;
 
   /// Creates a new event form.
   const EventForm(
-      {super.key, this.event, this.canEdit = false, this.startWithEdit = false})
+      {super.key,
+      this.event,
+      this.canEdit = false,
+      this.onEventSubmitted,
+      this.startWithEdit = false})
       : isCreation = event == null,
         assert(!startWithEdit || (canEdit && startWithEdit));
 
@@ -39,8 +43,6 @@ class EventForm extends ConsumerStatefulWidget {
 class _EventFormState extends ConsumerState<EventForm> {
   // ============ Interal fields ============
   final _eventService = EventService();
-  final _dateFormat = DateFormat.yMd();
-  final _timeFormat = DateFormat.jm();
   // TODO: move to a global file
   List<String> musicGenres = const [
     'all genres',
@@ -61,21 +63,14 @@ class _EventFormState extends ConsumerState<EventForm> {
       TextEditingController(text: widget.event?.title);
   late final _descriptionController =
       TextEditingController(text: widget.event?.description);
-  late final _dateController = TextEditingController(
-      text: widget.event?.startTime != null
-          ? _dateFormat.format(widget.event!.startTime)
-          : null);
-  late final _timeController = TextEditingController(
-      text: widget.event?.startTime != null
-          ? _timeFormat.format(widget.event!.startTime)
-          : null);
+  late final _maxPeopleController =
+      TextEditingController(text: widget.event?.maxPeople.toString());
 
   // ============ Form field variables ============
   late String? _musicGenre = widget.event?.genre;
   late bool _isPrivate = widget.isCreation || widget.event! is PrivateEvent;
   late DateTime? _startTime = widget.event?.startTime;
-  late int _maxPeople = widget.event?.maxPeople ?? 100;
-  late GeoPoint? _location = null;
+  late GeoPoint? _location = widget.event?.location.geoPoint;
 
   // ============ State variables ============
   late bool _isEdit = widget.startWithEdit || widget.isCreation;
@@ -155,6 +150,24 @@ class _EventFormState extends ConsumerState<EventForm> {
               }).toList(),
             ),
 
+            /// Max people field
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Max people',
+              ),
+              keyboardType: TextInputType.number,
+              controller: _maxPeopleController,
+              validator: (value) {
+                if (value == null ||
+                    value.isEmpty ||
+                    int.tryParse(value) == null) {
+                  return 'Please enter a number';
+                }
+                return null;
+              },
+              enabled: _isEdit,
+            ),
+
             /// Public/Private switch
             SwitchListTile(
               title: const Text('Private'),
@@ -167,24 +180,6 @@ class _EventFormState extends ConsumerState<EventForm> {
                     }
                   : null,
               secondary: const Icon(Icons.lock),
-            ),
-
-            /// Max people field
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Max people',
-              ),
-              keyboardType: TextInputType.number,
-              onFieldSubmitted: (value) => _maxPeople = int.parse(value),
-              validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    int.tryParse(value) == null) {
-                  return 'Please enter a number';
-                }
-                return null;
-              },
-              enabled: _isEdit,
             ),
 
             /// Address field
@@ -211,6 +206,17 @@ class _EventFormState extends ConsumerState<EventForm> {
                         setState(() {
                           _isEdit = !_isEdit;
                         });
+                        if (!_isEdit || widget.isCreation) {
+                          _titleController.text = widget.event!.title;
+                          _descriptionController.text =
+                              widget.event!.description;
+                          _maxPeopleController.text =
+                              widget.event!.maxPeople.toString();
+                          _musicGenre = widget.event!.genre;
+                          _isPrivate = widget.event! is PrivateEvent;
+                          _startTime = widget.event!.startTime;
+                          _location = widget.event!.location.geoPoint;
+                        }
                       },
                       child: Text(_isEdit ? 'Cancel' : 'Edit'),
                     ),
@@ -235,8 +241,7 @@ class _EventFormState extends ConsumerState<EventForm> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _dateController.dispose();
-    _timeController.dispose();
+    _maxPeopleController.dispose();
     super.dispose();
   }
 
@@ -251,15 +256,30 @@ class _EventFormState extends ConsumerState<EventForm> {
             eventData: EventData(
           title: _titleController.text,
           description: _descriptionController.text,
-          startTime:
-              DateTime.parse(_dateController.text + _timeController.text),
+          startTime: _startTime!,
           genre: _musicGenre!,
           isPrivate: _isPrivate,
-          location: const GeoPoint(0, 0),
-          maxPeople: _maxPeople,
+          location: _location!,
+          maxPeople: int.parse(_maxPeopleController.text),
           creatorId: (creatorId as AuthenticationStateAuthenticated).user.uid,
         ));
+      } else {
+        _eventService.updateEvent(
+          id: widget.event!.id,
+          title: _titleController.text,
+          description: _descriptionController.text,
+          maxPeople: int.parse(_maxPeopleController.text),
+          startTime: _startTime,
+          genre: _musicGenre!,
+          location: _location!,
+        );
       }
+      if (widget.onEventSubmitted != null) {
+        widget.onEventSubmitted!();
+      }
+      setState(() {
+        _isEdit = false;
+      });
     }
   }
 }
