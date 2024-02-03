@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../core/env/env.dart';
 import '../models/map_data.dart';
+import '../utils/coordinates_converter.dart';
 import 'custom_map.dart';
 
 /// A widget to get the information about an address.
@@ -68,19 +69,18 @@ class _AddressFormFieldState extends State<AddressFormField> {
               final point = await _reverseAddress();
               if (!_isMapVisible) {
                 setState(() {
-                  _currentPosition = LatLng(point.latitude, point.longitude);
+                  _currentPosition = toLatLng(point);
                   _isMapVisible = true;
                 });
               } else {
                 setState(() {
-                  _currentPosition = LatLng(point.latitude, point.longitude);
+                  _currentPosition = toLatLng(point);
                 });
                 _mapController.move(
                     _currentPosition, _mapController.camera.zoom);
               }
               if (widget.onPositionChanged != null) {
-                widget.onPositionChanged!(
-                    LatLng(point.latitude, point.longitude));
+                widget.onPositionChanged!(toLatLng(point));
               }
             },
           ),
