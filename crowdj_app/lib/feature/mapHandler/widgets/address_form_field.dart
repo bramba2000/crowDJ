@@ -10,7 +10,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/env/env.dart';
 import '../models/map_data.dart';
 import '../utils/coordinates_converter.dart';
-import 'custom_map.dart';
+import 'dynamic_map.dart';
 
 /// A widget to get the information about an address.
 ///
@@ -89,7 +89,7 @@ class _AddressFormFieldState extends State<AddressFormField> {
           const SizedBox(width: 20, height: 10),
           Container(
             constraints: const BoxConstraints(maxHeight: 400, maxWidth: 580),
-            child: CustomMap(
+            child: DynamicMap(
               mapController: _mapController,
               mapData: MapData.fromCenter(_currentPosition),
             ),

@@ -11,12 +11,12 @@ import '../models/map_data.dart';
 /// It can be used to display a map centered on a specific location or to display
 /// a map with markers. The map can be controlled using a [MapController].
 /// The markers on the map can be provided using a [MapData] object.
-class CustomMap extends StatefulWidget {
+class DynamicMap extends StatefulWidget {
   final LatLng? center;
   final MapData? mapData;
   final MapController? mapController;
   final bool enableMovement;
-  const CustomMap(
+  const DynamicMap(
       {super.key,
       this.center,
       this.mapData,
@@ -25,15 +25,15 @@ class CustomMap extends StatefulWidget {
       : assert(mapData != null || center != null,
             "Either center or mapData must be provided");
 
-  const CustomMap.fromMapData(MapData this.mapData,
+  const DynamicMap.fromMapData(MapData this.mapData,
       {super.key, this.mapController, this.enableMovement = true})
       : center = null;
 
   @override
-  State<CustomMap> createState() => _CustomMapState();
+  State<DynamicMap> createState() => _DynamicMapState();
 }
 
-class _CustomMapState extends State<CustomMap> {
+class _DynamicMapState extends State<DynamicMap> {
   static const double _initialZoom = 13.0;
 
   @override

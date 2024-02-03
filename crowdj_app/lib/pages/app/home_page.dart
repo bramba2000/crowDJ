@@ -1,7 +1,4 @@
 import 'dart:math';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/material.dart';
@@ -13,8 +10,6 @@ import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/widgets/event_display.dart';
-import '../../feature/mapHandler/DynMap.dart';
-import '../../feature/mapHandler/MapModel.dart';
 import '../../feature/auth/data/auth_data_source.dart';
 import '../../feature/auth/data/user_data_source.dart';
 import '../../feature/auth/models/user_props.dart';
@@ -24,7 +19,7 @@ import '../../feature/mapHandler/providers/current_event.dart';
 import '../../feature/mapHandler/providers/position.dart';
 import '../../feature/mapHandler/widgets/user_map.dart';
 import '../../feature/mapHandler/models/map_data.dart';
-import '../../feature/mapHandler/widgets/custom_map.dart';
+import '../../feature/mapHandler/widgets/dynamic_map.dart';
 import 'utils/appBar.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -281,7 +276,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
         Container(
           constraints: BoxConstraints(maxWidth: 600, maxHeight: maxHeigth),
-          child: CustomMap(
+          child: DynamicMap(
             enableMovement: false,
             mapData: MapData.fromSingleEvent(e),
           ),
@@ -378,69 +373,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       const SizedBox(height: 10),
     ]);
-  }
-
-  Widget _djMap(Event e) {
-    return Container(
-      child: FutureBuilder<DynMap>(
-        future: _builDJMap(GeoPoint(e.location.latitude, e.location.longitude)),
-        builder: (BuildContext context, AsyncSnapshot<DynMap> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return SizedBox(
-                height: 100,
-                width: 100,
-                child: Text(
-                    "error occurs while loading the map ${snapshot.error.toString()}"),
-              );
-            } else {
-              return Container(child: snapshot.data);
-            }
-          }
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasError) {
-              return SizedBox(
-                height: 100,
-                width: 100,
-                child: Text(
-                    "----------------- error: ${snapshot.error.toString()} "),
-              );
-            } else {
-              return const Center(
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: CircularProgressIndicator(
-                    semanticsLabel: "Loading ... ",
-                  ),
-                ),
-              );
-            }
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    );
-  }
-
-  Future<DynMap> _builDJMap(GeoPoint eventLocation) async {
-    try {
-      MapModel model = MapModel(g: eventLocation);
-      model.updatePlace(eventLocation);
-      return DynMap(
-        mapModel: model,
-        center: model.getCenter(),
-        mapController: MapController(),
-        zoom: 10,
-      );
-    } on Exception catch (e) {
-      print(e.toString());
-      //MapModel _model = await MapModel.create();
-      throw Error();
-      //return DynMap(mapModel: _model, center: _model.getCenter() , mapController: MapController());
-    }
   }
 }
 
