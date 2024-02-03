@@ -321,7 +321,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    context.go("/event/{${event.id}}",
+                    context.go("/event/${event.id}",
                         extra: EventExtra(event: event, sub: true));
                   },
                   style: ElevatedButton.styleFrom(
@@ -332,7 +332,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   child: Text(
-                    event!.title,
+                    "${event!.title} and ${event!.id}",
                     style: TextStyle(
                         fontSize: 20.0,
                         color:

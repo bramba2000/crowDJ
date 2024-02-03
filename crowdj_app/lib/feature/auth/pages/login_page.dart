@@ -98,8 +98,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
           const SizedBox(height: 20.0),
           TextButton(
-              onPressed: () => context.go('/signin'),
-              child: const Text("Don't have an account? Join us!")),
+            onPressed: () => context.go('/signin'),
+            child: Text(
+              "Don't have an account? Join us!",
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer),
+            ),
+          ),
         ],
       ),
     );
