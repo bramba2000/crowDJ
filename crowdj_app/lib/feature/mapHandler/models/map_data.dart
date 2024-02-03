@@ -60,9 +60,9 @@ class MapData with _$MapData {
       {required List<Event> events,
       List<Event>? subscribedEvents,
       LatLng? center}) {
-    final markers = events.map((e) => _createMarker(e, false)).toList();
+    final markers = events.map((e) => createMarker(e, false)).toList();
     if (subscribedEvents != null) {
-      markers.addAll(subscribedEvents.map(((e) => _createMarker(e, true))));
+      markers.addAll(subscribedEvents.map(((e) => createMarker(e, true))));
     }
     if (center != null) {
       markers.add(_createCenterMarker(center));
@@ -71,7 +71,7 @@ class MapData with _$MapData {
     return MapData._fromMarkers(markers);
   }
 
-  static Marker _createMarker(Event e, bool isSubscribed) => Marker(
+  static Marker createMarker(Event e, bool isSubscribed) => Marker(
         width: _defaultMarkerSize,
         height: _defaultMarkerSize,
         point: LatLng(e.location.latitude, e.location.longitude),
