@@ -62,7 +62,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (watch is AuthenticationStateAuthenticated) {
       _userProps = watch.userProps;
       _userID = watch.user.uid;
-      //print("---user props loaded");
     } else {
       throw ErrorDescription(" impossible to load user props ");
     }
@@ -149,7 +148,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ElevatedButton(
                       onPressed: () {
                         context.go("/newEvent");
-                        print("-> createNewEventPage");
                       },
                       child: const Text("create new event"),
                     )
@@ -311,7 +309,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget eventList() {
-    //print(_myEvents.toString());
     return Column(
       children: [
         for (Event? event in _myEvents)
@@ -332,7 +329,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   child: Text(
-                    "${event!.title} and ${event!.id}",
+                    " ${event!.title} ",
                     style: TextStyle(
                         fontSize: 20.0,
                         color:
