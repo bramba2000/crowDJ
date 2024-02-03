@@ -5,22 +5,20 @@ import '../../auth/models/user_props.dart';
 import '../models/track_metadata.dart';
 import '../services/event_service.dart';
 
-class musicPlayer extends StatefulWidget {
-  
-  String eventId;
-  String userID;
+class MusicPlayer extends StatefulWidget {
+  final String eventId;
+  final String userID;
 
-  musicPlayer({super.key, required this.eventId, required this.userID});
+  const MusicPlayer({super.key, required this.eventId, required this.userID});
 
   @override
-  State<musicPlayer> createState() => _musicPlayerState();
+  State<MusicPlayer> createState() => _MusicPlayerState();
 }
 
-class _musicPlayerState extends State<musicPlayer> {
-
+class _MusicPlayerState extends State<MusicPlayer> {
   late List<TrackMetadata> tracks;
   late Future<List<TrackMetadata>> tracksfuture;
-  int currentTrackIdx=-1;
+  int currentTrackIdx = -1;
   bool isPlaying = false;
 
   final EventService _eventService = EventService();
@@ -32,9 +30,10 @@ class _musicPlayerState extends State<musicPlayer> {
   }
 
   _loadtracks(String eventId) async {
-    tracksfuture= _eventService.getTracksMetadata(eventId);
+    tracksfuture = _eventService.getTracksMetadata(eventId);
     tracks = await tracksfuture;
-    currentTrackIdx = tracks.isNotEmpty && currentTrackIdx == -1 ? 0 : currentTrackIdx;
+    currentTrackIdx =
+        tracks.isNotEmpty && currentTrackIdx == -1 ? 0 : currentTrackIdx;
   }
 
   @override
@@ -46,32 +45,29 @@ class _musicPlayerState extends State<musicPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    
     return FutureBuilder(
-      future: tracksfuture, 
-      builder: (context, snapshot){
-        if(snapshot.hasData){
-          return player();
-        } else if (snapshot.hasError) {
+        future: tracksfuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return player();
+          } else if (snapshot.hasError) {
             return const Text('Unable to retrieve the tracks for this event');
           } else {
             return const Center(child: CircularProgressIndicator());
           }
-      });
+        });
   }
 
-  Widget player(){
-    return Container(
-      child: Column(
-        children: [
-          _albumImage(),
-          const SizedBox(
-            height: 20,
-          ),
-          Text(tracks[currentTrackIdx].name),
-          _player(),
-        ],
-      ),
+  Widget player() {
+    return Column(
+      children: [
+        _albumImage(),
+        const SizedBox(
+          height: 20,
+        ),
+        Text(tracks[currentTrackIdx].name),
+        _player(),
+      ],
     );
   }
 
@@ -94,7 +90,9 @@ class _musicPlayerState extends State<musicPlayer> {
           ),
           onPressed: () {
             setState(() {
-              currentTrackIdx = currentTrackIdx == 0 ? tracks.length - 1 : currentTrackIdx - 1;;
+              currentTrackIdx = currentTrackIdx == 0
+                  ? tracks.length - 1
+                  : currentTrackIdx - 1;
             });
           },
         ),
@@ -118,7 +116,9 @@ class _musicPlayerState extends State<musicPlayer> {
           ),
           onPressed: () {
             setState(() {
-              currentTrackIdx = currentTrackIdx == tracks.length - 1 ? 0 : currentTrackIdx + 1;;
+              currentTrackIdx = currentTrackIdx == tracks.length - 1
+                  ? 0
+                  : currentTrackIdx + 1;
             });
           },
         ),

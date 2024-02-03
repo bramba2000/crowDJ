@@ -32,14 +32,14 @@ class _UserMapState extends State<UserMap> {
 
   Future<void> _loadNearEvents() async {
     try {
-      await widget.eventDataSource
+      widget.eventDataSource
           .getEventsWithinRadius(await MapModel.getCurrentLocation(), _radius)
           .listen((list) {
         // Handle each list as it arrives
         _nearEvents = list;
       });
     } on Exception catch (e) {
-      print(" error!!!!!!!!!!! " + e.toString());
+      print(" error!!!!!!!!!!! $e");
     }
   }
 
@@ -71,7 +71,7 @@ class _UserMapState extends State<UserMap> {
           }
           if (snapshot.connectionState == ConnectionState.active) {
             if (snapshot.hasError) {
-              return Container(
+              return SizedBox(
                 height: 100,
                 width: 100,
                 child: Text(
@@ -108,10 +108,10 @@ class _UserMapState extends State<UserMap> {
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              return Container(
+              return const SizedBox(
                 height: 100,
                 width: 100,
-                child: const Text("error occurs while loading the map"),
+                child: Text("error occurs while loading the map"),
               );
             } else {
               print("----------------- no snapshot errors, returning the map");
@@ -122,11 +122,11 @@ class _UserMapState extends State<UserMap> {
           }
           if (snapshot.connectionState == ConnectionState.active) {
             if (snapshot.hasError) {
-              return Container(
+              return SizedBox(
                 height: 100,
                 width: 100,
                 child: Text(
-                    "----------------- error:" + snapshot.error.toString()),
+                    "----------------- error:${snapshot.error}"),
               );
             } else {
               return const Center(
@@ -175,7 +175,7 @@ class _UserMapState extends State<UserMap> {
             value: _radius,
             min: 1,
             max: 100,
-            label: _radius.toString() + " km ",
+            label: "$_radius km ",
             divisions: 100,
             onChanged: (value) {
               setState(() {

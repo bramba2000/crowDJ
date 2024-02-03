@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'position.g.dart';
 
 @riverpod
-Future<LatLng> _currentPosition(_CurrentPositionRef ref) async {
+Future<LatLng> currentPosition(CurrentPositionRef ref) async {
   Location location = Location();
   bool serviceEnabled = await location.serviceEnabled();
   if (!serviceEnabled) {

@@ -8,7 +8,7 @@ class TracksContainer extends StatefulWidget {
   final String eventId;
   final String userID;
 
-  TracksContainer({super.key, required this.eventId, required this.userID});
+  const TracksContainer({super.key, required this.eventId, required this.userID});
 
   @override
   State<TracksContainer> createState() => _TracksContainerState();
@@ -87,7 +87,7 @@ class _TracksContainerState extends State<TracksContainer> {
                           },
                           background: Container(
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 44, 145, 77),
+                              color: const Color.fromARGB(255, 44, 145, 77),
                               borderRadius: BorderRadius.circular(20.0),
                             ),
                             padding: const EdgeInsets.all(5),
@@ -98,7 +98,7 @@ class _TracksContainerState extends State<TracksContainer> {
                           ),
                           secondaryBackground: Container(
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 44, 53, 143),
+                              color: const Color.fromARGB(255, 44, 53, 143),
                               borderRadius: BorderRadius.circular(20.0),
                             ),
                             padding: const EdgeInsets.all(5),

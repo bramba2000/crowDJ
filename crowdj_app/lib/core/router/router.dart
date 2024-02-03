@@ -39,7 +39,7 @@ GoRouter router(RouterRef ref) {
           GoRoute(
               path: "newEvent",
               pageBuilder: (context, state) {
-                return MaterialPage(
+                return const MaterialPage(
                   child: NewEventPage(),
                 );
               }),

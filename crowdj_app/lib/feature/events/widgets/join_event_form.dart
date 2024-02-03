@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../auth/data/auth_data_source.dart';
+import '../../auth/data/user_data_source.dart';
+import '../../auth/providers/authentication_provider.dart';
+import '../../auth/providers/state/authentication_state.dart';
 import '../models/event_model.dart';
 import '../services/event_service.dart';
 
@@ -18,6 +22,12 @@ class _JoinEventFormState extends ConsumerState<JoinEventForm> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   final TextEditingController _textController = TextEditingController();
   final EventService _eventService = EventService();
+  late final String _userId = ref.read(
+      authNotifierProvider(defaultAuthDataSource, defaultUserDataSource)
+          .select((value) => (switch (value) {
+                AuthenticationStateAuthenticated auth => auth.user.uid,
+                _ => throw Exception("User not authenticated")
+              })));
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +73,8 @@ class _JoinEventFormState extends ConsumerState<JoinEventForm> {
                     final validation = _form.currentState!.validate() ||
                         widget.event is PublicEvent;
                     if (validation) {
-                      _eventService.addParticipant(
-                          widget.event.id, _textController.text,
-                          password: widget.event is PrivateEvent
-                              ? (widget.event as PrivateEvent).password
-                              : null);
+                      _eventService.addParticipant(widget.event.id, _userId,
+                          password: _textController.text);
                       _form.currentState!.reset();
                       GoRouter.of(context).go("/");
                     }

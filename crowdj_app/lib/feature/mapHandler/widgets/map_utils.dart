@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import '../../../core/env/env.dart';
 
-final String endpoint = "https://api.geoapify.com/v1/geocode/search";
+const String endpoint = "https://api.geoapify.com/v1/geocode/search";
 
 fromAddrToCoord(String addr) async {
   if (addr == "") {
