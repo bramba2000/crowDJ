@@ -46,6 +46,7 @@ class _TracksContainerState extends State<TracksContainer> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final tracks = snapshot.data as List<TrackMetadata>;
+            print(widget.eventId);
             return tracks.isEmpty
                 ? const Center(
                     child: Text(
@@ -122,6 +123,7 @@ class _TracksContainerState extends State<TracksContainer> {
                     },
                   );
           } else if (snapshot.hasError) {
+            print(snapshot.error);
             return const Text('Unable to retrieve the tracks for this event');
           } else {
             return const Center(child: CircularProgressIndicator());

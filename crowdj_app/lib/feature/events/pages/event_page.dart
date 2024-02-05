@@ -136,13 +136,6 @@ class _EventPageState extends ConsumerState<EventPage> {
                             ],
                           ),
                         ),
-                        /* Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: 400,
-                          ),
-                          child: MusicPlayer(
-                              eventId: widget.eventId, userID: _userId!),
-                        ), */
                         Container(
                           constraints: const BoxConstraints(
                             maxWidth: 400,
@@ -154,10 +147,11 @@ class _EventPageState extends ConsumerState<EventPage> {
                                 eventId: widget.eventId,
                                 userID: _userId!,
                               ),
-                              if (snapshot.data!.status ==
-                                  EventStatus.upcoming) ...[
+                              if (snapshot.data!.status == EventStatus.upcoming) ...[
                                 _addSongContainer(snapshot.data!),
                               ],
+                              if ( ! widget.isParticipant ) 
+                                const Text(" you can add somngs only if subscribed "),
                             ],
                           ),
                         ),
@@ -332,9 +326,7 @@ class _EventPageState extends ConsumerState<EventPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Flexible(
-                //flex: 3,
                 child: SizedBox(
-                  //width: MediaQuery.of(context).size.width * 0.5,
                   child: TextFormField(
                     controller: songTitle,
                     decoration: const InputDecoration(labelText: 'Song Title'),
@@ -355,8 +347,9 @@ class _EventPageState extends ConsumerState<EventPage> {
           if (_songsSearchRes != null && _songsSearchRes != [])
             for (spotify.Track s in _songsSearchRes!)
               Container(
+                margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent,
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(5.0),
                 ),
                 alignment: Alignment.center,

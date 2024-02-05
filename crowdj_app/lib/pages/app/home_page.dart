@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/router/utils/EventExtra.dart';
-import '../../feature/events/data/events_data_source.dart';
 import '../../feature/events/models/event_model.dart';
 import '../../feature/events/services/event_service.dart';
 import '../../feature/events/widgets/event_display.dart';
@@ -31,7 +30,6 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   //
-  final EventDataSource _eventDataSource = EventDataSource();
   final EventService _eventService = EventService();
 
   final provider =
