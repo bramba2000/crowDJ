@@ -10,4 +10,6 @@ abstract class Env {
   static final String spotifyClientSecret = _Env.spotifyClientSecret;
   @EnviedField(obfuscate: true, varName: 'GEOAPI_TOKEN')
   static final String geoAPIToken = _Env.geoAPIToken;
+  @EnviedField(obfuscate: false)
+  static final String host = _Env.host;
 }

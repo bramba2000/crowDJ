@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:spotify/spotify.dart';
 
 import '../../../core/env/env.dart';
@@ -53,5 +54,24 @@ class SpotifyService {
     final tracks = page.items?.toList();
     if (limit != null) return tracks?.take(limit).toList().cast();
     return tracks?.cast();
+  }
+
+  /// Trigger the authorization flow to authorize a new user with spotify
+  ///
+  /// It will return the authorization url to redirect the user to
+  Future<Uri> createAuthorizationUrl() async {
+    final scopes = [
+      AuthorizationScope.connect.readCurrentlyPlaying,
+      AuthorizationScope.connect.readPlaybackState,
+    ];
+    final credentials = await _spotifyApi.getCredentials();
+    final grant = SpotifyApi.authorizationCodeGrant(credentials);
+    final url = grant.getAuthorizationUrl(
+      kIsWeb
+          ? Uri.parse('${Env.host}/auth.html')
+          : Uri.parse("crowdj://spotify-callback"),
+      scopes: scopes,
+    );
+    return url;
   }
 }
