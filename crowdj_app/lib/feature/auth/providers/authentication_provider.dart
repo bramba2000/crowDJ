@@ -75,4 +75,24 @@ class AuthNotifier extends _$AuthNotifier {
       state = AuthenticationStateUnauthenticated(e);
     }
   }
+
+  Future<void> authenticateWithSpotify() async {
+    try {
+      final User user = firebaseAuth.currentUser!;
+      final UserProps userProps = await userDataSource.getUserProps(user.uid);
+      if (userProps is DjUserProps) {
+        final temp = userProps.copyWith(spotifyAuthenticated: true);
+        await userDataSource.updateUserProps(user.uid, temp);
+        state = AuthenticationStateAuthenticated(
+          user: user,
+          userProps: temp,
+        );
+      } else {
+        state = AuthenticationStateUnauthenticated(
+            Exception('User is not a DJ and cannot authenticate with Spotify'));
+      }
+    } on Exception catch (e) {
+      state = AuthenticationStateUnauthenticated(e);
+    }
+  }
 }

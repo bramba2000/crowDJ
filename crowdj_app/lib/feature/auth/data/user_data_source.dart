@@ -23,6 +23,13 @@ class UserDataSource {
         .set(userProps.toJson());
   }
 
+  Future<void> updateUserProps(String userId, UserProps userProps) async {
+    await _firestore
+        .collection(_userPropsCollection)
+        .doc(userId)
+        .update(userProps.toJson());
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
