@@ -124,7 +124,8 @@ class _EventPageState extends ConsumerState<EventPage> {
                                       )
                                     : EventDisplay(event: snapshot.data!),
                               ),
-                              _joinEventForm(snapshot.data!),
+                              if (_userType == UserType.participant)
+                                _joinEventForm(snapshot.data!),
                             ],
                           ),
                         ),
@@ -393,7 +394,9 @@ class _EventPageState extends ConsumerState<EventPage> {
                             s.name!,
                           ),
                           Text(
-                            s.album!.artists!.map((artist) => artist.name).join(', '),
+                            s.album!.artists!
+                                .map((artist) => artist.name)
+                                .join(', '),
                           ),
                         ],
                       ),
