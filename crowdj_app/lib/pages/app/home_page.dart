@@ -83,9 +83,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           future: _myEventsFuture,
           builder:
               (BuildContext context, AsyncSnapshot<List<Event?>> snapshot) {
-            if (snapshot.hasError) {
-              print(snapshot.error);
-            }
             return switch ((snapshot.connectionState, snapshot.hasError)) {
               (_, true) => const SizedBox(
                   height: 100,
@@ -94,7 +91,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               (ConnectionState.done || ConnectionState.active, false) =>
                 (_userProps.userType == UserType.dj)
-                    ? _desktopDjPage(snapshot.data!)
+                    ? _desktopDjPage()
                     : _mobileUserPage(),
               (_, false) => const Center(
                   child: CircularProgressIndicator(),
@@ -154,7 +151,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     //_mobileUserPage(screenWidth, screenHeight)
   }
 
-  Widget _desktopDjPage(List<Event?> _myEvents) {
+  Widget _desktopDjPage() {
     return Padding(
       padding: const EdgeInsets.all(30),
       child: Container(
@@ -171,115 +168,46 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ElevatedButton(
                     onPressed: () {
                       context.go("/newEvent");
-                      print("-> createNewEventPage");
                     },
                     child: const Text("create new event"),
                   )
                 ],
               ),
             ),
-            Container(
-              //margin: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Center(
-                      child: Text(
-                        "TITLE",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onBackground,
-                        ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Text(
+                      "TITLE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: Center(
-                      child: Text(
-                        "PLACE",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onBackground,
-                        ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Text(
+                      "PLACE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _myEvents.length,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                    margin: const EdgeInsets.all(20),
-                    padding: const EdgeInsets.all(20),
-                    //color: const Color.fromARGB(199, 64, 150, 221),
-                    child: _djEventWrap(_myEvents[index]!),
-                  );
-                },
-              ),
+            const Expanded(
+              child: _DjEventsList(),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  /// Return a wrap widget that contains the event details and the map of
-  /// the event
-  Widget _djEventWrap(Event e) {
-    final double maxHeigth = max(MediaQuery.of(context).size.height * 0.4, 400);
-
-    return Wrap(
-      alignment: WrapAlignment.spaceEvenly,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      direction: Axis.horizontal,
-      children: [
-        Container(
-          constraints: BoxConstraints(maxWidth: 500, maxHeight: maxHeigth),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                EventDisplay(event: e),
-                const SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        context.go("/event/${e.id}",
-                            extra: EventExtra(event: e, sub: true));
-                      },
-                      child: const Text("manage the event"),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Container(
-          constraints: BoxConstraints(maxWidth: 600, maxHeight: maxHeigth),
-          child: DynamicMap(
-            enableMovement: false,
-            mapData: MapData.fromSingleEvent(e),
-          ),
-        )
-      ],
     );
   }
 
@@ -288,7 +216,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       padding: const EdgeInsets.all(20.0),
       child: ListView(
         children: [
-          const _MyEventsList(),
+          const _UserEventsList(),
           const SizedBox(
             height: 10,
           ),
@@ -374,12 +302,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-class _MyEventsList extends ConsumerWidget {
-  const _MyEventsList();
+class _UserEventsList extends ConsumerWidget {
+  const _UserEventsList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Event?> _myEvents = ref.watch(currentEventsProvider);
+    final List<Event?> myEvents = ref.watch(currentEventsProvider);
     return Column(children: [
       const Text(
         "MY EVENTS",
@@ -392,9 +320,9 @@ class _MyEventsList extends ConsumerWidget {
       const SizedBox(
         height: 30,
       ),
-      _myEvents.isEmpty
+      myEvents.isEmpty
           ? const Text("you didn't subscribe to any event")
-          : _eventList(context, _myEvents),
+          : _eventList(context, myEvents),
     ]);
   }
 
@@ -433,6 +361,90 @@ class _MyEventsList extends ConsumerWidget {
         const SizedBox(
           height: 30,
         ),
+      ],
+    );
+  }
+}
+
+class _DjEventsList extends ConsumerWidget {
+  const _DjEventsList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final createdEvents = ref.watch(createdEventsProvider);
+
+    return switch (createdEvents) {
+      AsyncData(value: final events) => ListView.builder(
+          itemCount: events.length,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+              ),
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
+              //color: const Color.fromARGB(199, 64, 150, 221),
+              child: _djEventWrap(context, events[index]),
+            );
+          },
+        ),
+      AsyncError _ => const SizedBox(
+          height: 100,
+          width: 100,
+          child: Text("error occurs while loading the info"),
+        ),
+      _ => const CircularProgressIndicator(),
+    };
+  }
+
+  /// Return a wrap widget that contains the event details and the map of
+  /// the event
+  Widget _djEventWrap(BuildContext context, Event e) {
+    final double maxHeigth = max(MediaQuery.of(context).size.height * 0.4, 400);
+
+    return Wrap(
+      alignment: WrapAlignment.spaceEvenly,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      direction: Axis.horizontal,
+      children: [
+        Container(
+          constraints: BoxConstraints(maxWidth: 500, maxHeight: maxHeigth),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                EventDisplay(event: e),
+                const SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        context.go("/event/${e.id}",
+                            extra: EventExtra(event: e, sub: true));
+                      },
+                      child: const Text("manage the event"),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          constraints: BoxConstraints(maxWidth: 600, maxHeight: maxHeigth),
+          child: DynamicMap(
+            enableMovement: false,
+            mapData: MapData.fromSingleEvent(e),
+          ),
+        )
       ],
     );
   }

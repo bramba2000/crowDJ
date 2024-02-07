@@ -6,7 +6,22 @@ part of 'current_event.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$currentEventsHash() => r'7a9922753a6d428cb4af07b9aef51cddd567a42d';
+String _$createdEventsHash() => r'c692f141cc908773f96378c49cd2c4640fb9169d';
+
+/// See also [createdEvents].
+@ProviderFor(createdEvents)
+final createdEventsProvider = AutoDisposeFutureProvider<List<Event>>.internal(
+  createdEvents,
+  name: r'createdEventsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$createdEventsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef CreatedEventsRef = AutoDisposeFutureProviderRef<List<Event>>;
+String _$currentEventsHash() => r'0c837820ebd379ee5ae2caeca4d440c52a9fa2b6';
 
 /// See also [CurrentEvents].
 @ProviderFor(CurrentEvents)
