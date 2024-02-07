@@ -5,14 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
 import '../../../pages/app/utils/appBar.dart';
-import '../../auth/data/auth_data_source.dart';
-import '../../auth/data/user_data_source.dart';
 import '../../auth/models/user_props.dart';
-import '../../auth/providers/authentication_provider.dart';
-import '../../auth/providers/state/authentication_state.dart';
 
 import 'package:flutter/material.dart';
 
+import '../../auth/providers/utils_auth_provider.dart';
 import '../../mapHandler/providers/current_event.dart';
 import '../data/events_data_source.dart';
 import '../models/event_model.dart';
@@ -27,12 +24,12 @@ import '../widgets/tracks_container.dart';
 class EventPage extends ConsumerStatefulWidget {
   final String eventId;
   final Event? event;
-  final bool isParticipant; // true if the user is already subscribed
+  final bool? isParticipant; // true if the user is already subscribed
   const EventPage({
     super.key,
     required this.eventId,
     this.event,
-    this.isParticipant = false,
+    this.isParticipant,
   });
 
   @override
@@ -41,37 +38,34 @@ class EventPage extends ConsumerStatefulWidget {
 }
 
 class _EventPageState extends ConsumerState<EventPage> {
-  late final String? _userId;
+  late final String _userId;
   late final UserType _userType;
   final EventService _eventService = EventService();
   final SpotifyService _spotifyService = SpotifyService.fromEnvironment();
-  late final Future<Event?> _event =
-      widget.event != null ? Future.value(widget.event) : _loadEvent();
+  late final Future<Event?> _event;
+  late final Future<bool> _isParticipantFuture;
 
   List<spotify.Track>? _songsSearchRes;
 
   Future<Event?> _loadEvent() async =>
       widget.event ?? await _eventService.getEvent(widget.eventId);
 
+  Future<bool> _loadIsParticipant() async =>
+      (await _eventService.getRegisteredEvents(_userId))
+          .contains((await _event));
+
   @override
   void initState() {
     super.initState();
-    final provider = authNotifierProvider(AuthDataSource(), UserDataSource());
-    final result = ref.read(provider.select(
-      (state) => switch (state) {
-        AuthenticationStateAuthenticated auth => (
-            auth.user.uid,
-            auth.userProps.userType
-          ),
-        _ => null,
-      },
-    ));
-    if (result == null) {
-      throw Exception("user not authenticated");
-    } else {
-      _userId = result.$1;
-      _userType = result.$2;
+    _event = widget.event != null ? Future.value(widget.event) : _loadEvent();
+    _userId = ref.read(userIdProvider)!;
+    _userType = ref.read(userPropsProvider)!.userType;
+    if (widget.isParticipant == null) {
+      _isParticipantFuture = _loadIsParticipant();
     }
+    _isParticipantFuture = widget.isParticipant != null
+        ? Future.value(widget.isParticipant)
+        : _loadIsParticipant();
   }
 
   @override
@@ -130,11 +124,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                                       )
                                     : EventDisplay(event: snapshot.data!),
                               ),
-                              if (!widget.isParticipant)
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: JoinEventForm(event: snapshot.data!),
-                                ),
+                              _joinEventForm(snapshot.data!),
                             ],
                           ),
                         ),
@@ -147,15 +137,24 @@ class _EventPageState extends ConsumerState<EventPage> {
                             children: [
                               TracksContainer(
                                 eventId: widget.eventId,
-                                userID: _userId!,
+                                userID: _userId,
                               ),
                               if (snapshot.data!.status ==
                                   EventStatus.upcoming) ...[
                                 _addSongContainer(snapshot.data!),
                               ],
-                              if (!widget.isParticipant)
+                              /* if (!widget.isParticipant)
                                 const Text(
-                                    " you can add somngs only if subscribed "),
+                                    " you can add songs only if subscribed ") */
+                              FutureBuilder(
+                                  future: _isParticipantFuture,
+                                  builder: ((context, snapshot) => snapshot
+                                                  .connectionState ==
+                                              ConnectionState.done &&
+                                          snapshot.data == false
+                                      ? const Text(
+                                          " you can add songs only if subscribed ")
+                                      : const SizedBox())),
                             ],
                           ),
                         ),
@@ -181,6 +180,33 @@ class _EventPageState extends ConsumerState<EventPage> {
               child: Text("the state is null :/"),
             ),
         },
+      ),
+    );
+  }
+
+  Widget _joinEventForm(Event event) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: FutureBuilder(
+            future: _isParticipantFuture,
+            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasError) {
+                return const Text(
+                    "error occurs while checking if the user is subscribed");
+              } else if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.data!) {
+                  return const Text("you are already subscribed to this event");
+                } else {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: JoinEventForm(event: event),
+                  );
+                }
+              } else {
+                return const CircularProgressIndicator();
+              }
+            }),
       ),
     );
   }

@@ -27,10 +27,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late final UserProps _userProps = ref.read(userPropsProvider)!;
 
-  // It is a list of events that the user is registered if [_userProps.userType]
-  // is [UserType.user], otherwise it is a list of events created by the user
-  // late List<Event?> _myEvents;
-
   @override
   void initState() {
     super.initState();
@@ -243,7 +239,7 @@ class _UserEventsList extends ConsumerWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    context.go("/event/{${event.id}}",
+                    context.go("/event/${event.id}",
                         extra: EventExtra(event: event, sub: true));
                   },
                   style: ElevatedButton.styleFrom(
