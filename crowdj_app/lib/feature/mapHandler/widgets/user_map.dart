@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/router/router.dart';
+import '../../../core/router/utils/EventExtra.dart';
 import '../../events/models/event_model.dart';
 import '../../events/services/event_service.dart';
 import '../models/map_data.dart';
@@ -77,13 +79,24 @@ class _UserMapState extends ConsumerState<UserMap> {
                   final events = snapshot.data as List<Event>;
                   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                     ref
-                        .read(currentEventsProvider.notifier)
+                        .read(visibleEventsProvider.notifier)
                         .changeEvents(events);
                   });
-                  return MarkerLayer(
-                      markers: events
-                          .map((e) => MapData.createMarker(e, false))
-                          .toList());
+                  final subscribedEvents =
+                      ref.watch(eventsOfUserProvider).asData?.value ?? [];
+                  final markers = events
+                      .where((e) => !subscribedEvents.contains(e))
+                      .map((e) => MapData.createMarker(e, false, () {
+                            ref.read(routerProvider).push("/event/${e.id}",
+                                extra: EventExtra(event: e, sub: false));
+                          }))
+                      .toList();
+                  markers.addAll(subscribedEvents
+                      .map((e) => MapData.createMarker(e, true, () {
+                            ref.read(routerProvider).push("/event/${e.id}",
+                                extra: EventExtra(event: e, sub: true));
+                          })));
+                  return MarkerLayer(markers: markers);
                 } else if (snapshot.connectionState ==
                     ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

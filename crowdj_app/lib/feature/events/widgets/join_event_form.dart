@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../auth/data/auth_data_source.dart';
-import '../../auth/data/user_data_source.dart';
-import '../../auth/providers/authentication_provider.dart';
-import '../../auth/providers/state/authentication_state.dart';
 import '../../auth/providers/utils_auth_provider.dart';
+import '../../mapHandler/providers/current_event.dart';
 import '../models/event_model.dart';
 import '../services/event_service.dart';
 
@@ -65,14 +62,18 @@ class _JoinEventFormState extends ConsumerState<JoinEventForm> {
               Flexible(
                 flex: 1,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final validation = _form.currentState!.validate() ||
                         widget.event is PublicEvent;
                     if (validation) {
-                      _eventService.addParticipant(widget.event.id, _userId,
+                      await _eventService.addParticipant(
+                          widget.event.id, _userId,
                           password: _textController.text);
                       _form.currentState!.reset();
-                      GoRouter.of(context).go("/");
+                      ref.invalidate(eventsOfUserProvider);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        GoRouter.of(context).go("/");
+                      });
                     }
                   },
                   child: const Text("Join!"),

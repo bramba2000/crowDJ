@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../auth/data/auth_data_source.dart';
-import '../../auth/data/user_data_source.dart';
-import '../../auth/providers/authentication_provider.dart';
 import '../../auth/providers/state/authentication_state.dart';
 import '../../auth/providers/utils_auth_provider.dart';
 import '../../mapHandler/widgets/address_form_field.dart';
@@ -44,7 +41,6 @@ class EventForm extends ConsumerStatefulWidget {
 class _EventFormState extends ConsumerState<EventForm> {
   // ============ Interal fields ============
   final _eventService = EventService();
-  // TODO: move to a global file
   List<String> musicGenres = const [
     'all genres',
     'Rock',

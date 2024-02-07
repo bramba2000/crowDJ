@@ -7,7 +7,7 @@ import '../../events/services/event_service.dart';
 part 'current_event.g.dart';
 
 @riverpod
-class CurrentEvents extends _$CurrentEvents {
+class VisibleEvents extends _$VisibleEvents {
   @override
   List<Event> build() {
     return const [];
@@ -16,10 +16,12 @@ class CurrentEvents extends _$CurrentEvents {
   void changeEvents(List<Event> events) {
     state = events;
   }
+}
 
-  void addEvent(Event event) {
-    state = [...state, event];
-  }
+@riverpod
+Future<List<Event>> eventsOfUser(EventsOfUserRef ref) async {
+  final userId = ref.read(userIdProvider);
+  return EventService().getRegisteredEvents(userId!);
 }
 
 @riverpod

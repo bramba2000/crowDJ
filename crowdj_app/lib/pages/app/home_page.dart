@@ -205,23 +205,31 @@ class _UserEventsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Event?> myEvents = ref.watch(currentEventsProvider);
-    return Column(children: [
-      const Text(
-        "MY EVENTS",
-        style: TextStyle(
-          fontSize: 20,
-          //color: Colors.blueGrey,
-          fontWeight: FontWeight.bold,
+    final myEvents = ref.watch(eventsOfUserProvider);
+    return switch (myEvents) {
+      AsyncData(value: final events) => Column(children: [
+          const Text(
+            "MY EVENTS",
+            style: TextStyle(
+              fontSize: 20,
+              //color: Colors.blueGrey,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          events.isEmpty
+              ? const Text("you didn't subscribe to any event")
+              : _eventList(context, events),
+        ]),
+      AsyncError _ => const SizedBox(
+          height: 100,
+          width: 100,
+          child: Text("error occurs while loading the info"),
         ),
-      ),
-      const SizedBox(
-        height: 30,
-      ),
-      myEvents.isEmpty
-          ? const Text("you didn't subscribe to any event")
-          : _eventList(context, myEvents),
-    ]);
+      _ => const CircularProgressIndicator(),
+    };
   }
 
   Widget _eventList(BuildContext context, List<Event?> myEvents) {

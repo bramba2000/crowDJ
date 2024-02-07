@@ -71,7 +71,9 @@ class MapData with _$MapData {
     return MapData._fromMarkers(markers);
   }
 
-  static Marker createMarker(Event e, bool isSubscribed) => Marker(
+  static Marker createMarker(Event e, bool isSubscribed,
+          [void Function()? onPressed]) =>
+      Marker(
         width: _defaultMarkerSize,
         height: _defaultMarkerSize,
         point: LatLng(e.location.latitude, e.location.longitude),
@@ -79,7 +81,7 @@ class MapData with _$MapData {
           icon: const Icon(Icons.location_on),
           color: isSubscribed ? Colors.green : Colors.red,
           iconSize: _defaultIconSize,
-          onPressed: () {},
+          onPressed: onPressed,
         ),
       );
 

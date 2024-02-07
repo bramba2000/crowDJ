@@ -6,6 +6,20 @@ part of 'current_event.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$eventsOfUserHash() => r'793071053211133c7fbdf686326250da65d72d6b';
+
+/// See also [eventsOfUser].
+@ProviderFor(eventsOfUser)
+final eventsOfUserProvider = AutoDisposeFutureProvider<List<Event>>.internal(
+  eventsOfUser,
+  name: r'eventsOfUserProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$eventsOfUserHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef EventsOfUserRef = AutoDisposeFutureProviderRef<List<Event>>;
 String _$createdEventsHash() => r'20d10f796201110aa1f60781086c4fd4f7ea671b';
 
 /// See also [createdEvents].
@@ -21,21 +35,21 @@ final createdEventsProvider = AutoDisposeFutureProvider<List<Event>>.internal(
 );
 
 typedef CreatedEventsRef = AutoDisposeFutureProviderRef<List<Event>>;
-String _$currentEventsHash() => r'0c837820ebd379ee5ae2caeca4d440c52a9fa2b6';
+String _$visibleEventsHash() => r'd9f156ff08141bc6edaebe82c3c52a121dedb93e';
 
-/// See also [CurrentEvents].
-@ProviderFor(CurrentEvents)
-final currentEventsProvider =
-    AutoDisposeNotifierProvider<CurrentEvents, List<Event>>.internal(
-  CurrentEvents.new,
-  name: r'currentEventsProvider',
+/// See also [VisibleEvents].
+@ProviderFor(VisibleEvents)
+final visibleEventsProvider =
+    AutoDisposeNotifierProvider<VisibleEvents, List<Event>>.internal(
+  VisibleEvents.new,
+  name: r'visibleEventsProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$currentEventsHash,
+      : _$visibleEventsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CurrentEvents = AutoDisposeNotifier<List<Event>>;
+typedef _$VisibleEvents = AutoDisposeNotifier<List<Event>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
