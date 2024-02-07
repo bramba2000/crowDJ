@@ -363,7 +363,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                             s.name!,
                           ),
                           Text(
-                            s.album!.artists.toString(),
+                            s.album!.artists!.map((artist) => artist.name).join(', '),
                           ),
                         ],
                       ),
