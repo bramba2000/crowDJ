@@ -13,5 +13,7 @@ GeoPoint toGeoPoint(LatLng latLng) {
 const _distance = Distance();
 
 double radiusFromBounds(LatLngBounds bounds) {
-  return _distance.as(LengthUnit.Kilometer, bounds.center, bounds.northEast);
+  final as =
+      _distance.as(LengthUnit.Kilometer, bounds.center, bounds.northEast);
+  return as > 0 ? as : 1;
 }
