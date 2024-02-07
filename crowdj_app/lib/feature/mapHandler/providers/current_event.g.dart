@@ -6,7 +6,7 @@ part of 'current_event.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$createdEventsHash() => r'866a8e59bbbfbf28b0459ced4ad654b95f80958b';
+String _$createdEventsHash() => r'20d10f796201110aa1f60781086c4fd4f7ea671b';
 
 /// See also [createdEvents].
 @ProviderFor(createdEvents)

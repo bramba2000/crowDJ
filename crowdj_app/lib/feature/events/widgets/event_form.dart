@@ -246,13 +246,13 @@ class _EventFormState extends ConsumerState<EventForm> {
     super.dispose();
   }
 
-  void _confirmForm() {
+  void _confirmForm() async {
     if (_formKey.currentState!.validate()) {
       if (widget.isCreation) {
         final creatorId = ref.read(userIdProvider);
         assert(creatorId is AuthenticationStateAuthenticated);
 
-        _eventService.createEvent(
+        await _eventService.createEvent(
             eventData: EventData(
           title: _titleController.text,
           description: _descriptionController.text,
@@ -264,7 +264,7 @@ class _EventFormState extends ConsumerState<EventForm> {
           creatorId: (creatorId as AuthenticationStateAuthenticated).user.uid,
         ));
       } else {
-        _eventService.updateEvent(
+        await _eventService.updateEvent(
           id: widget.event!.id,
           title: _titleController.text,
           description: _descriptionController.text,

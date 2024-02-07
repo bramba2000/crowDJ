@@ -1,9 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../auth/data/auth_data_source.dart';
-import '../../auth/data/user_data_source.dart';
-import '../../auth/providers/authentication_provider.dart';
-import '../../auth/providers/state/authentication_state.dart';
 import '../../auth/providers/utils_auth_provider.dart';
 import '../../events/models/event_model.dart';
 import '../../events/services/event_service.dart';
@@ -27,8 +23,8 @@ class CurrentEvents extends _$CurrentEvents {
 }
 
 @riverpod
-Future<List<Event>> createdEvents(CreatedEventsRef ref) {
+Future<List<Event>> createdEvents(CreatedEventsRef ref) async {
   final eventService = EventService();
   final userId = ref.read(userIdProvider);
-  return eventService.getEventsByCreator(userId!);
+  return await eventService.getEventsByCreator(userId!);
 }

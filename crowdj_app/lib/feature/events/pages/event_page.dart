@@ -13,6 +13,7 @@ import '../../auth/providers/state/authentication_state.dart';
 
 import 'package:flutter/material.dart';
 
+import '../../mapHandler/providers/current_event.dart';
 import '../data/events_data_source.dart';
 import '../models/event_model.dart';
 import '../services/event_service.dart';
@@ -117,6 +118,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                                             snapshot.data!.status !=
                                                 EventStatus.past,
                                         onEventSubmitted: () {
+                                          ref.invalidate(createdEventsProvider);
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(
@@ -147,11 +149,13 @@ class _EventPageState extends ConsumerState<EventPage> {
                                 eventId: widget.eventId,
                                 userID: _userId!,
                               ),
-                              if (snapshot.data!.status == EventStatus.upcoming) ...[
+                              if (snapshot.data!.status ==
+                                  EventStatus.upcoming) ...[
                                 _addSongContainer(snapshot.data!),
                               ],
-                              if ( ! widget.isParticipant ) 
-                                const Text(" you can add somngs only if subscribed "),
+                              if (!widget.isParticipant)
+                                const Text(
+                                    " you can add somngs only if subscribed "),
                             ],
                           ),
                         ),

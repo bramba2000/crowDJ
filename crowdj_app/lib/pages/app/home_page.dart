@@ -6,14 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/router/utils/EventExtra.dart';
+import '../../feature/auth/providers/utils_auth_provider.dart';
 import '../../feature/events/models/event_model.dart';
-import '../../feature/events/services/event_service.dart';
 import '../../feature/events/widgets/event_display.dart';
-import '../../feature/auth/data/auth_data_source.dart';
-import '../../feature/auth/data/user_data_source.dart';
 import '../../feature/auth/models/user_props.dart';
-import '../../feature/auth/providers/authentication_provider.dart';
-import '../../feature/auth/providers/state/authentication_state.dart';
 import '../../feature/mapHandler/providers/current_event.dart';
 import '../../feature/mapHandler/providers/position.dart';
 import '../../feature/mapHandler/widgets/user_map.dart';
@@ -29,47 +25,15 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  //
-  final EventService _eventService = EventService();
-
-  final provider =
-      authNotifierProvider(defaultAuthDataSource, defaultUserDataSource);
-  late final UserProps _userProps = ref.read(provider.select((state) {
-    if (state is AuthenticationStateAuthenticated) {
-      return state.userProps;
-    } else {
-      throw ErrorDescription(" impossible to load user props ");
-    }
-  }));
-  late final String _userID = ref.read(provider.select((state) {
-    if (state is AuthenticationStateAuthenticated) {
-      return state.user.uid;
-    } else {
-      throw ErrorDescription(" impossible to load user props ");
-    }
-  }));
-
-  late final Future<List<Event?>> _myEventsFuture;
+  late final UserProps _userProps = ref.read(userPropsProvider)!;
 
   // It is a list of events that the user is registered if [_userProps.userType]
   // is [UserType.user], otherwise it is a list of events created by the user
   // late List<Event?> _myEvents;
 
-  /// Load the events of the user
-  Future<List<Event?>> _loadMyEvents() async {
-    late final List<Event?> eventList;
-    if (_userProps.userType == UserType.dj) {
-      eventList = await _eventService.getEventsByCreator(_userID);
-    } else {
-      eventList = await _eventService.getRegisteredEvents(_userID);
-    }
-    return eventList;
-  }
-
   @override
   void initState() {
     super.initState();
-    _myEventsFuture = _loadMyEvents();
   }
 
   @override
@@ -79,76 +43,10 @@ class _HomePageState extends ConsumerState<HomePage> {
       appBar: CustomAppBar(
         text: "Home page",
       ),
-      body: FutureBuilder(
-          future: _myEventsFuture,
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Event?>> snapshot) {
-            return switch ((snapshot.connectionState, snapshot.hasError)) {
-              (_, true) => const SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Text("error occurs while loading the info"),
-                ),
-              (ConnectionState.done || ConnectionState.active, false) =>
-                (_userProps.userType == UserType.dj)
-                    ? _desktopDjPage()
-                    : _mobileUserPage(),
-              (_, false) => const Center(
-                  child: CircularProgressIndicator(),
-                )
-            };
-          }),
+      body: (_userProps.userType == UserType.dj)
+          ? _desktopDjPage()
+          : _mobileUserPage(),
     );
-    /* return LayoutBuilder(
-      builder: (context, constraints) {
-        return FutureBuilder<List<Event?>>(
-          future: _myEventsFuture,
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Event?>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return const SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Text("error occurs while loading the info"),
-                );
-              } else {
-                if (_userProps.userType == UserType.dj) {
-                  return _desktopDjPage(snapshot.data!);
-                } else {
-                  return _mobileUserPage(snapshot.data!);
-                }
-              }
-            }
-            if (snapshot.connectionState == ConnectionState.active) {
-              if (snapshot.hasError) {
-                return SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: Text(
-                    "----------------- error: ${snapshot.error.toString()}",
-                  ),
-                );
-              } else {
-                return const Center(
-                  child: Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      Text("loading ..."),
-                    ],
-                  ),
-                );
-              }
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-        );
-      },
-    ); */
-
-    //_mobileUserPage(screenWidth, screenHeight)
   }
 
   Widget _desktopDjPage() {
