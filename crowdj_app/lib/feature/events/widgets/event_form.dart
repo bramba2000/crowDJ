@@ -8,6 +8,7 @@ import '../../auth/data/auth_data_source.dart';
 import '../../auth/data/user_data_source.dart';
 import '../../auth/providers/authentication_provider.dart';
 import '../../auth/providers/state/authentication_state.dart';
+import '../../auth/providers/utils_auth_provider.dart';
 import '../../mapHandler/widgets/address_form_field.dart';
 import '../models/event_data.dart';
 import '../models/event_model.dart';
@@ -248,8 +249,7 @@ class _EventFormState extends ConsumerState<EventForm> {
   void _confirmForm() {
     if (_formKey.currentState!.validate()) {
       if (widget.isCreation) {
-        final creatorId = ref.read(
-            authNotifierProvider(defaultAuthDataSource, defaultUserDataSource));
+        final creatorId = ref.read(userIdProvider);
         assert(creatorId is AuthenticationStateAuthenticated);
 
         _eventService.createEvent(

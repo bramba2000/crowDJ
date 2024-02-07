@@ -6,6 +6,7 @@ import '../../auth/data/auth_data_source.dart';
 import '../../auth/data/user_data_source.dart';
 import '../../auth/providers/authentication_provider.dart';
 import '../../auth/providers/state/authentication_state.dart';
+import '../../auth/providers/utils_auth_provider.dart';
 import '../models/event_model.dart';
 import '../services/event_service.dart';
 
@@ -22,12 +23,7 @@ class _JoinEventFormState extends ConsumerState<JoinEventForm> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   final TextEditingController _textController = TextEditingController();
   final EventService _eventService = EventService();
-  late final String _userId = ref.read(
-      authNotifierProvider(defaultAuthDataSource, defaultUserDataSource)
-          .select((value) => (switch (value) {
-                AuthenticationStateAuthenticated auth => auth.user.uid,
-                _ => throw Exception("User not authenticated")
-              })));
+  late final String _userId = ref.read(userIdProvider)!;
 
   @override
   Widget build(BuildContext context) {
