@@ -150,7 +150,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                                 userID: _userId,
                               ),
                               if (snapshot.data!.status ==
-                                  EventStatus.upcoming) ...[
+                                  EventStatus.upcoming && widget.isParticipant! ) ...[
                                 _addSongContainer(snapshot.data!),
                               ],
                               /* if (!widget.isParticipant)
@@ -396,7 +396,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 4,
+                      flex: 5,
                       child: Column(
                         children: [
                           Text(
@@ -411,7 +411,7 @@ class _EventPageState extends ConsumerState<EventPage> {
                       ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Container(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
