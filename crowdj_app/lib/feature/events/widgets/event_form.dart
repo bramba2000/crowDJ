@@ -246,8 +246,6 @@ class _EventFormState extends ConsumerState<EventForm> {
     if (_formKey.currentState!.validate()) {
       if (widget.isCreation) {
         final creatorId = ref.read(userIdProvider);
-        assert(creatorId is AuthenticationStateAuthenticated);
-
         await _eventService.createEvent(
             eventData: EventData(
           title: _titleController.text,
@@ -257,7 +255,7 @@ class _EventFormState extends ConsumerState<EventForm> {
           isPrivate: _isPrivate,
           location: _location!,
           maxPeople: int.parse(_maxPeopleController.text),
-          creatorId: (creatorId as AuthenticationStateAuthenticated).user.uid,
+          creatorId: creatorId!,
         ));
       } else {
         await _eventService.updateEvent(
