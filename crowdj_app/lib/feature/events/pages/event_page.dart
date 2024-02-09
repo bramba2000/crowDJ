@@ -128,6 +128,12 @@ class _EventPageState extends ConsumerState<EventPage> {
                               ),
                               if (_userType == UserType.participant)
                                 _joinEventForm(snapshot.data!),
+                              if (_userType == UserType.dj &&
+                                  snapshot.data! is PrivateEvent) ...[
+                                const Text("This is a private event"),
+                                Text(
+                                    "Access code ${(snapshot.data! as PrivateEvent).password}")
+                              ],
                             ],
                           ),
                         ),
@@ -150,7 +156,8 @@ class _EventPageState extends ConsumerState<EventPage> {
                                 userID: _userId,
                               ),
                               if (snapshot.data!.status ==
-                                  EventStatus.upcoming && widget.isParticipant! ) ...[
+                                      EventStatus.upcoming &&
+                                  widget.isParticipant!) ...[
                                 _addSongContainer(snapshot.data!),
                               ],
                               /* if (!widget.isParticipant)

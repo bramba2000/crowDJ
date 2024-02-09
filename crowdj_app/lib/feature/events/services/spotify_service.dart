@@ -82,7 +82,9 @@ class SpotifyService {
     final grant = SpotifyApi.authorizationCodeGrant(credentials);
     final url = grant.getAuthorizationUrl(
       kIsWeb
-          ? Uri.parse('${const String.fromEnvironment("HOST")}/auth.html')
+          ? kDebugMode
+              ? Uri.parse('${const String.fromEnvironment("HOST")}/auth.html')
+              : Uri.parse('https://crowdj.web.app/auth.html')
           : Uri.parse("crowdj://spotify-callback"),
       scopes: scopes,
     );
