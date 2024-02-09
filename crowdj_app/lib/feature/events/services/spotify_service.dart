@@ -73,8 +73,10 @@ class SpotifyService {
   /// of [SpotifyUserService] with the user's credentials
   Future<SpotifyUserService> createUserService() async {
     final scopes = [
-      AuthorizationScope.connect.readCurrentlyPlaying,
-      AuthorizationScope.connect.readPlaybackState,
+      //...AuthorizationScope.user.all,
+      ...AuthorizationScope.connect.all,
+      ...AuthorizationScope.listen.all,
+      ...AuthorizationScope.playlist.all,
     ];
     final credentials = await _spotifyApi.getCredentials();
     final grant = SpotifyApi.authorizationCodeGrant(credentials);
@@ -169,11 +171,51 @@ class SpotifyUserService extends SpotifyService {
   Future<PlaybackState?> pause() => _spotifyApi.player.pause();
 
   /// Start or resume the current playing track
-  Future<PlaybackState?> resume() => _spotifyApi.player.startOrResume();
+  Future<PlaybackState?> resume() => _spotifyApi.player.resume();
 
   /// Skip to the next track
   Future<PlaybackState?> skipToNext() => _spotifyApi.player.next();
 
   /// Skip to the previous track
   Future<PlaybackState?> skipToPrevious() => _spotifyApi.player.previous();
+
+  /// Load the tracks into the queue and start playing
+  Future<void> addToQueue(List<String> trackIds) async {
+    for (var trackId in trackIds) {
+      await _spotifyApi.player.addToQueue(trackId);
+    }
+  }
+
+  /// Check if a playlist with the given name exists for an event
+  Future<PlaylistSimple?> searchPlaylistByEvent(
+      {required String eventId}) async {
+    final userId = (await _spotifyApi.me.get()).id;
+    final searchResult = _spotifyApi.users.playlists(userId!);
+    try {
+      return (await searchResult.first()).items?.firstWhere(
+          (element) => element.description?.contains(eventId) ?? false);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Create a playlist with the given name and tracks ids
+  Future<Playlist> createPlaylist(
+      {required String name,
+      required List<String> trackIds,
+      required String eventId}) async {
+    final userId = (await _spotifyApi.me.get()).id;
+    final playlist = await _spotifyApi.playlists.createPlaylist(
+        userId!, "$name - CrowDJ event",
+        public: true,
+        collaborative: false,
+        description: 'Playlist created by CrowdJ for event $name ($eventId)');
+    await _spotifyApi.playlists.addTracks(
+        trackIds.map((e) => "spotify:track:$e").toList(), playlist.id!);
+    return playlist;
+  }
+
+  Future<PlaybackState> reproducePlaylist(String playlistUri) async =>
+      (await _spotifyApi.player
+          .startWithContext(playlistUri, offset: PositionOffset(0)))!;
 }

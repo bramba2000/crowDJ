@@ -19,6 +19,7 @@ import '../widgets/event_display.dart';
 import '../widgets/event_form.dart';
 import '../widgets/join_event_form.dart';
 // import '../widgets/music_player.dart';
+import '../widgets/music_player.dart';
 import '../widgets/tracks_container.dart';
 
 class EventPage extends ConsumerStatefulWidget {
@@ -70,6 +71,7 @@ class _EventPageState extends ConsumerState<EventPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(_userType);
     return Scaffold(
       appBar: CustomAppBar(
         text: "EVENT PAGE",
@@ -129,6 +131,13 @@ class _EventPageState extends ConsumerState<EventPage> {
                             ],
                           ),
                         ),
+                        if (_userType == UserType.dj)
+                          Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 400,
+                            ),
+                            child: MusicPlayerWidget(snapshot.data!),
+                          ),
                         Container(
                           constraints: const BoxConstraints(
                             maxWidth: 400,
