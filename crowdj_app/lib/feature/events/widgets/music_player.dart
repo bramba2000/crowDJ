@@ -218,7 +218,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    if (currentTrack != null) _timer.cancel();
     super.dispose();
   }
 }

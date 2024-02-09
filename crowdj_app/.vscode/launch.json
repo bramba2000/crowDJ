@@ -9,7 +9,7 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
-            "args": ["--web-port", "8080"]
+            "args": ["--web-port", "8080", "--dart-define=HOST=http://localhost:8080"]
         },
         {
             "name": "crowdj_app (profile mode)",

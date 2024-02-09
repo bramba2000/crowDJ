@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../auth/providers/state/authentication_state.dart';
 import '../../auth/providers/utils_auth_provider.dart';
 import '../../mapHandler/widgets/address_form_field.dart';
 import '../models/event_data.dart';

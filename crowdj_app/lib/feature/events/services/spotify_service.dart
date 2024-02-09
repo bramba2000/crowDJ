@@ -82,7 +82,7 @@ class SpotifyService {
     final grant = SpotifyApi.authorizationCodeGrant(credentials);
     final url = grant.getAuthorizationUrl(
       kIsWeb
-          ? Uri.parse('${Env.host}/auth.html')
+          ? Uri.parse('${const String.fromEnvironment("HOST")}/auth.html')
           : Uri.parse("crowdj://spotify-callback"),
       scopes: scopes,
     );
@@ -171,7 +171,11 @@ class SpotifyUserService extends SpotifyService {
   Future<PlaybackState?> pause() => _spotifyApi.player.pause();
 
   /// Start or resume the current playing track
-  Future<PlaybackState?> resume() => _spotifyApi.player.resume();
+  Future<PlaybackState?> resume() async {
+    final result = await _spotifyApi.player.currentlyPlaying();
+    return _spotifyApi.player.startWithContext(result.context!.uri!,
+        offset: UriOffset(result.item!.uri!));
+  }
 
   /// Skip to the next track
   Future<PlaybackState?> skipToNext() => _spotifyApi.player.next();
